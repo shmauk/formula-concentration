@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PROTOTYPE: Recipe algorithm check</title>
+<style>
+  :root { --accent: #2f6f8f; --muted: #667; --line: #dde2e6; --warn: #a14a00; }
+  * { box-sizing: border-box; }
+  body { font: 16px/1.5 system-ui, -apple-system, sans-serif; color: #1d2329; max-width: 980px; margin: 0 auto; padding: 32px 20px 64px; }
+  h1 { font-size: 1.5rem; margin: 0 0 4px; }
+  h2 { font-size: 1.1rem; margin: 32px 0 12px; }
+  .tag { display: inline-block; font-size: .75rem; font-weight: 600; letter-spacing: .04em; color: #fff; background: var(--warn); padding: 2px 8px; border-radius: 4px; }
+  .intro { color: var(--muted); max-width: 70ch; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
+  .card { border: 1px solid var(--line); border-radius: 8px; padding: 16px 20px; }
+  label { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 8px 0; }
+  input[type=number] { width: 110px; font: inherit; padding: 4px 8px; border: 1px solid var(--line); border-radius: 4px; text-align: right; }
+  button { font: inherit; padding: 6px 12px; border: 1px solid var(--accent); background: #fff; color: var(--accent); border-radius: 6px; cursor: pointer; margin: 4px 6px 4px 0; }
+  button:hover { background: #eef5f8; }
+  button.primary, button.on { background: var(--accent); color: #fff; }
+  button:disabled { opacity: .4; cursor: default; }
+  table { width: 100%; border-collapse: collapse; }
+  td { padding: 5px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+  td.v { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; padding-left: 12px; }
+  td.n { color: var(--muted); width: 2em; }
+  .result td { font-weight: 600; }
+  .changed { background: #fff6d6; }
+  .delta { font-size: .85rem; color: var(--muted); }
+  .delta.bad { color: var(--warn); font-weight: 600; }
+  .tabs { display: flex; flex-wrap: wrap; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 12px; }
+  .tabs button { border: none; border-bottom: 2px solid transparent; border-radius: 0; margin: 0; }
+  .tabs button.on { background: none; color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+  .step-done { text-decoration: line-through; opacity: .5; }
+  .note { font-size: .9rem; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<span class="tag">PROTOTYPE, throwaway</span>
+<h1>Recipe algorithm check</h1>
+<p class="intro">
+  This page runs the clinician's 8-step Recipe algorithm on real formula labels.
+  <strong>Question:</strong> Step 6 says "use this Displacement and kcal to work out the water required".
+  Does that mean <em>water = Actual kcal ÷ target kcal per mL − Displacement</em> (Reading A)
+  or <em>water = Target volume − Displacement</em> (Reading B)?
+  And what happens at the edges: large scoops, Scoops landing on exactly a whole number, water already a multiple of 5 mL?
+</p>
+
+<div class="grid">
+  <div class="card">
+    <h2 style="margin-top:0">Inputs</h2>
+    <label>Kcal per scoop <input id="k" type="number" step="0.1"></label>
+    <label>Displacement per scoop (mL) <input id="d" type="number" step="0.01"></label>
+    <label>Target volume (mL) <input id="v" type="number" step="5"></label>
+    <label>Target concentration (kcal/30 mL) <input id="c" type="number" step="1"></label>
+
+    <p class="note" style="margin-bottom:4px">Formula presets (from the AU label research, not yet checked against a tin):</p>
+    <button data-preset="nan">NAN OPTIPRO 1 (22.3 kcal, 3.33 mL)</button>
+    <button data-preset="aptamil">Aptamil Gold+ 1 (38.0 kcal, 5 mL)</button>
+    <button data-preset="karicare">Karicare 1 (37.4 kcal, 5 mL)</button>
+
+    <p class="note" style="margin-bottom:4px">How step 6 works out the water:</p>
+    <button data-reading="A">Reading A: from the kcal</button>
+    <button data-reading="B">Reading B: from the Target volume</button>
+
+    <p class="note" style="margin-bottom:4px">Rounding up (steps 3 and 6):</p>
+    <button data-snap="true">Ignore floating-point noise</button>
+    <button data-snap="false">Naive round-up</button>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">Recipe, step by step</h2>
+    <table id="steps"></table>
+    <p class="note" id="changed"></p>
+    <div id="suggestion"></div>
+  </div>
+</div>
+
+<h2>Guided walkthroughs</h2>
+<div class="card">
+  <div class="tabs" id="tabs"></div>
+  <div id="scenario"></div>
+</div>
+
+<script>
+// ---------------------------------------------------------------------------
+// Portable logic: the Recipe algorithm as pure functions. No DOM in here.
+// ---------------------------------------------------------------------------
+const Recipe = (() => {
+  // Snap values within a hair of a whole number before rounding up, so
+  // floating-point noise (e.g. 7.000000000000001) can't add a whole Scoop
+  // or an extra 5 mL of water.
+  const EPSILON = 1e-9;
+  const ceilTo = (x, step, snap) => {
+    const units = x / step;
+    const snapped = snap && Math.abs(units - Math.round(units)) < EPSILON ? Math.round(units) : units;
+    return Math.ceil(snapped) * step;
+  };
+
+  function compute({ kcalPerScoop, displacementPerScoop, targetVolume, targetConcentration }, reading = "A", snap = true) {
+    const kcalPerMl = targetConcentration / 30;                        // 1
+    const kcalNeeded = targetVolume * kcalPerMl;                      // 2
+    const scoopsExact = kcalNeeded / kcalPerScoop;
+    const scoops = ceilTo(scoopsExact, 1, snap);                            // 3
+    const actualKcal = scoops * kcalPerScoop;                         // 4
+    const totalDisplacement = scoops * displacementPerScoop;          // 5
+    const waterExact = reading === "A"
+      ? actualKcal / kcalPerMl - totalDisplacement                    // 6 (A)
+      : targetVolume - totalDisplacement;                             // 6 (B)
+    const water = ceilTo(waterExact, 5, snap);
+    const actualVolume = water + totalDisplacement;                   // 7
+    const actualConcentration = actualKcal / actualVolume * 30;       // 8
+    return { kcalPerMl, kcalNeeded, scoopsExact, scoops, actualKcal, totalDisplacement,
+             waterExact, water, actualVolume, actualConcentration };
+  }
+
+  // Same algorithm from step 4 on, starting from a given whole number of Scoops.
+  function fromScoops(inputs, scoops, snap = true) {
+    const kcalPerMl = inputs.targetConcentration / 30;
+    const actualKcal = scoops * inputs.kcalPerScoop;
+    const totalDisplacement = scoops * inputs.displacementPerScoop;
+    const water = ceilTo(actualKcal / kcalPerMl - totalDisplacement, 5, snap);
+    const actualVolume = water + totalDisplacement;
+    return { scoops, actualKcal, totalDisplacement, water, actualVolume, actualConcentration: actualKcal / actualVolume * 30 };
+  }
+
+  // Suggest one fewer Scoop only when that Recipe's Actual volume is closer to the
+  // Target volume than the main Recipe's, and within 10 mL of the Target volume.
+  const SUGGESTION_WINDOW_ML = 10;
+  function fewerScoopsSuggestion(inputs, main, snap = true) {
+    if (main.scoops <= 1) return null;
+    const alt = fromScoops(inputs, main.scoops - 1, snap);
+    const altGap = Math.abs(alt.actualVolume - inputs.targetVolume);
+    const mainGap = Math.abs(main.actualVolume - inputs.targetVolume);
+    return altGap < mainGap && altGap <= SUGGESTION_WINDOW_ML ? alt : null;
+  }
+
+  return { compute, fewerScoopsSuggestion };
+})();
+
+// ---------------------------------------------------------------------------
+// Throwaway page shell.
+// ---------------------------------------------------------------------------
+const PRESETS = {
+  nan:      { kcalPerScoop: 22.3, displacementPerScoop: 3.33 },
+  aptamil:  { kcalPerScoop: 38.0, displacementPerScoop: 5 },
+  karicare: { kcalPerScoop: 37.4, displacementPerScoop: 5 },
+};
+
+let state = { kcalPerScoop: 22.3, displacementPerScoop: 3.33, targetVolume: 150, targetConcentration: 24, reading: "A", snap: true };
+let previous = null;
+
+const $ = (id) => document.getElementById(id);
+const fmt = (x, dp = 2) => Number.isFinite(x) ? (+x.toFixed(dp)).toString() : "—";
+const pct = (actual, target) => (actual - target) / target * 100;
+
+function set(patch) { previous = state.reading ? { ...state, result: Recipe.compute(state, state.reading, state.snap) } : null; state = { ...state, ...patch }; render(); }
+
+function render() {
+  $("k").value = state.kcalPerScoop; $("d").value = state.displacementPerScoop;
+  $("v").value = state.targetVolume; $("c").value = state.targetConcentration;
+  document.querySelectorAll("[data-reading]").forEach(b => b.classList.toggle("on", b.dataset.reading === state.reading));
+
+  const r = Recipe.compute(state, state.reading, state.snap);
+  document.querySelectorAll("[data-snap]").forEach(b => b.classList.toggle("on", b.dataset.snap === String(state.snap)));
+  const p = previous && previous.result;
+  const volDelta = pct(r.actualVolume, state.targetVolume);
+  const concDelta = r.actualConcentration - state.targetConcentration;
+
+  const rows = [
+    ["1", "Target concentration as kcal per mL", `${fmt(state.targetConcentration)} ÷ 30`, fmt(r.kcalPerMl, 4), "kcalPerMl"],
+    ["2", "Kcal needed", `${fmt(state.targetVolume)} mL × ${fmt(r.kcalPerMl, 4)}`, fmt(r.kcalNeeded), "kcalNeeded"],
+    ["3", "Scoops (rounded up)", `${fmt(r.kcalNeeded)} ÷ ${fmt(state.kcalPerScoop)} = ${fmt(r.scoopsExact, 3)}`, r.scoops, "scoops"],
+    ["4", "Actual kcal", `${r.scoops} × ${fmt(state.kcalPerScoop)}`, fmt(r.actualKcal), "actualKcal"],
+    ["5", "Total Displacement (mL)", `${r.scoops} × ${fmt(state.displacementPerScoop)}`, fmt(r.totalDisplacement), "totalDisplacement"],
+    ["6", "Water (rounded up to 5 mL)", state.reading === "A"
+        ? `${fmt(r.actualKcal)} ÷ ${fmt(r.kcalPerMl, 4)} − ${fmt(r.totalDisplacement)} = ${fmt(r.waterExact)}`
+        : `${fmt(state.targetVolume)} − ${fmt(r.totalDisplacement)} = ${fmt(r.waterExact)}`, `${r.water} mL`, "water"],
+    ["7", "Actual volume", `${r.water} + ${fmt(r.totalDisplacement)}`,
+        `${fmt(r.actualVolume)} mL <div class="delta ${Math.abs(volDelta) > 10 ? "bad" : ""}">${volDelta >= 0 ? "+" : ""}${fmt(volDelta, 1)}% vs target</div>`, "actualVolume"],
+    ["8", "Actual concentration", `${fmt(r.actualKcal)} ÷ ${fmt(r.actualVolume)} × 30`,
+        `${fmt(r.actualConcentration)} kcal/30 mL <div class="delta ${Math.abs(concDelta) > 1 ? "bad" : ""}">${concDelta >= 0 ? "+" : ""}${fmt(concDelta)} vs target</div>`, "actualConcentration"],
+  ];
+
+  const changed = [];
+  $("steps").innerHTML = rows.map(([n, label, working, value, key]) => {
+    const didChange = p && Math.abs(p[key] - r[key]) > 1e-9;
+    if (didChange) changed.push(label.toLowerCase());
+    const isResult = n === "3" || n === "6" || n === "7" || n === "8";
+    return `<tr class="${isResult ? "result" : ""} ${didChange ? "changed" : ""}"><td class="n">${n}</td><td>${label}<div class="note">${working}</div></td><td class="v">${value}</td></tr>`;
+  }).join("");
+  const alt = state.reading === "A" ? Recipe.fewerScoopsSuggestion(state, r, state.snap) : null;
+  $("suggestion").innerHTML = alt
+    ? `<div class="card" style="background:#eef5f8;border-color:var(--accent)"><strong>Suggestion: ${alt.scoops} Scoops + ${alt.water} mL water</strong><br>
+       Makes ${fmt(alt.actualVolume)} mL at ${fmt(alt.actualConcentration)} kcal/30 mL. Closer to your ${fmt(state.targetVolume)} mL, and within 10 mL of it.</div>`
+    : `<p class="note">No fewer-Scoops suggestion: one fewer Scoop would not land closer to the Target volume and within 10 mL of it.</p>`;
+  $("changed").textContent = changed.length ? `Just changed: ${changed.join(", ")}.` : "";
+}
+
+for (const [id, key] of [["k", "kcalPerScoop"], ["d", "displacementPerScoop"], ["v", "targetVolume"], ["c", "targetConcentration"]]) {
+  $(id).addEventListener("change", e => set({ [key]: parseFloat(e.target.value) }));
+}
+document.querySelectorAll("[data-preset]").forEach(b => b.addEventListener("click", () => set(PRESETS[b.dataset.preset])));
+document.querySelectorAll("[data-reading]").forEach(b => b.addEventListener("click", () => set({ reading: b.dataset.reading })));
+document.querySelectorAll("[data-snap]").forEach(b => b.addEventListener("click", () => set({ snap: b.dataset.snap === "true" })));
+
+// Guided walkthroughs ---------------------------------------------------------
+const SCENARIOS = [
+  { name: "NAN, 150 mL at 24",
+    text: "The case from the brief. NAN has small scoops (about 22 kcal each). Watch where the Actual volume and Actual concentration land under each reading of step 6.",
+    start: { ...PRESETS.nan, targetVolume: 150, targetConcentration: 24, reading: "A", snap: true },
+    steps: [["Use Reading A", { reading: "A" }], ["Switch to Reading B", { reading: "B" }], ["Back to Reading A", { reading: "A" }]] },
+  { name: "Aptamil, 150 mL at 24",
+    text: "Nutricia scoops are big (about 38 kcal). Rounding 3.16 Scoops up to 4 adds a lot of energy. Reading A keeps the Concentration on target by making far more than 150 mL. Reading B keeps the volume and overshoots the Concentration.",
+    start: { ...PRESETS.aptamil, targetVolume: 150, targetConcentration: 24, reading: "A", snap: true },
+    steps: [["Use Reading A", { reading: "A" }], ["Switch to Reading B", { reading: "B" }], ["Try a 120 mL bottle instead (Reading A)", { targetVolume: 120, reading: "A" }], ["Try a 180 mL bottle (Reading A)", { targetVolume: 180 }]] },
+  { name: "Standard strength (20)",
+    text: "At normal label strength, does the algorithm reproduce something close to the label's own recipe? Aptamil's label: 1 scoop to 50 mL water ≈ 55 mL.",
+    start: { ...PRESETS.aptamil, targetVolume: 150, targetConcentration: 20, reading: "A", snap: true },
+    steps: [["Aptamil 150 mL at 20", {}], ["Aptamil 165 mL at 20 (3 label scoops' worth)", { targetVolume: 165 }], ["NAN 150 mL at 20", { ...PRESETS.nan, targetVolume: 150 }]] },
+  { name: "Exactly whole Scoops",
+    text: "When the maths lands on exactly a whole Scoop (or an exact multiple of 5 mL of water), rounding up must not add more. But computers store 23 ÷ 30 slightly inexactly: 23 kcal per scoop at 150 mL and 23 kcal/30 mL works out to exactly 5 Scoops, yet the computer gets 5.000000000000001, and a naive round-up makes it 6. The same thing happens to water: 15 kcal, 5 mL, 205 mL at 22 gives 170.00000000000003 mL of water, which naively rounds to 175.",
+    start: { kcalPerScoop: 23, displacementPerScoop: 4, targetVolume: 150, targetConcentration: 23, reading: "A", snap: true },
+    steps: [["Exactly 5 Scoops, noise ignored", {}], ["Same bottle, naive round-up: 6 Scoops", { snap: false }], ["Water trap, naive: 175 mL", { kcalPerScoop: 15, displacementPerScoop: 5, targetVolume: 205, targetConcentration: 22 }], ["Water trap, noise ignored: 170 mL", { snap: true }]] },
+  { name: "Small preterm feed",
+    text: "A small, concentrated feed: 60 mL at 27. With one Scoop being a large share of the bottle, how far does each reading drift?",
+    start: { ...PRESETS.nan, targetVolume: 60, targetConcentration: 27, reading: "A", snap: true },
+    steps: [["NAN, Reading A", { reading: "A" }], ["NAN, Reading B", { reading: "B" }], ["Aptamil, Reading A", { ...PRESETS.aptamil, reading: "A" }]] },
+];
+
+let activeTab = 0, stepIndex = 0;
+function renderTabs() {
+  $("tabs").innerHTML = SCENARIOS.map((s, i) => `<button class="${i === activeTab ? "on" : ""}" data-tab="${i}">${s.name}</button>`).join("");
+  document.querySelectorAll("[data-tab]").forEach(b => b.addEventListener("click", () => startScenario(+b.dataset.tab)));
+  const s = SCENARIOS[activeTab];
+  $("scenario").innerHTML = `<p>${s.text}</p>` + s.steps.map(([label], i) =>
+    `<button data-step="${i}" class="${i === stepIndex ? "primary" : ""} ${i < stepIndex ? "step-done" : ""}" ${i !== stepIndex ? "disabled" : ""}>${i + 1}. ${label}</button>`).join("") +
+    `<button data-restart>Restart</button>`;
+  document.querySelectorAll("[data-step]").forEach(b => b.addEventListener("click", () => { set(s.steps[stepIndex][1]); stepIndex++; renderTabs(); }));
+  document.querySelector("[data-restart]").addEventListener("click", () => startScenario(activeTab));
+}
+function startScenario(i) { activeTab = i; stepIndex = 0; previous = null; state = { ...SCENARIOS[i].start }; render(); renderTabs(); }
+
+startScenario(0);
+</script>
+</body>
+</html>
