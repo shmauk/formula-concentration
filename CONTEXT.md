@@ -45,6 +45,10 @@ _Avoid_: Scoop weight, scoop size
 **Kcal per scoop**:
 The energy in one Scoop of powder, derived from the formula's label.
 
+**Reconstitution statement**:
+The label's statement of how much prepared formula a known amount of powder and water makes, such as "1 scoop + 50 mL water makes approximately 55 mL".
+_Avoid_: Mixing ratio, yield statement
+
 **Displacement**:
 The volume in mL that one Scoop of powder adds to the prepared formula beyond the water it is mixed into.
 _Avoid_: Powder volume, displacement volume
