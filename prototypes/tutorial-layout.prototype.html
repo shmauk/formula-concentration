@@ -8,12 +8,13 @@
   PROTOTYPE, throwaway. Question: what should page 1 (Reading labels) and page 2
   (Building a Recipe) look like on a phone and on a desktop, where do their ad
   slots go, and do they share the calculator's template?
-  Three structurally different variants, switchable via ?variant=A|B|C and the
+  Three structurally different variants, switchable via ?variant=A|B|C|D and the
   floating bar (← → keys also work). ?page=labels|recipe picks the page;
   ?frame=phone|desktop squeezes the page to a 390 px phone width.
   A: the calculator's template (640 px column, sticky 300×600 rail, phone anchor).
   B: docs layout (sticky contents + ad in a left column, tables as formula cards).
   C: follow-along (each step shows its worked example inline, formula tabs).
+  D: C with the calculator's sticky 300×600 rail on desktop.
   Content is from issues #8 and #9; no Astro app exists yet, so this is a
   standalone file rather than a route.
 -->
@@ -111,6 +112,15 @@
 
   /* =================== C: follow-along =================== */
   .c-wrap { padding: 0 20px; max-width: 800px; margin: 0 auto; }
+  .c-main { container-type: inline-size; min-width: 0; }
+  .d-wrap { display: grid; gap: 32px; padding: 0 20px; }
+  .d-wrap .c-pick { margin-left: 0; margin-right: 0; }
+  .d-rail { display: none; }
+  @container (min-width: 900px) {
+    .d-wrap { grid-template-columns: minmax(0, 760px) 300px; justify-content: center; }
+    .d-rail { display: block; }
+    .d-rail .ad { position: sticky; top: 16px; margin-top: 76px; }
+  }
   .c-pick { position: sticky; top: 0; z-index: 4; background: #fff; border-bottom: 1px solid var(--line); padding: 8px 0; margin: 16px -20px 0; padding-left: 20px; padding-right: 20px; display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; font-size: .9rem; }
   .seg { display: inline-flex; border: 1px solid var(--accent); border-radius: 6px; overflow: hidden; }
   .seg button { font: inherit; border: 0; background: #fff; color: var(--accent); padding: 5px 12px; cursor: pointer; }
@@ -157,7 +167,7 @@
 <script>
 const $$ = (s) => [...document.querySelectorAll(s)];
 const params = new URLSearchParams(location.search);
-const VARIANTS = { A: "Calculator template", B: "Docs layout", C: "Follow-along" };
+const VARIANTS = { A: "Calculator template", B: "Docs layout", C: "Follow-along", D: "Follow-along + rail" };
 const KEYS = Object.keys(VARIANTS);
 let variant = KEYS.includes(params.get("variant")) ? params.get("variant") : "A";
 let page = params.get("page") === "recipe" ? "recipe" : "labels";
@@ -329,7 +339,7 @@ function viewB() {
 // examples table, no rail: a leaderboard under the intro, a billboard after
 // the method, and a box at the end.
 // ---------------------------------------------------------------------------
-function viewC() {
+function viewC(rail = false) {
   const c = C();
   const col = c.cols[follow];
   const work = (s) => `<div class="c-work"><span class="eyebrow">${col.name}</span>${s.rows.map((i) => `<div><span style="color:var(--muted)">${c.rows[i][0]}:</span> ${c.rows[i][follow + 1]}</div>`).join("")}</div>`;
@@ -352,18 +362,19 @@ function viewC() {
        <div class="box"><h3>${c.under.title}</h3>${c.under.body}</div>
        <ol class="c-steps"><li class="c-step"><div><h3><span class="n">✓</span>${c.fewer.title}</h3>${stepBody(c.fewer)}</div>${work(c.fewer)}</li></ol>
        ${c.short}${c.prep}`;
-  return chrome(`
-    <div class="c-wrap">
+  const main = `
       <h1>${c.title}</h1><p class="lede">${c.lede}</p>${c.intro}
       ${frame === "phone" ? ad(320, 100, "banner under intro") : ad(728, 90, "leaderboard under intro")}
       ${body}
-      ${frame === "phone" ? ad(300, 250, "after the method") : ad(970, 250, "billboard after the method")}
+      ${frame === "phone" ? ad(300, 250, "after the method") : rail ? ad(336, 280, "after the method") : ad(970, 250, "billboard after the method")}
       <div class="next">${c.next}</div>
-      ${ad(336, 280, "end of page")}
-    </div>`);
+      ${ad(336, 280, "end of page")}`;
+  return chrome(rail
+    ? `<div class="d-wrap"><main class="c-main">${main}</main><aside class="d-rail">${ad(300, 600, "sticky rail, desktop only")}</aside></div>`
+    : `<div class="c-wrap c-main">${main}</div>`);
 }
 
-const VIEWS = { A: viewA, B: viewB, C: viewC };
+const VIEWS = { A: viewA, B: viewB, C: () => viewC(false), D: () => viewC(true) };
 
 // ---------------------------------------------------------------------------
 // Render + prototype switcher
