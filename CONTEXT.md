@@ -29,6 +29,10 @@ _Avoid_: Final volume
 **Actual concentration**:
 The Concentration a Recipe really produces, which may differ from the Target concentration because of rounding.
 
+**Fewer-Scoops suggestion**:
+An alternative Recipe using one fewer Scoop, offered only when its Actual volume is closer to the Target volume and within 10 mL of it.
+_Avoid_: Alternative recipe, option
+
 ### Formula properties
 
 **Scoop**:
