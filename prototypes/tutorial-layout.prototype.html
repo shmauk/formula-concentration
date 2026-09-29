@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PROTOTYPE: Tutorial page layout</title>
+<!--
+  PROTOTYPE, throwaway. Question: what should page 1 (Reading labels) and page 2
+  (Building a Recipe) look like on a phone and on a desktop, where do their ad
+  slots go, and do they share the calculator's template?
+  Three structurally different variants, switchable via ?variant=A|B|C and the
+  floating bar (← → keys also work). ?page=labels|recipe picks the page;
+  ?frame=phone|desktop squeezes the page to a 390 px phone width.
+  A: the calculator's template (640 px column, sticky 300×600 rail, phone anchor).
+  B: docs layout (sticky contents + ad in a left column, tables as formula cards).
+  C: follow-along (each step shows its worked example inline, formula tabs).
+  Content is from issues #8 and #9; no Astro app exists yet, so this is a
+  standalone file rather than a route.
+-->
+<style>
+  :root { --accent: #2f6f8f; --accent-soft: #eef5f8; --muted: #5d6670; --line: #dde2e6; --warn: #9a4400; --warn-bg: #fff4e5; --ad: #f1f1f1; }
+  * { box-sizing: border-box; }
+  html { background: #cfd6db; }
+  body { font: 16px/1.6 system-ui, -apple-system, sans-serif; color: #1d2329; margin: 0; padding: 0 0 90px; }
+  #page { container-type: inline-size; background: #fff; margin: 0 auto; min-height: 100vh; max-width: 1200px; }
+  #page.phone { width: 390px; box-shadow: 0 0 0 1px #9aa4ac, 0 10px 40px rgba(0,0,0,.2); }
+
+  /* ---- shared site chrome (the Astro layout, same as the calculator) ---- */
+  .site { display: flex; flex-wrap: wrap; gap: 4px 18px; align-items: baseline; padding: 12px 20px; border-bottom: 1px solid var(--line); }
+  .site b { color: var(--accent); margin-right: auto; }
+  .site a { color: var(--muted); font-size: .9rem; text-decoration: none; }
+  .site a.here { color: #1d2329; font-weight: 600; }
+  .notice { background: #f6f7f8; border-bottom: 1px solid var(--line); font-size: .85rem; color: var(--muted); padding: 8px 20px; }
+  footer { border-top: 1px solid var(--line); color: var(--muted); font-size: .85rem; padding: 16px 20px; margin-top: 32px; }
+  h1 { font-size: 1.7rem; margin: 20px 0 4px; line-height: 1.2; }
+  h2 { font-size: 1.25rem; margin: 32px 0 8px; line-height: 1.3; }
+  h3 { font-size: 1.02rem; margin: 20px 0 6px; }
+  p { margin: 0 0 12px; }
+  .lede { color: var(--muted); font-size: 1.05rem; }
+  a { color: var(--accent); }
+  .ad { background: var(--ad); border: 1px dashed #b9bec2; color: #8a9096; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: .75rem; text-align: center; margin: 28px auto; max-width: 100%; }
+  .ad::before { content: "Advertisement"; text-transform: uppercase; letter-spacing: .06em; font-size: .65rem; }
+  .formula { background: var(--accent-soft); border-radius: 6px; padding: 8px 12px; font-variant-numeric: tabular-nums; margin: 6px 0 8px; }
+  .formula div + div { margin-top: 2px; }
+  .why { color: var(--muted); font-size: .92rem; }
+  .box { border-left: 4px solid var(--accent); background: #f7fafb; padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 20px 0; }
+  .box h3 { margin-top: 0; }
+  .box.caution { border-color: var(--warn); background: var(--warn-bg); }
+  .source { font-size: .82rem; color: var(--muted); }
+  .num { font-variant-numeric: tabular-nums; }
+  ol.method { padding-left: 1.3em; }
+  ol.method > li { margin-bottom: 18px; }
+  ol.method > li::marker { font-weight: 700; color: var(--accent); }
+  .next { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+  .next a { border: 1px solid var(--accent); border-radius: 6px; padding: 8px 14px; text-decoration: none; }
+  .next a.primary { background: var(--accent); color: #fff; }
+  table.ex { border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: .92rem; width: 100%; }
+  table.ex th, table.ex td { border-bottom: 1px solid var(--line); padding: 7px 10px; text-align: left; vertical-align: top; }
+  table.ex thead th { background: var(--accent-soft); font-size: .88rem; }
+  table.ex thead th small { display: block; font-weight: 400; color: var(--muted); }
+  table.ex tbody th { font-weight: 400; color: var(--muted); }
+  .used { color: #1e6b3a; font-weight: 600; }
+
+  /* =================== A: calculator template =================== */
+  .a-wrap { display: grid; gap: 32px; padding: 0 20px; }
+  .a-rail { display: none; }
+  @container (min-width: 900px) {
+    .a-wrap { grid-template-columns: minmax(0, 640px) 300px; justify-content: center; }
+    .a-rail { display: block; }
+    .a-rail .ad { position: sticky; top: 16px; margin-top: 76px; }
+  }
+  .scroll { overflow-x: auto; margin: 0 -20px; padding: 0 20px; }
+  .scroll table.ex { min-width: 560px; }
+  .scroll table.ex tbody th, .scroll table.ex thead th:first-child { position: sticky; left: 0; background: #fff; box-shadow: 1px 0 0 var(--line); }
+  .scroll table.ex thead th:first-child { background: var(--accent-soft); }
+  .scroll-hint { font-size: .78rem; color: var(--muted); display: none; }
+  @container (max-width: 640px) { .scroll-hint { display: block; } }
+  .anchor { position: sticky; bottom: 0; z-index: 6; background: #fff; box-shadow: 0 -2px 10px rgba(0,0,0,.18); padding: 6px 0; margin-top: 16px; }
+  .anchor .ad { margin: 0 auto; }
+  .anchor .x { position: absolute; top: -22px; right: 10px; height: 22px; padding: 0 10px; border: 0; border-radius: 6px 6px 0 0; background: #fff; box-shadow: 0 -2px 6px rgba(0,0,0,.12); color: var(--muted); cursor: pointer; }
+  @container (min-width: 900px) { .anchor { display: none; } }
+
+  /* =================== B: docs layout =================== */
+  .b-wrap { display: grid; gap: 28px; padding: 0 20px; }
+  .b-side { display: none; }
+  .b-toc-m { border: 1px solid var(--line); border-radius: 8px; padding: 0 14px; margin: 12px 0 0; }
+  .b-toc-m summary { cursor: pointer; padding: 10px 0; font-weight: 600; color: var(--accent); }
+  .toc { list-style: none; padding: 0; margin: 0 0 12px; font-size: .92rem; }
+  .toc li { border-left: 2px solid var(--line); padding: 3px 0 3px 12px; }
+  .toc a { color: var(--muted); text-decoration: none; }
+  .toc .sub { padding-left: 24px; font-size: .86rem; }
+  @container (min-width: 900px) {
+    .b-wrap { grid-template-columns: 260px minmax(0, 700px); justify-content: center; }
+    .b-side { display: block; }
+    .b-side .sticky { position: sticky; top: 16px; padding-top: 24px; }
+    .b-side .ad { margin: 20px 0 0; }
+    .b-toc-m { display: none; }
+    .b-phone-ad { display: none; }
+  }
+  .b-sec { border-top: 1px solid var(--line); margin-top: 28px; }
+  .b-sec:first-of-type { border-top: 0; }
+  .b-sec > h2 { margin-top: 20px; }
+  .cards { display: grid; gap: 14px; }
+  @container (min-width: 700px) { .cards { grid-template-columns: 1fr 1fr; } }
+  .fcard { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; font-variant-numeric: tabular-nums; }
+  .fcard header { background: var(--accent-soft); padding: 10px 14px; font-weight: 700; }
+  .fcard header small { display: block; font-weight: 400; color: var(--muted); }
+  .fcard dl { margin: 0; padding: 4px 14px 10px; }
+  .fcard dt { font-size: .78rem; color: var(--muted); margin-top: 8px; }
+  .fcard dd { margin: 0; font-size: .95rem; }
+
+  /* =================== C: follow-along =================== */
+  .c-wrap { padding: 0 20px; max-width: 800px; margin: 0 auto; }
+  .c-pick { position: sticky; top: 0; z-index: 4; background: #fff; border-bottom: 1px solid var(--line); padding: 8px 0; margin: 16px -20px 0; padding-left: 20px; padding-right: 20px; display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; font-size: .9rem; }
+  .seg { display: inline-flex; border: 1px solid var(--accent); border-radius: 6px; overflow: hidden; }
+  .seg button { font: inherit; border: 0; background: #fff; color: var(--accent); padding: 5px 12px; cursor: pointer; }
+  .seg button.on { background: var(--accent); color: #fff; }
+  .c-steps { list-style: none; padding: 0; margin: 20px 0 0; display: grid; gap: 16px; counter-reset: s; }
+  .c-step { border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; display: grid; gap: 10px 22px; }
+  @container (min-width: 700px) { .c-step { grid-template-columns: 1.1fr 1fr; } }
+  .c-step h3 { margin: 0 0 4px; display: flex; gap: 10px; align-items: center; }
+  .c-step h3 .n { flex: none; display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: #fff; font-size: .85rem; }
+  .c-work { background: #fafbfc; border: 1px dashed #c6d3da; border-radius: 8px; padding: 10px 14px; font-variant-numeric: tabular-nums; font-size: .93rem; align-self: start; }
+  .c-work .eyebrow { text-transform: uppercase; letter-spacing: .06em; font-size: .7rem; color: var(--accent); font-weight: 700; display: block; margin-bottom: 4px; }
+  .c-work div + div { margin-top: 3px; }
+  .c-sum { border: 2px solid var(--accent); border-radius: 10px; padding: 14px 18px; margin-top: 16px; }
+  .c-sum .big { font-size: 1.35rem; font-weight: 700; margin: 2px 0 6px; }
+
+  /* =================== prototype chrome, not part of the design =================== */
+  .proto { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 50; display: flex; gap: 8px; align-items: center; background: #111; color: #fff; padding: 6px 8px; border-radius: 999px; box-shadow: 0 6px 24px rgba(0,0,0,.35); font: 13px/1 system-ui, sans-serif; white-space: nowrap; }
+  .proto button { background: #333; color: #fff; border: 0; border-radius: 999px; padding: 7px 11px; cursor: pointer; }
+  .proto button.on { background: #f0b400; color: #111; }
+  .proto .lbl { padding: 0 6px; font-weight: 600; min-width: 200px; text-align: center; }
+  .proto .sep { width: 1px; height: 20px; background: #444; }
+  body.phone-frame .proto { left: 12px; bottom: auto; top: 50%; transform: translateY(-50%); flex-direction: column; border-radius: 16px; padding: 8px; }
+  body.phone-frame .proto .sep { width: 20px; height: 1px; }
+  body.phone-frame .proto .lbl { min-width: 0; white-space: normal; width: 110px; line-height: 1.3; }
+  .tag { position: fixed; top: 8px; right: 8px; z-index: 50; font: 600 11px system-ui; letter-spacing: .05em; color: #fff; background: #a14a00; padding: 3px 8px; border-radius: 4px; }
+</style>
+</head>
+<body>
+<span class="tag">PROTOTYPE, throwaway</span>
+<div id="page"></div>
+
+<div class="proto">
+  <button id="prev" title="Previous variant (←)">←</button>
+  <span class="lbl" id="vlabel"></span>
+  <button id="next" title="Next variant (→)">→</button>
+  <span class="sep"></span>
+  <button data-page="labels">Reading labels</button>
+  <button data-page="recipe">Building a Recipe</button>
+  <span class="sep"></span>
+  <button data-frame="phone">Phone</button>
+  <button data-frame="desktop">Desktop</button>
+</div>
+
+<script>
+const $$ = (s) => [...document.querySelectorAll(s)];
+const params = new URLSearchParams(location.search);
+const VARIANTS = { A: "Calculator template", B: "Docs layout", C: "Follow-along" };
+const KEYS = Object.keys(VARIANTS);
+let variant = KEYS.includes(params.get("variant")) ? params.get("variant") : "A";
+let page = params.get("page") === "recipe" ? "recipe" : "labels";
+let frame = params.get("frame") === "phone" ? "phone" : "desktop";
+let follow = 0;            // C: which formula the steps follow
+let anchorClosed = false;
+
+const ad = (w, h, note) => `<div class="ad" style="width:${w}px;height:${h}px"><span>${w}×${h}${note ? ` · ${note}` : ""}</span></div>`;
+
+// ---------------------------------------------------------------------------
+// Content (layout-neutral), from issues #8 and #9
+// ---------------------------------------------------------------------------
+const TIN_NOTE = `<p class="source">Label values accessed 29 September 2026. Labels change: check against your tin.</p>`;
+
+const LABELS = {
+  title: "Reading formula labels",
+  lede: "Work out Kcal per scoop and Displacement (and Grams per scoop along the way) from an Australian or New Zealand formula label.",
+  cols: [
+    { name: "NAN OPTIPRO 1", sub: "Nestlé" },
+    { name: "Aptamil Gold+ 1", sub: "Nutricia" },
+  ],
+  rows: [
+    ["Energy per 100 mL", "67 kcal", "69 kcal (pack)"],
+    ["Reconstitution statement", "129 g powder + 900 mL water = 1 L", "1 scoop + 50 mL water ≈ 55 mL"],
+    ["Grams per scoop", "4.3 g", "7.5 g"],
+    ["Scoops", "129 ÷ 4.3 = 30", "1 (given in Scoops)"],
+    ["Displacement", "(1000 − 900) ÷ 30 = <b>3.33 mL</b>", "(55 − 50) ÷ 1 = <b>5.00 mL</b>"],
+    ["Kcal per scoop", "67 × (1000 ÷ 30) ÷ 100 = <b>22.3</b>", "69 × 55 ÷ 100 = <b>38.0</b>"],
+  ],
+  intro: `<p>The calculator needs two numbers for each formula: <b>Kcal per scoop</b> and <b>Displacement</b>. Neither is printed on an Australian or New Zealand label, but both can be worked out from what is.</p>`,
+  find: {
+    title: "What to find on the label",
+    body: `<ul><li><b>Energy per 100 mL</b> of prepared formula, in the nutrition table.</li><li>The <b>Reconstitution statement</b>: how much prepared formula a known amount of powder and water makes.</li><li>The <b>scoop weight</b> (Grams per scoop), usually near the preparation instructions.</li></ul>`,
+    rows: [0, 1, 2],
+  },
+  steps: [
+    { title: "Grams per scoop", f: ["Read it straight off the label: “1 scoop = 7.5 g”, “Average scoop weight = 4.3 g”."], why: "You only need it when the Reconstitution statement gives the powder in grams.", rows: [2] },
+    { title: "Scoops in the Reconstitution statement", f: ["Scoops = grams of powder ÷ Grams per scoop"], why: "Skip this if the statement already counts Scoops.", rows: [3] },
+    { title: "Displacement", f: ["Displacement = (prepared volume − water) ÷ Scoops"], why: "Whatever the prepared volume has on top of the water came from the powder.", rows: [4] },
+    { title: "Kcal per scoop", f: ["Kcal per scoop = kcal per 100 mL × (prepared volume ÷ Scoops) ÷ 100"], why: "Each Scoop makes (prepared volume ÷ Scoops) mL of standard formula, and you know the energy in every 100 mL of it.", rows: [5] },
+  ],
+  notes: `<p><b>Only kJ on the label?</b> kcal = kJ ÷ 4.184.</p><p><b>Precision:</b> keep Kcal per scoop to 1 decimal place and Displacement to 2.</p>`,
+  caution: { title: "“Approximately” statements", body: `<p>Some labels (Nutricia’s, for example) say a Scoop and water make <i>approximately</i> 55 mL. Displacement worked out from them is less certain, about ±1 mL per Scoop.</p>` },
+  next: `<a class="primary" href="#">Next: Building a Recipe →</a><a href="#">Open the calculator</a>`,
+};
+
+const RECIPE = {
+  title: "Building a Recipe",
+  lede: "Make a bottle at a Target concentration by hand, from whole Scoops and water to the nearest 5 mL. The calculator does the same sums.",
+  cols: [
+    { name: "NAN OPTIPRO 1", sub: "150 mL at 24 · 22.3 kcal, 3.33 mL" },
+    { name: "Aptamil Gold+ 1", sub: "150 mL at 24 · 38.0 kcal, 5.00 mL" },
+  ],
+  rows: [
+    ["kcal/mL", "24 ÷ 30 = 0.8", "24 ÷ 30 = 0.8"],
+    ["kcal needed", "150 × 0.8 = 120", "150 × 0.8 = 120"],
+    ["Scoops", "120 ÷ 22.3 = 5.38 → <b>6</b>", "120 ÷ 38.0 = 3.16 → <b>4</b>"],
+    ["Actual kcal", "6 × 22.3 = 133.8", "4 × 38.0 = 152.0"],
+    ["Total Displacement", "6 × 3.33 = 20.0", "4 × 5.00 = 20.0"],
+    ["Water", "133.8 ÷ 0.8 − 20.0 = 147.3 → <b>150 mL</b>", "152.0 ÷ 0.8 − 20.0 = 170.0 → <b>170 mL</b>"],
+    ["Actual volume", "150 + 20.0 = 170.0 mL", "170 + 20.0 = 190.0 mL"],
+    ["Actual concentration", "133.8 ÷ 170.0 × 30 = 23.61", "152.0 ÷ 190.0 × 30 = 24.00"],
+    ["One fewer Scoop", "5 Scoops + 125 mL → 141.7 mL at 23.61: <span class='used'>used</span> (8.3 mL short vs 20 mL over)", "3 Scoops + 130 mL → 145.0 mL at 23.59: <span class='used'>used</span> (5 mL short vs 40 mL over)"],
+  ],
+  results: ["6 Scoops + 150 mL water", "4 Scoops + 170 mL water"],
+  intro: `<p>You need the formula’s <b>Kcal per scoop</b> and <b>Displacement</b>. <a href="#">Reading formula labels</a> shows how to get them.</p>`,
+  steps: [
+    { title: "How many Scoops", f: ["kcal/mL = Target concentration ÷ 30", "kcal needed = Target volume × kcal/mL", "Scoops = kcal needed ÷ Kcal per scoop, <b>rounded up</b>"], why: "You can only use whole Scoops; rounding up makes sure there is enough energy.", rows: [0, 1, 2] },
+    { title: "How much water", f: ["Actual kcal = Scoops × Kcal per scoop", "total Displacement = Scoops × Displacement", "water = Actual kcal ÷ kcal/mL − total Displacement, <b>rounded up to 5 mL</b>"], why: "The powder takes up room too, so the water is what’s left of the volume that dilutes the energy back to target.", rows: [3, 4, 5] },
+    { title: "What you actually get", f: ["Actual volume = water + total Displacement", "Actual concentration = Actual kcal ÷ Actual volume × 30"], why: "Rounding means the bottle isn’t exactly what you asked for; this tells you what it is.", rows: [6, 7] },
+  ],
+  rounding: `<ul><li>Water is rounded to 5 mL because that is the smallest amount you can measure reliably on bottle markings.</li><li>If Scoops comes out exactly whole, don’t round up; the same goes for water already on a 5 mL mark.</li><li>Working is shown to 1 decimal place for kcal and volumes, 2 for Concentration.</li></ul>`,
+  under: { title: "Why is it slightly under?", body: `<p>Rounding Scoops up adds extra energy. The water is sized to dilute that energy back to the target, and rounding the water up to 5 mL dilutes it a little more. So the Actual concentration is always at or just below the Target concentration, and the Actual volume is always at or above the Target volume.</p><p>The calculator warns when the result is 0.5 kcal/30 mL or more below target.</p>` },
+  fewer: { title: "Optional final check: try one fewer Scoop", f: ["Redo “How much water” and “What you actually get” with one fewer Scoop.", "Use it if its Actual volume is <b>closer</b> to the Target volume <b>and within 10 mL</b> of it."], why: "This Recipe can make slightly less than the Target volume. Two fewer is never worth checking: the main Recipe overshoots by less than one Scoop’s worth of volume, so two fewer always lands further away.", rows: [8] },
+  short: `<h3>Short example: no suggestion</h3><p class="num">Aptamil Gold+ 1, 150 mL at 20 → <b>3 Scoops + 160 mL</b> → 175.0 mL at 19.54. One fewer (2 Scoops + 105 mL → 115.0 mL) is 35 mL short, so it isn’t used.</p>`,
+  prep: `<p class="source">This page covers the maths only. For preparation and hygiene, follow the tin’s instructions and your local feeding protocol.</p>`,
+  next: `<a class="primary" href="#">Open the calculator →</a><a href="#">Back: Reading formula labels</a>`,
+};
+
+const C = () => (page === "labels" ? LABELS : RECIPE);
+
+// ---------------------------------------------------------------------------
+// Shared bits
+// ---------------------------------------------------------------------------
+const chrome = (body) => `
+  <header class="site"><b>Formula concentration</b>
+    <a href="#" class="${page === "labels" ? "here" : ""}">Reading labels</a>
+    <a href="#" class="${page === "recipe" ? "here" : ""}">Building a Recipe</a>
+    <a href="#">Calculator</a></header>
+  <div class="notice">For clinicians. Not medical advice: check every Recipe against the prescriber’s instructions.</div>
+  ${body}
+  <footer>Formula concentration · Privacy · About</footer>
+  ${anchorClosed ? "" : `<div class="anchor"><button class="x" data-action="close-anchor" aria-label="Close ad">×</button>${ad(320, 50, "anchor, phone only")}</div>`}`;
+
+const formula = (f) => `<div class="formula">${f.map((l) => `<div>${l}</div>`).join("")}</div>`;
+const stepBody = (s) => `${formula(s.f)}<p class="why">${s.why}</p>`;
+const table = (c, rows) => `<table class="ex"><thead><tr><th></th>${c.cols.map((k) => `<th>${k.name}<small>${k.sub}</small></th>`).join("")}</tr></thead>
+  <tbody>${(rows ?? c.rows.map((_, i) => i)).map((i) => `<tr><th scope="row">${c.rows[i][0]}</th><td>${c.rows[i][1]}</td><td>${c.rows[i][2]}</td></tr>`).join("")}</tbody></table>`;
+const cards = (c) => `<div class="cards">${c.cols.map((k, j) => `<article class="fcard"><header>${k.name}<small>${k.sub}</small></header><dl>${c.rows.map((r) => `<dt>${r[0]}</dt><dd>${r[j + 1]}</dd>`).join("")}</dl></article>`).join("")}</div>`;
+
+// ---------------------------------------------------------------------------
+// A: calculator template. One 640 px column in content order, sticky rail ad on
+// desktop, anchor ad on phones, in-content ads only between top-level sections.
+// Wide tables scroll sideways with the row labels pinned.
+// ---------------------------------------------------------------------------
+function viewA() {
+  const c = C();
+  const method = page === "labels"
+    ? `<h2>${c.find.title}</h2>${c.find.body}
+       <h2>The method</h2><ol class="method">${c.steps.map((s) => `<li><h3>${s.title}</h3>${stepBody(s)}</li>`).join("")}</ol>
+       ${c.notes}<div class="box caution"><h3>${c.caution.title}</h3>${c.caution.body}</div>`
+    : `<h2>The method</h2><ol class="method">${c.steps.map((s) => `<li><h3>${s.title}</h3>${stepBody(s)}</li>`).join("")}</ol>
+       <h3>Rounding</h3>${c.rounding}
+       <div class="box"><h3>${c.under.title}</h3>${c.under.body}</div>
+       <h2>${c.fewer.title}</h2>${stepBody(c.fewer)}`;
+  const examples = `<h2>Worked examples</h2>${page === "recipe" ? `<p>The same target with two formulas: the larger Scoop overshoots the volume more.</p>` : ""}
+    <div class="scroll">${table(c)}</div><p class="scroll-hint">Swipe the table sideways to see both formulas.</p>${TIN_NOTE}
+    ${page === "recipe" ? c.short + c.prep : ""}`;
+  return chrome(`
+    <div class="a-wrap">
+      <main>
+        <h1>${c.title}</h1><p class="lede">${c.lede}</p>${c.intro}
+        ${method}
+        ${ad(336, 280, "in-content, between method and examples")}
+        ${examples}
+        <div class="next">${c.next}</div>
+        ${ad(728, 90, "end of page (responsive)")}
+      </main>
+      <aside class="a-rail">${ad(300, 600, "sticky rail, desktop only")}</aside>
+    </div>`);
+}
+
+// ---------------------------------------------------------------------------
+// B: docs layout. Desktop: left column with sticky "On this page" and a 300×250
+// ad under it; wider 700 px reading column. Phone: collapsed contents at top,
+// 300×250 ads after every other section. Worked examples as one card per formula.
+// ---------------------------------------------------------------------------
+function viewB() {
+  const c = C();
+  const secs = page === "labels"
+    ? [
+        ["find", c.find.title, c.find.body],
+        ["method", "The method", `<ol class="method">${c.steps.map((s) => `<li><h3>${s.title}</h3>${stepBody(s)}</li>`).join("")}</ol>${c.notes}<div class="box caution"><h3>${c.caution.title}</h3>${c.caution.body}</div>`, true],
+        ["examples", "Worked examples", `${cards(c)}${TIN_NOTE}`],
+      ]
+    : [
+        ["method", "The method", `<ol class="method">${c.steps.map((s) => `<li><h3>${s.title}</h3>${stepBody(s)}</li>`).join("")}</ol><h3>Rounding</h3>${c.rounding}`],
+        ["under", c.under.title, c.under.body, true],
+        ["fewer", c.fewer.title, stepBody(c.fewer)],
+        ["examples", "Worked examples", `<p>The same target with two formulas: the larger Scoop overshoots the volume more.</p>${cards(c)}${TIN_NOTE}${c.short}${c.prep}`, true],
+      ];
+  const toc = `<ul class="toc">${secs.map(([id, t]) => `<li><a href="#b-${id}">${t}</a></li>`).join("")}</ul>`;
+  return chrome(`
+    <div class="b-wrap">
+      <aside class="b-side"><div class="sticky"><b style="font-size:.85rem">On this page</b>${toc}${ad(300, 250, "sticky under contents, desktop only")}</div></aside>
+      <main>
+        <h1>${c.title}</h1><p class="lede">${c.lede}</p>${c.intro}
+        <details class="b-toc-m"><summary>On this page</summary>${toc}</details>
+        ${secs.map(([id, t, body, adAfter]) => `<section class="b-sec" id="b-${id}"><h2>${t}</h2>${body}</section>${adAfter ? `<div class="b-phone-ad">${ad(300, 250, "phone, between sections")}</div>` : ""}`).join("")}
+        <div class="next">${c.next}</div>
+        ${ad(728, 90, "end of page (responsive)")}
+      </main>
+    </div>`);
+}
+
+// ---------------------------------------------------------------------------
+// C: follow-along. Each step card carries its own worked example beside the
+// formula; a sticky switch picks which formula the steps follow. No separate
+// examples table, no rail: a leaderboard under the intro, a billboard after
+// the method, and a box at the end.
+// ---------------------------------------------------------------------------
+function viewC() {
+  const c = C();
+  const col = c.cols[follow];
+  const work = (s) => `<div class="c-work"><span class="eyebrow">${col.name}</span>${s.rows.map((i) => `<div><span style="color:var(--muted)">${c.rows[i][0]}:</span> ${c.rows[i][follow + 1]}</div>`).join("")}</div>`;
+  const step = (s, n) => `<li class="c-step"><div><h3><span class="n">${n}</span>${s.title}</h3>${stepBody(s)}</div>${work(s)}</li>`;
+  const pick = `<div class="c-pick">Follow along with:<span class="seg">${c.cols.map((k, j) => `<button data-follow="${j}" class="${j === follow ? "on" : ""}">${k.name}</button>`).join("")}</span><span style="color:var(--muted)">${col.sub}</span></div>`;
+  const body = page === "labels"
+    ? `${pick}
+       <ol class="c-steps">
+         <li class="c-step"><div><h3><span class="n">0</span>${c.find.title}</h3>${c.find.body}</div>${work(c.find)}</li>
+         ${c.steps.map((s, i) => step(s, i + 1)).join("")}
+       </ol>
+       ${c.notes}<div class="box caution"><h3>${c.caution.title}</h3>${c.caution.body}</div>
+       <div class="c-sum"><span class="eyebrow" style="color:var(--accent);font-size:.72rem;font-weight:700;text-transform:uppercase">Result for ${col.name}</span>
+         <div class="big num">${[c.rows[5][follow + 1], c.rows[4][follow + 1]].map((x) => x.split("= ").pop()).join(" kcal per scoop · ")} Displacement</div>${TIN_NOTE}</div>`
+    : `${pick}
+       <ol class="c-steps">${c.steps.map((s, i) => step(s, i + 1)).join("")}</ol>
+       <div class="c-sum"><span class="eyebrow" style="color:var(--accent);font-size:.72rem;font-weight:700;text-transform:uppercase">Recipe for ${col.name}</span>
+         <div class="big">${c.results[follow]}</div><div class="num">${c.rows[6][follow + 1].split("= ").pop()} at ${c.rows[7][follow + 1].split("= ").pop()} kcal/30 mL</div>${TIN_NOTE}</div>
+       <h3>Rounding</h3>${c.rounding}
+       <div class="box"><h3>${c.under.title}</h3>${c.under.body}</div>
+       <ol class="c-steps"><li class="c-step"><div><h3><span class="n">✓</span>${c.fewer.title}</h3>${stepBody(c.fewer)}</div>${work(c.fewer)}</li></ol>
+       ${c.short}${c.prep}`;
+  return chrome(`
+    <div class="c-wrap">
+      <h1>${c.title}</h1><p class="lede">${c.lede}</p>${c.intro}
+      ${frame === "phone" ? ad(320, 100, "banner under intro") : ad(728, 90, "leaderboard under intro")}
+      ${body}
+      ${frame === "phone" ? ad(300, 250, "after the method") : ad(970, 250, "billboard after the method")}
+      <div class="next">${c.next}</div>
+      ${ad(336, 280, "end of page")}
+    </div>`);
+}
+
+const VIEWS = { A: viewA, B: viewB, C: viewC };
+
+// ---------------------------------------------------------------------------
+// Render + prototype switcher
+// ---------------------------------------------------------------------------
+function render() {
+  const el = document.getElementById("page");
+  el.className = frame;
+  document.body.classList.toggle("phone-frame", frame === "phone");
+  el.innerHTML = VIEWS[variant]();
+  document.getElementById("vlabel").textContent = `${variant} (${VARIANTS[variant]})`;
+  $$("[data-frame]").forEach((b) => b.classList.toggle("on", b.dataset.frame === frame));
+  $$("[data-page]").forEach((b) => b.classList.toggle("on", b.dataset.page === page));
+  const url = new URL(location);
+  url.searchParams.set("variant", variant); url.searchParams.set("page", page); url.searchParams.set("frame", frame);
+  history.replaceState(null, "", url);
+}
+document.addEventListener("click", (e) => {
+  const t = e.target.closest("button, a"); if (!t) return;
+  if (t.tagName === "A" && t.getAttribute("href") === "#") e.preventDefault();
+  if (t.dataset.follow) { follow = +t.dataset.follow; render(); }
+  if (t.dataset.action === "close-anchor") { anchorClosed = true; render(); }
+  if (t.dataset.frame) { frame = t.dataset.frame; render(); }
+  if (t.dataset.page) { page = t.dataset.page; render(); scrollTo(0, 0); }
+});
+const cycle = (d) => { variant = KEYS[(KEYS.indexOf(variant) + d + KEYS.length) % KEYS.length]; render(); };
+document.getElementById("prev").onclick = () => cycle(-1);
+document.getElementById("next").onclick = () => cycle(1);
+document.addEventListener("keydown", (e) => {
+  if (e.target.closest("input, textarea, select, [contenteditable]")) return;
+  if (e.key === "ArrowLeft") cycle(-1);
+  if (e.key === "ArrowRight") cycle(1);
+});
+render();
+</script>
+</body>
+</html>
