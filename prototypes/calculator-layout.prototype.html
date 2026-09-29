@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PROTOTYPE: Calculator page layout</title>
+<!--
+  PROTOTYPE, throwaway. Question: what should the calculator page look like on a
+  phone and on a desktop, and where do its ad slots go?
+  Three structurally different variants of the calculator page, switchable via
+  ?variant=A|B|C and the floating bar at the bottom (← → keys also work).
+  ?frame=phone|desktop squeezes the page to a 390 px phone width; ?case= picks a
+  real case so each variant can be seen with a suggestion, a warning, an unusual
+  input and an impossible input.
+  No Astro app exists yet, so this is a standalone file rather than a route; the
+  Recipe module is lifted from prototypes/recipe-algorithm.prototype.html.
+-->
+<style>
+  :root { --accent: #2f6f8f; --accent-soft: #eef5f8; --muted: #5d6670; --line: #dde2e6; --warn: #9a4400; --warn-bg: #fff4e5; --bad: #a3122a; --ad: #f1f1f1; }
+  * { box-sizing: border-box; }
+  html { background: #cfd6db; }
+  body { font: 16px/1.5 system-ui, -apple-system, sans-serif; color: #1d2329; margin: 0; padding: 0 0 90px; }
+  #page { container-type: inline-size; background: #fff; margin: 0 auto; min-height: 100vh; max-width: 1200px; }
+  #page.phone { width: 390px; box-shadow: 0 0 0 1px #9aa4ac, 0 10px 40px rgba(0,0,0,.2); }
+
+  /* ---- shared site chrome (would be the Astro layout) ---- */
+  .site { display: flex; flex-wrap: wrap; gap: 4px 18px; align-items: baseline; padding: 12px 20px; border-bottom: 1px solid var(--line); }
+  .site b { color: var(--accent); margin-right: auto; }
+  .site a { color: var(--muted); font-size: .9rem; text-decoration: none; }
+  .site a.here { color: #1d2329; font-weight: 600; }
+  .notice { background: #f6f7f8; border-bottom: 1px solid var(--line); font-size: .85rem; color: var(--muted); padding: 8px 20px; }
+  footer { border-top: 1px solid var(--line); color: var(--muted); font-size: .85rem; padding: 16px 20px; margin-top: 32px; }
+  h1 { font-size: 1.6rem; margin: 20px 0 4px; line-height: 1.2; }
+  h2 { font-size: 1.05rem; margin: 0 0 10px; }
+  .lede { color: var(--muted); margin: 0 0 16px; }
+  .ad { background: var(--ad); border: 1px dashed #b9bec2; color: #8a9096; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: .75rem; text-align: center; margin: 24px auto; }
+  .ad::before { content: "Advertisement"; text-transform: uppercase; letter-spacing: .06em; font-size: .65rem; }
+  .explain { font-size: .95rem; }
+  .explain p { margin: 0 0 8px; }
+
+  /* ---- shared form bits ---- */
+  .field { display: block; margin: 0 0 14px; }
+  .field .lbl { display: block; font-weight: 600; font-size: .95rem; }
+  .field .hint { display: block; color: var(--muted); font-size: .8rem; }
+  .inwrap { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+  input[type=number] { font: inherit; font-size: 1.05rem; width: 8em; padding: 8px 10px; border: 1px solid #b9c2c9; border-radius: 6px; font-variant-numeric: tabular-nums; }
+  input[type=number]:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .unit { color: var(--muted); font-size: .9rem; }
+  .check { font-size: .82rem; margin-top: 4px; }
+  .check.unusual { color: var(--warn); }
+  .check.impossible { color: var(--bad); font-weight: 600; }
+  .field.is-unusual input { border-color: var(--warn); background: var(--warn-bg); }
+  .field.is-impossible input { border-color: var(--bad); }
+  button { font: inherit; cursor: pointer; }
+  .btn { padding: 8px 14px; border-radius: 6px; border: 1px solid var(--accent); background: var(--accent); color: #fff; }
+  .btn.ghost { background: #fff; color: var(--accent); }
+  .seg { display: inline-flex; border: 1px solid var(--accent); border-radius: 6px; overflow: hidden; margin: 4px 0 12px; }
+  .seg button { border: 0; background: #fff; color: var(--accent); padding: 6px 12px; }
+  .seg button.on { background: var(--accent); color: #fff; }
+  .helper-out { background: var(--accent-soft); border-radius: 6px; padding: 10px 12px; font-size: .9rem; margin: 4px 0 10px; }
+  .helper-out b { font-variant-numeric: tabular-nums; }
+  .warn { background: var(--warn-bg); border-left: 4px solid var(--warn); color: #5b2a00; padding: 8px 12px; font-size: .88rem; border-radius: 0 6px 6px 0; margin-top: 10px; }
+  .num { font-variant-numeric: tabular-nums; }
+  .empty { color: var(--muted); font-style: italic; }
+  .card { border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; }
+
+  /* =================== Variant A: one column, result below, ad rail =================== */
+  .a-wrap { display: grid; gap: 32px; padding: 0 20px; }
+  .a-rail { display: none; }
+  @container (min-width: 900px) {
+    .a-wrap { grid-template-columns: minmax(0, 640px) 300px; justify-content: center; }
+    .a-rail { display: block; }
+    .a-rail .ad { position: sticky; top: 16px; margin-top: 76px; }
+  }
+  .a-form h2 { margin-top: 6px; }
+  .a-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+  .a-fields input[type=number] { width: 100%; min-width: 0; }
+  .lbl-unit { display: none; font-weight: 400; color: var(--muted); }
+  .a-fields .lbl-unit { display: inline; }
+  .a-fields .unit { display: none; }
+  .a-form details { margin: 0 0 18px; border: 1px solid var(--line); border-radius: 8px; padding: 0 14px; }
+  .a-form summary { cursor: pointer; padding: 10px 0; color: var(--accent); font-weight: 600; }
+  .a-result { margin-top: 20px; border: 2px solid var(--accent); }
+  .eyebrow { text-transform: uppercase; letter-spacing: .06em; font-size: .72rem; color: var(--accent); font-weight: 700; }
+  .big { font-size: 1.6rem; line-height: 1.25; margin: 4px 0 14px; }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 0; }
+  .pair dt { font-size: .8rem; color: var(--muted); }
+  .pair dd { margin: 0; font-size: 1.15rem; font-weight: 600; }
+  .pair small { display: block; font-weight: 400; font-size: .8rem; color: var(--muted); }
+  .a-sugg { margin-top: 12px; background: #fafbfc; }
+  .a-sugg p { margin: 0; }
+
+  /* =================== Variant B: two panes, pinned result, label drawer =================== */
+  .b-top { padding: 0 20px; }
+  .b-lb { display: none; }
+  .b-grid { display: grid; gap: 24px; padding: 0 20px; }
+  .b-inputs .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+  .b-inputs input[type=number] { width: 100%; }
+  .b-inputs .grouphead { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .linkbtn { background: none; border: 0; color: var(--accent); padding: 0; text-decoration: underline; font-size: .9rem; }
+  .b-pane { background: #f4f8fa; border-radius: 12px; padding: 18px 20px; }
+  .b-pane .row { display: flex; justify-content: space-between; border-bottom: 1px solid var(--line); padding: 6px 0; }
+  .b-pane .row span:first-child { color: var(--muted); }
+  .b-pane .headline { font-size: 1.35rem; font-weight: 700; margin: 2px 0 10px; line-height: 1.3; }
+  .b-alt { margin-top: 14px; padding-top: 12px; border-top: 2px dotted #b9c7cf; font-size: .92rem; }
+  .b-bar { position: sticky; bottom: 70px; margin: 16px 12px 0; background: #1d2329; color: #fff; border-radius: 10px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: .92rem; box-shadow: 0 4px 16px rgba(0,0,0,.25); z-index: 5; }
+  .b-bar a { color: #9fd3ea; white-space: nowrap; }
+  .drawer-bg { position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 20; display: none; }
+  .drawer { position: fixed; z-index: 21; background: #fff; display: none; padding: 20px; overflow: auto; left: 0; right: 0; bottom: 0; max-height: 85vh; border-radius: 14px 14px 0 0; }
+  .drawer.open, .drawer-bg.open { display: block; }
+  @container (min-width: 900px) {
+    .b-lb { display: flex; }
+    .b-grid { grid-template-columns: minmax(0, 1fr) 360px; align-items: start; }
+    .b-side { position: sticky; top: 16px; }
+    .b-bar { display: none; }
+    .b-mobile-ad { display: none; }
+  }
+  @container (max-width: 899px) { .b-side .ad { display: none; } }
+
+  /* =================== Variant C: numbered steps, tabs, comparison table =================== */
+  .c-wrap { padding: 0 20px; }
+  .c-steps { list-style: none; padding: 0; margin: 0; display: grid; gap: 16px; }
+  .c-step { border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; }
+  .c-step h2 { display: flex; gap: 10px; align-items: center; }
+  .c-step h2 .n { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: #fff; font-size: .85rem; }
+  .tabs { display: flex; border-bottom: 1px solid var(--line); margin-bottom: 14px; }
+  .tabs button { background: none; border: 0; border-bottom: 3px solid transparent; padding: 6px 12px; color: var(--muted); }
+  .tabs button.on { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+  .sentence { font-size: 1.1rem; line-height: 2.4; }
+  .sentence input[type=number] { width: 5.5em; }
+  .cmp { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  .cmp th, .cmp td { padding: 7px 6px; border-bottom: 1px solid var(--line); text-align: right; }
+  .cmp th:first-child, .cmp td:first-child { text-align: left; color: var(--muted); font-weight: 400; }
+  .cmp thead th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+  .cmp .main { background: var(--accent-soft); font-weight: 700; }
+  .cmp .flag { color: var(--warn); }
+  @container (min-width: 900px) {
+    .c-steps { grid-template-columns: 1fr 1fr 1.25fr; align-items: start; }
+  }
+
+  /* =================== prototype chrome, not part of the design =================== */
+  .proto { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 50; display: flex; gap: 8px; align-items: center; background: #111; color: #fff; padding: 6px 8px; border-radius: 999px; box-shadow: 0 6px 24px rgba(0,0,0,.35); font: 13px/1 system-ui, sans-serif; white-space: nowrap; }
+  .proto button { background: #333; color: #fff; border: 0; border-radius: 999px; padding: 7px 11px; }
+  .proto button.on { background: #f0b400; color: #111; }
+  .proto .lbl { padding: 0 6px; font-weight: 600; min-width: 190px; text-align: center; }
+  .proto select { font: inherit; background: #333; color: #fff; border: 0; border-radius: 999px; padding: 6px 8px; }
+  .proto .sep { width: 1px; height: 20px; background: #444; }
+  .tag { position: fixed; top: 8px; right: 8px; z-index: 50; font: 600 11px system-ui; letter-spacing: .05em; color: #fff; background: #a14a00; padding: 3px 8px; border-radius: 4px; }
+</style>
+</head>
+<body>
+<span class="tag">PROTOTYPE, throwaway</span>
+<div id="page"></div>
+
+<div class="proto">
+  <button id="prev" title="Previous variant (←)">←</button>
+  <span class="lbl" id="vlabel"></span>
+  <button id="next" title="Next variant (→)">→</button>
+  <span class="sep"></span>
+  <button data-frame="phone">Phone</button>
+  <button data-frame="desktop">Desktop</button>
+  <span class="sep"></span>
+  <select id="case"></select>
+</div>
+
+<script>
+// ---------------------------------------------------------------------------
+// Recipe maths, lifted from the algorithm prototype (Reading A, snap on).
+// ---------------------------------------------------------------------------
+const Recipe = (() => {
+  const EPSILON = 1e-9;
+  const ceilTo = (x, step) => { const u = x / step; return Math.ceil(Math.abs(u - Math.round(u)) < EPSILON ? Math.round(u) : u) * step; };
+  function fromScoops(i, scoops) {
+    const kcalPerMl = i.targetConcentration / 30;
+    const actualKcal = scoops * i.kcalPerScoop;
+    const totalDisplacement = scoops * i.displacement;
+    const water = ceilTo(actualKcal / kcalPerMl - totalDisplacement, 5);
+    const actualVolume = water + totalDisplacement;
+    return { scoops, water, actualVolume, actualConcentration: actualKcal / actualVolume * 30 };
+  }
+  function compute(i) {
+    const scoops = ceilTo(i.targetVolume * i.targetConcentration / 30 / i.kcalPerScoop, 1);
+    const main = fromScoops(i, scoops);
+    let suggestion = null;
+    if (scoops > 1) {
+      const alt = fromScoops(i, scoops - 1);
+      const altGap = Math.abs(alt.actualVolume - i.targetVolume), mainGap = Math.abs(main.actualVolume - i.targetVolume);
+      if (altGap < mainGap && altGap <= 10) suggestion = alt;
+    }
+    return { main, suggestion };
+  }
+  const underBy = (r, i) => i.targetConcentration - r.actualConcentration;
+  const warns = (r, i) => underBy(r, i) >= 0.5 - EPSILON;
+  return { compute, underBy, warns };
+})();
+
+// Input checks from "Set the calculator's tolerance warning and input bounds".
+const FIELDS = {
+  kcalPerScoop:        { label: "Kcal per scoop", unit: "kcal", step: "0.1", min: 10, max: 50, hint: "Energy in one level Scoop" },
+  displacement:        { label: "Displacement", unit: "mL per Scoop", step: "0.01", min: 1, max: 10, hint: "Volume one Scoop adds" },
+  targetVolume:        { label: "Target volume", unit: "mL", step: "5", min: 20, max: 1000, hint: "How much to make" },
+  targetConcentration: { label: "Target concentration", unit: "kcal/30 mL", step: "1", min: 20, max: 36, hint: "As prescribed" },
+};
+function checkField(name, raw) {
+  const f = FIELDS[name], x = parseFloat(raw);
+  if (raw === "" || raw == null || !Number.isFinite(x)) return { kind: "impossible", msg: "Enter a number." };
+  if (x <= 0) return { kind: "impossible", msg: "Must be more than 0." };
+  if (x < f.min || x > f.max) return { kind: "unusual", msg: `Unusual: typical is ${f.min}–${f.max} ${f.unit}. Double-check this value.` };
+  return null;
+}
+
+const CASES = {
+  nan150:  { label: "NAN 150 mL at 24 (suggestion)",         v: { kcalPerScoop: "22.3", displacement: "3.33", targetVolume: "150", targetConcentration: "24" } },
+  apt150:  { label: "Aptamil 150 mL at 20 (plain)",          v: { kcalPerScoop: "38", displacement: "5", targetVolume: "150", targetConcentration: "20" } },
+  kari120: { label: "Karicare 120 mL at 24 (warning)",       v: { kcalPerScoop: "37.4", displacement: "5", targetVolume: "120", targetConcentration: "24" } },
+  nan60:   { label: "NAN 60 mL at 27 (suggestion warns)",    v: { kcalPerScoop: "22.3", displacement: "3.33", targetVolume: "60", targetConcentration: "27" } },
+  unusual: { label: "Unusual input (kcal 60, conc 40)",      v: { kcalPerScoop: "60", displacement: "5", targetVolume: "150", targetConcentration: "40" } },
+  blank:   { label: "Impossible input (volume blank)",       v: { kcalPerScoop: "22.3", displacement: "3.33", targetVolume: "", targetConcentration: "24" } },
+};
+
+// ---------------------------------------------------------------------------
+// State
+// ---------------------------------------------------------------------------
+const params = new URLSearchParams(location.search);
+const VARIANTS = { A: "Stacked, ad rail", B: "Two panes, pinned result", C: "Numbered steps, comparison" };
+const KEYS = Object.keys(VARIANTS);
+let variant = KEYS.includes(params.get("variant")) ? params.get("variant") : "A";
+let frame = params.get("frame") === "phone" ? "phone" : "desktop";
+let caseKey = CASES[params.get("case")] ? params.get("case") : "nan150";
+let inputs = { ...CASES[caseKey].v };
+let helper = { energy: "67", water: "900", prepared: "1000", mode: "grams", amount: "129", gramsPerScoop: "4.3" };
+let cTab = "values";
+
+const fmt = (x, dp) => (+x.toFixed(dp)).toString();
+const $$ = (sel) => document.querySelectorAll(sel);
+
+// ---------------------------------------------------------------------------
+// Shared building blocks (small pieces only; each variant owns its layout)
+// ---------------------------------------------------------------------------
+const field = (name, { hint = true } = {}) => {
+  const f = FIELDS[name];
+  return `<label class="field" data-wrap="${name}">
+    <span class="lbl">${f.label} <span class="lbl-unit">(${f.unit})</span></span>${hint ? `<span class="hint">${f.hint}</span>` : ""}
+    <span class="inwrap"><input type="number" inputmode="decimal" step="${f.step}" data-field="${name}" value="${inputs[name]}"><span class="unit">${f.unit}</span></span>
+    <div class="check" data-check="${name}"></div>
+  </label>`;
+};
+const inlineInput = (name) => `<input type="number" inputmode="decimal" step="${FIELDS[name].step}" data-field="${name}" value="${inputs[name]}" aria-label="${FIELDS[name].label}">`;
+const ad = (w, h, note) => `<div class="ad" style="width:min(100%, ${w}px);height:${h}px"><span>${w}×${h}${note ? ` · ${note}` : ""}</span></div>`;
+
+function helperForm() {
+  const h = helper, n = (k, label, unit) => `<label class="field"><span class="lbl">${label}</span><span class="inwrap"><input type="number" inputmode="decimal" data-helper="${k}" value="${h[k]}"><span class="unit">${unit}</span></span></label>`;
+  return `
+    ${n("energy", "Energy per 100 mL prepared", "kcal")}
+    <div class="hint" style="margin:-10px 0 12px;font-size:.8rem;color:var(--muted)">Only kJ on the label? Divide by 4.184.</div>
+    <div style="font-size:.9rem;font-weight:600">The label gives powder as:</div>
+    <div class="seg"><button data-hmode="scoops" class="${h.mode === "scoops" ? "on" : ""}">Scoops</button><button data-hmode="grams" class="${h.mode === "grams" ? "on" : ""}">grams</button></div>
+    ${n("amount", h.mode === "grams" ? "Powder" : "Scoops", h.mode === "grams" ? "g" : "Scoops")}
+    ${h.mode === "grams" ? n("gramsPerScoop", "Grams per scoop", "g") : ""}
+    ${n("water", "Water", "mL")}
+    ${n("prepared", "Makes (prepared volume)", "mL")}
+    <div class="helper-out" data-out="helper"></div>
+    <button class="btn" data-action="use-helper">Use these values</button>`;
+}
+function helperResult() {
+  const h = Object.fromEntries(Object.entries(helper).map(([k, v]) => [k, parseFloat(v)]));
+  const scoops = helper.mode === "grams" ? h.amount / h.gramsPerScoop : h.amount;
+  const displacement = (h.prepared - h.water) / scoops;
+  const kcalPerScoop = h.energy * (h.prepared / scoops) / 100;
+  if (![scoops, displacement, kcalPerScoop].every(Number.isFinite) || scoops <= 0) return null;
+  return { scoops, displacement: fmt(displacement, 2), kcalPerScoop: fmt(kcalPerScoop, 1) };
+}
+
+// ---------------------------------------------------------------------------
+// Result renderers (per variant) keyed by data-out
+// ---------------------------------------------------------------------------
+const concWarn = (r, label = "") => Recipe.warns(r, num()) ? `<div class="warn"><b>${label}${fmt(Recipe.underBy(r, num()), 2)} kcal/30 mL below target.</b> Rounding to whole Scoops and 5 mL of water leaves this ${label ? "Recipe" : "Recipe"} noticeably weaker than prescribed. Check it's acceptable.</div>` : "";
+const num = () => Object.fromEntries(Object.entries(inputs).map(([k, v]) => [k, parseFloat(v)]));
+const valid = () => Object.keys(FIELDS).every(k => checkField(k, inputs[k])?.kind !== "impossible");
+const EMPTY = `<p class="empty">Fill in all four values to see a Recipe.</p>`;
+
+const OUT = {
+  helper: () => { const r = helperResult(); return r ? `${helper.mode === "grams" ? `${fmt(r.scoops, 2)} Scoops · ` : ""}Kcal per scoop <b>${r.kcalPerScoop}</b> · Displacement <b>${r.displacement} mL</b>` : "Fill in all label values."; },
+
+  // A: big headline card, then a quieter suggestion card
+  aResult: () => {
+    if (!valid()) return `<div class="eyebrow">Recipe</div>${EMPTY}`;
+    const i = num(), { main } = Recipe.compute(i);
+    return `<div class="eyebrow">Recipe</div>
+      <p class="big"><b>${main.scoops}</b> level Scoops + <b>${main.water} mL</b> water</p>
+      <dl class="pair">
+        <div><dt>Actual volume</dt><dd class="num">${fmt(main.actualVolume, 1)} mL<small>Target ${i.targetVolume} mL</small></dd></div>
+        <div><dt>Actual concentration</dt><dd class="num">${fmt(main.actualConcentration, 2)}<small>Target ${i.targetConcentration} kcal/30 mL</small></dd></div>
+      </dl>${concWarn(main)}`;
+  },
+  aSugg: () => {
+    if (!valid()) return "";
+    const i = num(), { suggestion: s } = Recipe.compute(i);
+    return s ? `<div class="card a-sugg"><div class="eyebrow" style="color:var(--muted)">Try one fewer Scoop</div>
+      <p><b>${s.scoops} Scoops + ${s.water} mL water</b> makes <span class="num">${fmt(s.actualVolume, 1)} mL at ${fmt(s.actualConcentration, 2)}</span> kcal/30 mL, closer to your ${i.targetVolume} mL.</p>${concWarn(s)}</div>` : "";
+  },
+
+  // B: dense key/value pane plus a compact sticky bar on phones
+  bPane: () => {
+    if (!valid()) return `<div class="eyebrow">Recipe</div>${EMPTY}`;
+    const i = num(), { main, suggestion: s } = Recipe.compute(i);
+    return `<div class="eyebrow">Recipe</div>
+      <div class="headline">${main.scoops} Scoops + ${main.water} mL water</div>
+      <div class="row"><span>Actual volume</span><span class="num"><b>${fmt(main.actualVolume, 1)} mL</b> / target ${i.targetVolume}</span></div>
+      <div class="row"><span>Actual concentration</span><span class="num"><b>${fmt(main.actualConcentration, 2)}</b> / target ${i.targetConcentration}</span></div>
+      ${concWarn(main)}
+      ${s ? `<div class="b-alt"><b>Closer to ${i.targetVolume} mL:</b> ${s.scoops} Scoops + ${s.water} mL water → <span class="num">${fmt(s.actualVolume, 1)} mL at ${fmt(s.actualConcentration, 2)}</span>${concWarn(s)}</div>` : ""}`;
+  },
+  bBar: () => {
+    if (!valid()) return `<span>Fill in all four values</span>`;
+    const i = num(), { main, suggestion: s } = Recipe.compute(i);
+    return `<span><b>${main.scoops} Scoops + ${main.water} mL</b> · ${fmt(main.actualConcentration, 2)}${Recipe.warns(main, i) ? " ⚠" : ""}${s ? " · 1 suggestion" : ""}</span><a href="#b-result">Details ↓</a>`;
+  },
+
+  // C: target / Recipe / Fewer-Scoops side by side in one table
+  cTable: () => {
+    if (!valid()) return EMPTY;
+    const i = num(), { main, suggestion: s } = Recipe.compute(i);
+    const cols = [["Target", null], ["Recipe", main], ...(s ? [["1 fewer Scoop", s]] : [])];
+    const cell = (r, f) => r ? f(r) : "—";
+    const flag = (r) => r && Recipe.warns(r, i) ? ` class="flag"` : "";
+    return `<table class="cmp">
+      <thead><tr><th></th>${cols.map(([h]) => `<th>${h}</th>`).join("")}</tr></thead>
+      <tbody>
+        <tr><td>Scoops</td><td>—</td>${cols.slice(1).map(([, r], k) => `<td class="${k ? "" : "main"}">${r.scoops}</td>`).join("")}</tr>
+        <tr><td>Water</td><td>—</td>${cols.slice(1).map(([, r], k) => `<td class="${k ? "" : "main"}">${r.water} mL</td>`).join("")}</tr>
+        <tr><td>Volume</td><td>${i.targetVolume} mL</td>${cols.slice(1).map(([, r]) => `<td>${fmt(r.actualVolume, 1)} mL</td>`).join("")}</tr>
+        <tr><td>kcal/30 mL</td><td>${i.targetConcentration}</td>${cols.slice(1).map(([, r]) => `<td${flag(r)}>${fmt(r.actualConcentration, 2)}${Recipe.warns(r, i) ? " ⚠" : ""}</td>`).join("")}</tr>
+      </tbody></table>
+      ${concWarn(main, "Recipe: ")}${s ? concWarn(s, "1 fewer Scoop: ") : ""}
+      ${s ? `<p style="font-size:.85rem;color:var(--muted);margin:10px 0 0">One fewer Scoop lands closer to your Target volume. Either works; pick one.</p>` : ""}`;
+  },
+  cChecks: () => ["targetVolume", "targetConcentration"].map(k => { const c = checkField(k, inputs[k]); return c ? `<div class="check ${c.kind}">${FIELDS[k].label}: ${c.msg}</div>` : ""; }).join(""),
+};
+
+// ---------------------------------------------------------------------------
+// Variants: each owns its whole page layout
+// ---------------------------------------------------------------------------
+const chrome = (body) => `
+  <header class="site"><b>Formula Concentration</b><a href="#">Reading labels</a><a href="#">Building a Recipe</a><a class="here" href="#">Calculator</a></header>
+  <div class="notice">For clinicians. Not medical advice: always check a Recipe against the prescriber's instructions. <i>(wording TBD)</i></div>
+  ${body}
+  <footer>Privacy policy · About · Values from AU/NZ labels; check against your tin.</footer>`;
+const explainer = `<section class="explain"><h2>How this works</h2>
+  <p>The calculator rounds Scoops up so there's enough energy, then sizes the water to the nearest 5 mL. The result is at or slightly under the Target concentration.</p>
+  <p>Learn the method by hand in <a href="#">Building a Recipe</a>, and how to get Kcal per scoop and Displacement in <a href="#">Reading labels</a>.</p></section>`;
+
+const VIEWS = {
+  A: () => chrome(`
+    <div class="a-wrap">
+      <main>
+        <h1>Formula calculator</h1>
+        <p class="lede">Three steps: the formula, the bottle, the Recipe.</p>
+        <section class="card a-form">
+          <h2>Formula</h2>
+          <div class="a-fields">${field("kcalPerScoop")}${field("displacement")}</div>
+          <details><summary>Don't know these? Work them out from the label</summary>${helperForm()}<div style="height:14px"></div></details>
+          <h2>Bottle</h2>
+          <div class="a-fields">${field("targetVolume")}${field("targetConcentration")}</div>
+        </section>
+        <section class="card a-result" data-out="aResult"></section>
+        <div data-out="aSugg"></div>
+        ${ad(336, 280, "in-content, below result")}
+        ${explainer}
+        ${ad(728, 90, "end of page")}
+      </main>
+      <aside class="a-rail">${ad(300, 600, "sticky rail, desktop only")}</aside>
+    </div>`),
+
+  B: () => chrome(`
+    <div class="b-top">
+      <div class="b-lb">${ad(728, 90, "leaderboard, desktop only")}</div>
+      <h1>Formula calculator</h1>
+      <p class="lede">Results update as you type.</p>
+    </div>
+    <div class="b-grid">
+      <section class="b-inputs">
+        <div class="grouphead"><h2>Formula</h2><button class="linkbtn" data-action="open-drawer">From the label…</button></div>
+        <div class="grid2">${field("kcalPerScoop", { hint: false })}${field("displacement", { hint: false })}</div>
+        <h2>Bottle</h2>
+        <div class="grid2">${field("targetVolume", { hint: false })}${field("targetConcentration", { hint: false })}</div>
+      </section>
+      <aside class="b-side">
+        <div class="b-pane" id="b-result" data-out="bPane"></div>
+        ${ad(300, 250, "under result, desktop")}
+      </aside>
+    </div>
+    <div class="b-bar" data-out="bBar"></div>
+    <div style="padding:0 20px">
+      <div class="b-mobile-ad">${ad(300, 250, "after result, phone")}</div>
+      ${explainer}
+    </div>
+    <div class="drawer-bg" data-action="close-drawer"></div>
+    <div class="drawer" id="drawer"><div style="display:flex;justify-content:space-between;align-items:center"><h2 style="margin:0">From the label</h2><button class="linkbtn" data-action="close-drawer">Close</button></div><p class="lede" style="font-size:.9rem">Fills in Kcal per scoop and Displacement.</p>${helperForm()}</div>`),
+
+  C: () => chrome(`
+    <div class="c-wrap">
+      <h1>Formula calculator</h1>
+      <p class="lede">Three steps: the formula, the bottle, the Recipe.</p>
+      <ol class="c-steps">
+        <li class="c-step">
+          <h2><span class="n">1</span>Formula</h2>
+          <div class="tabs"><button data-ctab="values" class="${cTab === "values" ? "on" : ""}">I know the values</button><button data-ctab="label" class="${cTab === "label" ? "on" : ""}">From the label</button></div>
+          ${cTab === "values" ? field("kcalPerScoop") + field("displacement") : helperForm()}
+        </li>
+        <li class="c-step">
+          <h2><span class="n">2</span>Bottle</h2>
+          <p class="sentence">Make ${inlineInput("targetVolume")} mL<br>at ${inlineInput("targetConcentration")} kcal/30 mL.</p>
+          <div data-out="cChecks"></div>
+        </li>
+        <li class="c-step">
+          <h2><span class="n">3</span>Recipe</h2>
+          <div data-out="cTable"></div>
+        </li>
+      </ol>
+      ${ad(970, 90, "full-width band after the steps (728×90 / 320×100 on phone)")}
+      ${explainer}
+      ${ad(336, 280, "end of page")}
+    </div>`),
+};
+
+// ---------------------------------------------------------------------------
+// Render / update
+// ---------------------------------------------------------------------------
+function render() {
+  const page = document.getElementById("page");
+  page.className = frame;
+  page.innerHTML = VIEWS[variant]();
+  document.getElementById("vlabel").textContent = `${variant} (${VARIANTS[variant]})`;
+  $$("[data-frame]").forEach(b => b.classList.toggle("on", b.dataset.frame === frame));
+  const url = new URL(location); url.searchParams.set("variant", variant); url.searchParams.set("frame", frame); url.searchParams.set("case", caseKey);
+  history.replaceState(null, "", url);
+  update();
+}
+function update() {
+  $$("[data-out]").forEach(el => { el.innerHTML = OUT[el.dataset.out](); });
+  $$("[data-check]").forEach(el => {
+    const c = checkField(el.dataset.check, inputs[el.dataset.check]);
+    el.className = "check" + (c ? " " + c.kind : ""); el.textContent = c ? c.msg : "";
+    const w = el.closest("[data-wrap]"); w.classList.toggle("is-unusual", c?.kind === "unusual"); w.classList.toggle("is-impossible", c?.kind === "impossible");
+  });
+}
+
+document.addEventListener("input", (e) => {
+  const t = e.target;
+  if (t.dataset.field) { inputs[t.dataset.field] = t.value; $$(`[data-field="${t.dataset.field}"]`).forEach(o => o !== t && (o.value = t.value)); update(); }
+  if (t.dataset.helper) { helper[t.dataset.helper] = t.value; update(); }
+});
+document.addEventListener("click", (e) => {
+  const t = e.target.closest("button, [data-action]"); if (!t) return;
+  if (t.dataset.hmode) { helper.mode = t.dataset.hmode; render(); if (variant === "B") openDrawer(); if (variant === "A") document.querySelector("details").open = true; }
+  if (t.dataset.ctab) { cTab = t.dataset.ctab; render(); }
+  const a = t.dataset.action;
+  if (a === "use-helper") {
+    const r = helperResult(); if (!r) return;
+    inputs.kcalPerScoop = r.kcalPerScoop; inputs.displacement = r.displacement;
+    if (variant === "C") cTab = "values";
+    render();
+  }
+  if (a === "open-drawer") openDrawer();
+  if (a === "close-drawer") { $$(".drawer, .drawer-bg").forEach(d => d.classList.remove("open")); }
+});
+function openDrawer() { $$(".drawer, .drawer-bg").forEach(d => d.classList.add("open")); }
+
+// Prototype switcher
+const cycle = (d) => { variant = KEYS[(KEYS.indexOf(variant) + d + KEYS.length) % KEYS.length]; render(); };
+document.getElementById("prev").onclick = () => cycle(-1);
+document.getElementById("next").onclick = () => cycle(1);
+document.addEventListener("keydown", (e) => {
+  if (e.target.closest("input, textarea, select, [contenteditable]")) return;
+  if (e.key === "ArrowLeft") cycle(-1);
+  if (e.key === "ArrowRight") cycle(1);
+});
+$$("[data-frame]").forEach(b => b.onclick = () => { frame = b.dataset.frame; render(); });
+const sel = document.getElementById("case");
+sel.innerHTML = Object.entries(CASES).map(([k, c]) => `<option value="${k}">${c.label}</option>`).join("");
+sel.value = caseKey;
+sel.onchange = () => { caseKey = sel.value; inputs = { ...CASES[caseKey].v }; render(); };
+
+render();
+</script>
+</body>
+</html>
