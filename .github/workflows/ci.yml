@@ -40,11 +40,14 @@ jobs:
 
       - run: pnpm test
 
-      # The analytics token is public (it ends up in the HTML), so it's a repo
-      # variable. Unset means the build emits no beacon.
+      # The analytics token and AdSense publisher ID are public (they end up in
+      # the HTML), so they're repo variables. Unset means no beacon, and ad
+      # placeholders. Only production builds (pushes to main) get real ads;
+      # PR previews stay in placeholder mode.
       - run: pnpm build
         env:
           PUBLIC_CF_ANALYTICS_TOKEN: ${{ vars.PUBLIC_CF_ANALYTICS_TOKEN }}
+          PUBLIC_ADSENSE_CLIENT: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.PUBLIC_ADSENSE_CLIENT || '' }}
 
       # The deploy job ships exactly this build rather than rebuilding it.
       - uses: actions/upload-artifact@v7

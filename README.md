@@ -40,4 +40,8 @@ The job reads the secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` and
 
 Pages carry the Cloudflare Web Analytics beacon only when `PUBLIC_CF_ANALYTICS_TOKEN` is set at build time, so local builds have none. In CI the build reads it from the repo variable of the same name: add a site under Web Analytics in the Cloudflare dashboard, copy its token, then run `gh variable set PUBLIC_CF_ANALYTICS_TOKEN`.
 
+### Ads
+
+Without `PUBLIC_ADSENSE_CLIENT` (the AdSense publisher ID, `ca-pub-` plus 16 digits) every ad slot renders as a grey placeholder and no AdSense script or `ads.txt` is emitted. In CI, only production builds (pushes to `main`) read it from the repo variable of the same name, so PR previews keep placeholders: `gh variable set PUBLIC_ADSENSE_CLIENT`. Per-slot ad unit IDs live in `src/ads.config.ts`.
+
 See [`scripts/setup-cloudflare.sh`](scripts/setup-cloudflare.sh).
