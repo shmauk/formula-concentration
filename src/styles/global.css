@@ -7,6 +7,7 @@
   --color-text: #1b1f24;
   --color-text-muted: #57606a;
   --color-background: #ffffff;
+  --color-background-subtle: #f6f8fa;
   --color-border: #d0d7de;
   --color-accent: #1f5f8b;
 
@@ -81,6 +82,7 @@ body {
   color: var(--color-text);
   background: var(--color-background);
   -webkit-font-smoothing: antialiased;
+  overflow-wrap: break-word;
 }
 
 h1,
@@ -118,18 +120,7 @@ a {
   color: var(--color-accent);
 }
 
-/* ---------- Layout ---------- */
-
-.column-calculator,
-.column-tutorial {
-  margin-inline: auto;
-  padding: var(--space-5) var(--space-3);
-}
-
-.column-calculator {
-  max-width: var(--width-calculator);
-}
-
-.column-tutorial {
-  max-width: var(--width-tutorial);
+:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
 }

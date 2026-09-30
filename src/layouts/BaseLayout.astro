@@ -1,0 +1,287 @@
+---
+/**
+ * The shared layout used by every page. Ships no client-side JavaScript.
+ *
+ * Props:
+ * - `title`: the page's title, shown before the site name in the browser tab.
+ * - `width`: the main column's max width. `"calculator"` (640 px) or
+ *   `"tutorial"` (760 px, the default).
+ *
+ * Slots:
+ * - default: the page's main column, rendered inside `<main>`.
+ * - `banner`: above the header, for the first-visit notice banner.
+ * - `rail`: optional right-hand rail beside the main column (ads). Only
+ *   rendered when filled, and only shown on wide screens.
+ */
+import "../styles/global.css";
+import { isCurrentPage } from "../navigation";
+import {
+  contactEmail,
+  homeHref,
+  labelsLastChecked,
+  nav,
+  privacyHref,
+  siteName,
+} from "../site.config";
+
+interface Props {
+  title: string;
+  width?: "calculator" | "tutorial";
+}
+
+const { title, width = "tutorial" } = Astro.props;
+const hasRail = Astro.slots.has("rail");
+---
+
+<html lang="en-AU">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title} · {siteName}</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <slot name="banner" />
+
+    <header class="site-header">
+      <a class="site-name" href={homeHref}>{siteName}</a>
+      <nav aria-label="Main">
+        <ul>
+          {
+            nav.map((entry) => (
+              <li>
+                <a
+                  href={entry.href}
+                  aria-current={
+                    isCurrentPage(Astro.url.pathname, entry.href)
+                      ? "page"
+                      : undefined
+                  }
+                >
+                  {entry.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+    </header>
+
+    <div class="medical-notice" role="note">
+      <p>
+        For health professionals. Not medical advice: check every Recipe against
+        the prescription and the formula tin. <a href="#scope-and-limits"
+          >Scope and limits</a
+        >
+      </p>
+    </div>
+
+    <div class:list={["page", `width-${width}`, { "has-rail": hasRail }]}>
+      <main id="main" tabindex="-1">
+        <slot />
+      </main>
+      {
+        hasRail && (
+          <aside class="rail">
+            <slot name="rail" />
+          </aside>
+        )
+      }
+    </div>
+
+    <footer class={`site-footer width-${width}`}>
+      <section id="scope-and-limits" aria-labelledby="scope-and-limits-heading">
+        <h2 id="scope-and-limits-heading">Scope and limits</h2>
+        <ul>
+          <li>
+            <strong>Who it's for.</strong> Clinicians such as dietitians, nurses
+            and NICU staff. It isn't a substitute for a prescription; parents should
+            follow their clinician's instructions.
+          </li>
+          <li>
+            <strong>Not medical advice.</strong> Check every Recipe against the prescriber's
+            instructions before making up a feed.
+          </li>
+          <li>
+            <strong>Labels.</strong> The method is for powdered infant formulas sold
+            in Australia and New Zealand. Worked-example values come from labels as
+            published online and haven't been checked against tins. Labels change,
+            so always read the tin in front of you.
+          </li>
+          <li>
+            <strong>Rounding.</strong> Recipes use whole Scoops and water to the nearest
+            5 mL, so the Actual concentration lands at or just below the Target concentration
+            by design.
+          </li>
+          <li>
+            <strong>Preparation and hygiene.</strong> Follow the tin's instructions
+            and your local protocols. This site covers quantities only.
+          </li>
+          <li>
+            <strong>Preterm formulas.</strong> Not designed for preterm formulas or
+            breast-milk fortifiers.
+          </li>
+        </ul>
+        <p>Label values last checked: <em>{labelsLastChecked}</em>.</p>
+      </section>
+      <ul class="footer-links">
+        <li><a href={privacyHref}>Privacy policy</a></li>
+        <li><a href={`mailto:${contactEmail}`}>{contactEmail}</a></li>
+      </ul>
+    </footer>
+  </body>
+</html>
+
+<style>
+  .skip-link {
+    position: absolute;
+    top: var(--space-2);
+    left: var(--space-2);
+    z-index: 10;
+    padding: var(--space-2) var(--space-3);
+    background: var(--color-background);
+    border: 2px solid var(--color-accent);
+    transform: translateY(-200%);
+  }
+
+  .skip-link:focus {
+    transform: none;
+  }
+
+  .site-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-1) var(--space-4);
+    padding: var(--space-3);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .site-name {
+    min-width: 0;
+    margin-inline-end: auto;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .site-header ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .site-header nav a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+
+  .site-header nav a:hover {
+    text-decoration: underline;
+  }
+
+  .site-header nav a[aria-current="page"] {
+    color: var(--color-text);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 0.3em;
+  }
+
+  .medical-notice {
+    padding: var(--space-2) var(--space-3);
+    background: var(--color-background-subtle);
+    border-bottom: 1px solid var(--color-border);
+    font-size: 0.9375rem;
+  }
+
+  .medical-notice p {
+    margin: 0;
+  }
+
+  .width-calculator {
+    --main-width: var(--width-calculator);
+  }
+
+  .width-tutorial {
+    --main-width: var(--width-tutorial);
+  }
+
+  .page {
+    display: grid;
+    grid-template-columns: minmax(0, var(--main-width));
+    justify-content: center;
+    gap: var(--space-5);
+    padding: var(--space-5) var(--space-3);
+  }
+
+  main:focus {
+    outline: none;
+  }
+
+  .rail {
+    display: none;
+  }
+
+  /* Wide enough for the main column, a 300 px rail, the gap and the padding. */
+  @media (min-width: 70rem) {
+    .page.has-rail {
+      grid-template-columns: minmax(0, var(--main-width)) 300px;
+    }
+
+    .rail {
+      display: block;
+    }
+  }
+
+  .site-footer {
+    max-width: calc(var(--main-width) + 2 * var(--space-3));
+    margin-inline: auto;
+    padding: var(--space-4) var(--space-3) var(--space-5);
+    border-top: 1px solid var(--color-border);
+    font-size: 0.9375rem;
+    color: var(--color-text-muted);
+  }
+
+  .site-footer h2 {
+    font-size: 1.125rem;
+    color: var(--color-text);
+  }
+
+  .site-footer ul {
+    padding-inline-start: var(--space-4);
+  }
+
+  .site-footer li + li {
+    margin-block-start: var(--space-2);
+  }
+
+  .site-footer strong {
+    color: var(--color-text);
+  }
+
+  .footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-4);
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  .site-footer .footer-links {
+    padding-inline-start: 0;
+  }
+
+  /* A long email address must wrap rather than widen the page at 320 px. */
+  .footer-links a {
+    overflow-wrap: anywhere;
+  }
+
+  .site-footer .footer-links li + li {
+    margin-block-start: 0;
+  }
+</style>
