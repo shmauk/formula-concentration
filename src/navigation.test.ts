@@ -10,6 +10,10 @@ describe("isCurrentPage", () => {
     expect(isCurrentPage("/calculator/", "/calculator")).toBe(true);
   });
 
+  it("ignores a .html extension", () => {
+    expect(isCurrentPage("/calculator.html", "/calculator")).toBe(true);
+  });
+
   it("doesn't match a different page", () => {
     expect(isCurrentPage("/reading-labels", "/calculator")).toBe(false);
   });

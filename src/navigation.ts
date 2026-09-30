@@ -4,5 +4,5 @@ export function isCurrentPage(pathname: string, href: string): boolean {
 }
 
 function normalise(path: string): string {
-  return path.replace(/\/+$/, "") || "/";
+  return path.replace(/\.html$/, "").replace(/\/+$/, "") || "/";
 }
