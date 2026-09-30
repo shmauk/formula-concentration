@@ -1,0 +1,11 @@
+---
+/**
+ * Goes in `<head>`. Before first paint, marks the page if a returning visitor
+ * already dismissed the notice, so the banner never flashes up.
+ */
+import { isNoticeDismissed, PRIVACY_NOTICE_KEY } from "../privacy-notice";
+
+const script = `if ((${isNoticeDismissed})(function () { return localStorage; }, ${JSON.stringify(PRIVACY_NOTICE_KEY)})) document.documentElement.classList.add("privacy-notice-dismissed");`;
+---
+
+<script is:inline set:html={script} />

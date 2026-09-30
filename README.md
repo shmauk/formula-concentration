@@ -36,4 +36,8 @@ The job reads the secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` and
 ./scripts/setup-cloudflare.sh
 ```
 
+### Analytics
+
+Pages carry the Cloudflare Web Analytics beacon only when `PUBLIC_CF_ANALYTICS_TOKEN` is set at build time, so local builds have none. In CI the build reads it from the repo variable of the same name: add a site under Web Analytics in the Cloudflare dashboard, copy its token, then run `gh variable set PUBLIC_CF_ANALYTICS_TOKEN`.
+
 See [`scripts/setup-cloudflare.sh`](scripts/setup-cloudflare.sh).

@@ -22,3 +22,6 @@ export const nav: readonly NavEntry[] = [
 export const homeHref = "/calculator";
 
 export const privacyHref = "/privacy";
+
+/** Shown on the privacy page. Update it whenever the policy changes. */
+export const privacyLastUpdated = "30 September 2026";

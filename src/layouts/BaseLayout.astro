@@ -1,6 +1,7 @@
 ---
 /**
- * The shared layout used by every page. Ships no client-side JavaScript.
+ * The shared layout used by every page. Its only client-side JavaScript is
+ * the privacy notice's tiny inline scripts and the analytics beacon.
  *
  * Props:
  * - `title`: the page's title, shown before the site name in the browser tab.
@@ -9,11 +10,14 @@
  *
  * Slots:
  * - default: the page's main column, rendered inside `<main>`.
- * - `banner`: above the header, for the first-visit notice banner.
+ * - `banner`: above the header. Defaults to the first-visit notice banner.
  * - `rail`: optional right-hand rail beside the main column (ads). Only
  *   rendered when filled, and only shown on wide screens.
  */
 import "../styles/global.css";
+import Analytics from "../components/Analytics.astro";
+import NoticeBanner from "../components/NoticeBanner.astro";
+import NoticeBannerHead from "../components/NoticeBannerHead.astro";
 import { isCurrentPage } from "../navigation";
 import {
   contactEmail,
@@ -39,11 +43,12 @@ const hasRail = Astro.slots.has("rail");
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title} · {siteName}</title>
+    <NoticeBannerHead />
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
 
-    <slot name="banner" />
+    <slot name="banner"><NoticeBanner /></slot>
 
     <header class="site-header">
       <a class="site-name" href={homeHref}>{siteName}</a>
@@ -131,6 +136,7 @@ const hasRail = Astro.slots.has("rail");
         <li><a href={`mailto:${contactEmail}`}>{contactEmail}</a></li>
       </ul>
     </footer>
+    <Analytics />
   </body>
 </html>
 

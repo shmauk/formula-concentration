@@ -1,0 +1,74 @@
+---
+/**
+ * The first-visit privacy notice. A notice, not consent: ads load whatever
+ * its state. Inline at the top of the page and not sticky, so it scrolls
+ * away. Pair with NoticeBannerHead in `<head>`, which hides it before first
+ * paint for returning visitors.
+ */
+import { PRIVACY_NOTICE_KEY, rememberNoticeDismissed } from "../privacy-notice";
+import { privacyHref } from "../site.config";
+
+const script = `(function () {
+  var banner = document.getElementById("privacy-notice");
+  var ok = document.getElementById("privacy-notice-ok");
+  if (!banner || !ok) return;
+  ok.addEventListener("click", function () {
+    (${rememberNoticeDismissed})(function () { return localStorage; }, ${JSON.stringify(PRIVACY_NOTICE_KEY)});
+    banner.hidden = true;
+  });
+})();`;
+---
+
+<div
+  id="privacy-notice"
+  class="notice-banner"
+  role="region"
+  aria-label="Privacy notice"
+>
+  <p>
+    This site shows ads from Google, which uses cookies and your IP address to
+    serve and measure them. Ads aren't personalised. Anything you type into the
+    calculator stays in your browser. <a href={privacyHref}>Privacy policy</a>
+  </p>
+  <button id="privacy-notice-ok" type="button">OK</button>
+</div>
+
+<script is:inline set:html={script} />
+
+<style>
+  .notice-banner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-3);
+    padding: var(--space-2) var(--space-3);
+    background: var(--color-background-subtle);
+    border-bottom: 1px solid var(--color-border);
+    font-size: 0.9375rem;
+  }
+
+  .notice-banner[hidden],
+  :global(.privacy-notice-dismissed) .notice-banner {
+    display: none;
+  }
+
+  .notice-banner p {
+    flex: 1 1 20rem;
+    margin: 0;
+  }
+
+  .notice-banner button {
+    padding: var(--space-1) var(--space-4);
+    color: var(--color-background);
+    background: var(--color-accent);
+    border: 2px solid var(--color-accent);
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .notice-banner button:focus-visible {
+    outline: 3px solid var(--color-text);
+    outline-offset: 2px;
+  }
+</style>
