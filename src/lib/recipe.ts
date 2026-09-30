@@ -71,6 +71,8 @@ export type RecipeResult =
       recipe: Recipe;
       /** The Fewer-Scoops suggestion, or null when it isn't offered. */
       suggestion: Recipe | null;
+      /** The one-fewer-Scoop Recipe checked for the suggestion, offered or not. Null for a single Scoop. */
+      oneFewerScoop: Recipe | null;
     }
   | { kind: "impossible"; validation: RecipeValidation };
 
@@ -102,13 +104,15 @@ function calculateValidRecipe(inputs: ValidInputs) {
   const kcalNeeded = inputs.targetVolume * kcalPerMl;
   const exactScoops = kcalNeeded / inputs.kcalPerScoop;
   const recipe = recipeWithScoops(roundUp(exactScoops), inputs, kcalPerMl);
+  const oneFewerScoop = recipe.scoops < 2 ? null : recipeWithScoops(recipe.scoops - 1, inputs, kcalPerMl);
   return {
     kind: "recipe" as const,
     kcalPerMl,
     kcalNeeded,
     exactScoops,
     recipe,
-    suggestion: fewerScoopsSuggestion(recipe, inputs, kcalPerMl),
+    suggestion: fewerScoopsSuggestion(recipe, oneFewerScoop, inputs.targetVolume),
+    oneFewerScoop,
   };
 }
 
@@ -133,11 +137,10 @@ function recipeWithScoops(scoops: number, inputs: ValidInputs, kcalPerMl: number
 }
 
 // Only one fewer Scoop is ever checked: two fewer can never be closer to the Target volume.
-function fewerScoopsSuggestion(recipe: Recipe, inputs: ValidInputs, kcalPerMl: number): Recipe | null {
-  if (recipe.scoops < 2) return null;
-  const candidate = recipeWithScoops(recipe.scoops - 1, inputs, kcalPerMl);
-  const recipeDifference = Math.abs(recipe.actualVolume - inputs.targetVolume);
-  const candidateDifference = Math.abs(candidate.actualVolume - inputs.targetVolume);
+function fewerScoopsSuggestion(recipe: Recipe, candidate: Recipe | null, targetVolume: number): Recipe | null {
+  if (candidate === null) return null;
+  const recipeDifference = Math.abs(recipe.actualVolume - targetVolume);
+  const candidateDifference = Math.abs(candidate.actualVolume - targetVolume);
   const isCloser = candidateDifference < recipeDifference - SNAP_TOLERANCE;
   const isNearEnough = candidateDifference <= SUGGESTION_MAX_VOLUME_DIFFERENCE + SNAP_TOLERANCE;
   return isCloser && isNearEnough ? candidate : null;

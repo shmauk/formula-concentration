@@ -100,6 +100,18 @@ describe("Fewer-Scoops suggestion", () => {
     expect(recipe.scoops).toBe(1);
     expect(suggestion).toBeNull();
   });
+
+  it("still gives the one-fewer-Scoop Recipe it checked when it isn't offered", () => {
+    const { oneFewerScoop, suggestion } = recipeFor(38, 5, 150, 20);
+    expect(suggestion).toBeNull();
+    expect(oneFewerScoop?.scoops).toBe(2);
+    expect(oneFewerScoop?.water).toBe(105);
+    expect(oneFewerScoop?.actualVolume).toBe(115);
+  });
+
+  it("has nothing to check when the Recipe is a single Scoop", () => {
+    expect(recipeFor(31, 5, 20, 31.5).oneFewerScoop).toBeNull();
+  });
 });
 
 describe("floating-point snapping", () => {

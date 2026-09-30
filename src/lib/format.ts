@@ -19,3 +19,21 @@ export const formatWater = (mL: number): string => toFixedHalfUp(mL, 0);
 
 /** Scoops, whole number. */
 export const formatScoops = (scoops: number): string => toFixedHalfUp(scoops, 0);
+
+// Intermediate working on /building-a-recipe. Trailing zeros are dropped where
+// the value is usually round, so the sums read "150 × 0.8 = 120".
+const withoutTrailingZeros = (fixed: string): string =>
+  fixed.includes(".") ? fixed.replace(/\.?0+$/, "") : fixed;
+
+/** kcal per mL (Target concentration ÷ 30), at most 3 dp. */
+export const formatKcalPerMl = (kcalPerMl: number): string =>
+  withoutTrailingZeros(toFixedHalfUp(kcalPerMl, 3));
+
+/** kcal needed (Target volume × kcal/mL), 1 dp without a trailing .0. */
+export const formatKcalNeeded = (kcal: number): string => withoutTrailingZeros(formatKcal(kcal));
+
+/** Scoops before rounding up, 2 dp. */
+export const formatExactScoops = (scoops: number): string => toFixedHalfUp(scoops, 2);
+
+/** mL between an Actual volume and the Target volume, 1 dp without a trailing .0. */
+export const formatVolumeDifference = (mL: number): string => withoutTrailingZeros(formatVolume(mL));
