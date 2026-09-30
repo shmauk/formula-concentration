@@ -1,0 +1,135 @@
+/* Shared styles. Component-specific styles live in each component. */
+
+/* ---------- Custom properties ---------- */
+
+:root {
+  /* Colours */
+  --color-text: #1b1f24;
+  --color-text-muted: #57606a;
+  --color-background: #ffffff;
+  --color-border: #d0d7de;
+  --color-accent: #1f5f8b;
+
+  /* Typography: system font stack, so no font is downloaded from anywhere. */
+  --font-body: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, "Noto Sans", sans-serif;
+  --font-size-base: 1.0625rem;
+  --line-height-base: 1.6;
+
+  /* Spacing */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 1rem;
+  --space-4: 1.5rem;
+  --space-5: 2rem;
+
+  /* Main-column widths */
+  --width-calculator: 640px;
+  --width-tutorial: 760px;
+}
+
+/* ---------- Reset ---------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+img,
+picture,
+svg,
+video,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+
+/* ---------- Base typography ---------- */
+
+body {
+  min-height: 100vh;
+  font-family: var(--font-body);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  color: var(--color-text);
+  background: var(--color-background);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  line-height: 1.25;
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: 2rem;
+}
+
+h2 {
+  font-size: 1.5rem;
+}
+
+h3 {
+  font-size: 1.25rem;
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+ul,
+ol,
+table {
+  margin-block-end: var(--space-3);
+}
+
+a {
+  color: var(--color-accent);
+}
+
+/* ---------- Layout ---------- */
+
+.column-calculator,
+.column-tutorial {
+  margin-inline: auto;
+  padding: var(--space-5) var(--space-3);
+}
+
+.column-calculator {
+  max-width: var(--width-calculator);
+}
+
+.column-tutorial {
+  max-width: var(--width-tutorial);
+}
