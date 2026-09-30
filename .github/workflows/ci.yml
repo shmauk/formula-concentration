@@ -4,10 +4,14 @@ on:
   pull_request:
   push:
     branches: [main]
+  # Lets scripts/setup-cloudflare.sh start the first production deploy.
+  workflow_dispatch:
 
+# Superseded PR runs are cancelled; runs on main queue so a production deploy
+# is never cut off halfway.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read
@@ -16,7 +20,6 @@ env:
   ASTRO_TELEMETRY_DISABLED: 1
 
 jobs:
-  # A deploy job can be added after this one with `needs: check-test-build`.
   check-test-build:
     name: Check, test and build
     runs-on: ubuntu-latest
@@ -39,3 +42,72 @@ jobs:
 
       - run: pnpm build
 
+      # The deploy job ships exactly this build rather than rebuilding it.
+      - uses: actions/upload-artifact@v7
+        with:
+          name: dist
+          path: dist/
+          if-no-files-found: error
+          retention-days: 7
+
+  deploy:
+    name: Deploy to Cloudflare Pages
+    needs: check-test-build
+    # Skipped (not failed) until scripts/setup-cloudflare.sh has set the
+    # project variable, and for PRs from forks or Dependabot, which get no
+    # secrets.
+    if: >-
+      vars.CLOUDFLARE_PAGES_PROJECT != '' &&
+      github.actor != 'dependabot[bot]' &&
+      (github.event_name != 'pull_request' ||
+        github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist/
+
+      # `main` is the Pages project's production branch; any other branch is
+      # a preview. PRs deploy to a stable pr-<number> preview alias.
+      - name: Choose Pages branch
+        id: branch
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          if [ -n "$PR_NUMBER" ]; then
+            echo "name=pr-$PR_NUMBER" >> "$GITHUB_OUTPUT"
+          else
+            echo "name=$REF_NAME" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: cloudflare/wrangler-action@v4
+        id: deploy
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          packageManager: npm
+          command: >-
+            pages deploy dist
+            --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT }}
+            --branch=${{ steps.branch.outputs.name }}
+            --commit-hash=${{ github.event.pull_request.head.sha || github.sha }}
+            --commit-dirty=true
+
+      - name: Post deploy URLs to the job summary
+        env:
+          BRANCH: ${{ steps.branch.outputs.name }}
+          DEPLOYMENT_URL: ${{ steps.deploy.outputs.deployment-url }}
+          ALIAS_URL: ${{ steps.deploy.outputs.pages-deployment-alias-url }}
+        run: |
+          if [ "$BRANCH" = "main" ]; then
+            echo "### Deployed to production" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "### Preview deployed" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          {
+            echo
+            [ -n "$ALIAS_URL" ] && echo "- Branch URL: $ALIAS_URL"
+            echo "- This deploy: $DEPLOYMENT_URL"
+          } >> "$GITHUB_STEP_SUMMARY"
