@@ -25,10 +25,9 @@ const { title, tone = "note" } = Astro.props;
     background: var(--color-background-subtle);
   }
 
-  /* #8a3c00 on #fff4e5 is well over 4.5:1. */
   .caution {
-    border-color: #8a3c00;
-    background: #fff4e5;
+    border-color: var(--color-warning);
+    background: var(--color-warning-background);
   }
 
   h2 {

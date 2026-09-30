@@ -97,6 +97,20 @@ describe("Calculator", () => {
     expect(screen.getByLabelText(/^Displacement/)).toHaveValue(3.33);
   });
 
+  it("explains when the label helper's prepared volume isn't more than the water", async () => {
+    render(Calculator);
+    const user = userEvent.setup();
+
+    await user.click(screen.getByText("Don't know these? Work them out from the label"));
+    await user.type(screen.getByLabelText(/^Energy per 100 mL/), "69");
+    await user.type(screen.getByRole("spinbutton", { name: /^Scoops/ }), "1");
+    await user.type(screen.getByLabelText(/^Water/), "55");
+    await user.type(screen.getByLabelText(/^Prepared volume/), "50");
+
+    expect(screen.getByText("The prepared volume must be more than the water.")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Use these values" })).toBeDisabled();
+  });
+
   describe("never saves or sends inputs", () => {
     it("leaves storage, cookies and the URL alone and makes no requests while in use", async () => {
       const setItem = vi.spyOn(Storage.prototype, "setItem");

@@ -73,6 +73,8 @@
     {#if derived}
       Kcal per scoop <strong>{derived.display.kcalPerScoop}</strong> · Displacement
       <strong>{derived.display.displacement} mL per Scoop</strong>
+    {:else if water != null && preparedVolume != null && water > 0 && preparedVolume > 0 && preparedVolume <= water}
+      The prepared volume must be more than the water.
     {:else}
       Fill in the label values to work these out.
     {/if}
