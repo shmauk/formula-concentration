@@ -139,7 +139,8 @@ function recipeWithScoops(scoops: number, inputs: ValidInputs, kcalPerMl: number
   };
 }
 
-// Only one fewer Scoop is ever checked: two fewer can never be closer to the Target volume.
+// Offers the one-fewer-Scoop candidate only when it's closer to the Target
+// volume and within SUGGESTION_MAX_VOLUME_DIFFERENCE of it.
 function fewerScoopsSuggestion(recipe: Recipe, candidate: Recipe | null, targetVolume: number): Recipe | null {
   if (candidate === null) return null;
   const recipeDifference = Math.abs(recipe.actualVolume - targetVolume);

@@ -20,6 +20,9 @@ export const formatWater = (mL: number): string => toFixedHalfUp(mL, 0);
 /** Scoops, whole number. */
 export const formatScoops = (scoops: number): string => toFixedHalfUp(scoops, 0);
 
+/** "Scoop" for one, "Scoops" otherwise. */
+export const scoopsNoun = (scoops: number): string => (scoops === 1 ? "Scoop" : "Scoops");
+
 // Intermediate working on /building-a-recipe. Trailing zeros are dropped where
 // the value is usually round, so the sums read "150 × 0.8 = 120".
 const withoutTrailingZeros = (fixed: string): string =>

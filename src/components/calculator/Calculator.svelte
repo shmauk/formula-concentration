@@ -11,6 +11,7 @@
     calculateRecipe,
     formatConcentration,
     formatScoops,
+    scoopsNoun,
     formatVolume,
     formatWater,
     type Recipe,
@@ -83,7 +84,7 @@
   const targetConcentrationText = $derived(`${values.targetConcentration} kcal/30 mL`);
 
   const scoopsText = (scoops: number) =>
-    `${formatScoops(scoops)} ${scoops === 1 ? "Scoop" : "Scoops"}`;
+    `${formatScoops(scoops)} ${scoopsNoun(scoops)}`;
 </script>
 
 {#snippet field(name: RecipeField)}
@@ -138,7 +139,7 @@
   {#if result.kind === "recipe"}
     {@const { recipe } = result}
     <p class="headline">
-      <strong>{formatScoops(recipe.scoops)}</strong> level {recipe.scoops === 1 ? "Scoop" : "Scoops"} +
+      <strong>{formatScoops(recipe.scoops)}</strong> level {scoopsNoun(recipe.scoops)} +
       <strong>{formatWater(recipe.water)} mL</strong> water
     </p>
     <dl class="actuals">

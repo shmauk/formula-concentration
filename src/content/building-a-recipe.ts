@@ -7,6 +7,7 @@ import {
   formatKcalNeeded,
   formatKcalPerMl,
   formatScoops,
+  scoopsNoun,
   formatVolume,
   formatVolumeDifference,
   formatWater,
@@ -114,7 +115,7 @@ function stepsFourToEight(recipe: Recipe, kcalPerScoop: string, displacement: st
 const line = (sum: string, value: string): WorkingLine => ({ working: `${sum} = ${value}`, value });
 
 const scoopsText = (recipe: Recipe): string =>
-  `${formatScoops(recipe.scoops)} ${recipe.scoops === 1 ? "Scoop" : "Scoops"}`;
+  `${formatScoops(recipe.scoops)} ${scoopsNoun(recipe.scoops)}`;
 
 /** "170.0 mL at 23.61". */
 const makesText = (recipe: Recipe): string =>

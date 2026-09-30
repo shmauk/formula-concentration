@@ -7,6 +7,7 @@ import {
   formatKcalNeeded,
   formatKcalPerMl,
   formatScoops,
+  scoopsNoun,
   formatVolume,
   formatVolumeDifference,
   formatWater,
@@ -39,6 +40,12 @@ describe("formatting", () => {
   it("shows water and Scoops as whole numbers", () => {
     expect(formatWater(170)).toBe("170");
     expect(formatScoops(6)).toBe("6");
+  });
+
+  it("names one Scoop in the singular and any other count in the plural", () => {
+    expect(scoopsNoun(1)).toBe("Scoop");
+    expect(scoopsNoun(2)).toBe("Scoops");
+    expect(scoopsNoun(6)).toBe("Scoops");
   });
 
   it("rounds halves up even where floating point stores them just below", () => {
