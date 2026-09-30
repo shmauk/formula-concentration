@@ -1,0 +1,143 @@
+---
+/**
+ * "Follow along with: A | B", sticky at the top of the screen. Every element
+ * with `data-example="<id>"` on the page is shown only while that option is
+ * chosen (wrap them in `WorkedExample`, `ResultCard` and so on).
+ *
+ * No JavaScript: a radio group plus `:has()` CSS. The first option is the
+ * default, so it's what shows with JavaScript off, and in browsers without
+ * `:has()`. Hidden examples are `display: none`, so assistive tech skips them
+ * too. The choice isn't saved (`autocomplete="off"` stops the browser
+ * restoring it on reload).
+ */
+export type FollowAlongOption = {
+  /** Matches `data-example` on the content for this option. */
+  id: string;
+  /** The formula's name, shown on the switch. */
+  name: string;
+  /** Key values shown beside the switch while this option is chosen. */
+  summary?: string;
+};
+
+interface Props {
+  options: readonly FollowAlongOption[];
+}
+
+const { options } = Astro.props;
+const [defaultOption] = options;
+if (!defaultOption) throw new Error("FollowAlongSwitch needs at least one option");
+
+const others = (id: string) => `[data-example]:not([data-example="${id}"])`;
+const css = [
+  ...options.map(
+    ({ id }) =>
+      `body:has(input[name="follow-along"][value="${id}"]:checked) ${others(id)} { display: none; }`,
+  ),
+  `@supports not selector(:has(*)) { ${others(defaultOption.id)} { display: none; } }`,
+].join("\n");
+---
+
+<fieldset class="follow-along">
+  <legend>Follow along with:</legend>
+  <div class="options">
+    {
+      options.map((option, index) => (
+        <label>
+          <input
+            type="radio"
+            name="follow-along"
+            value={option.id}
+            checked={index === 0}
+            autocomplete="off"
+          />
+          <span>{option.name}</span>
+        </label>
+      ))
+    }
+  </div>
+  {
+    options.map(
+      (option) =>
+        option.summary && (
+          <p class="summary" data-example={option.id}>
+            {option.summary}
+          </p>
+        ),
+    )
+  }
+</fieldset>
+
+<style is:inline set:html={css}></style>
+
+<style>
+  .follow-along {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-3);
+    min-inline-size: 0;
+    margin: var(--space-4) 0 var(--space-3);
+    padding: var(--space-2) 0;
+    border: 0;
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-background);
+    font-size: 0.9375rem;
+  }
+
+  /* Lets the legend sit in the row like any other flex item. */
+  legend {
+    float: left;
+    padding: 0;
+  }
+
+  .options {
+    display: inline-flex;
+    flex-wrap: wrap;
+    border: 1px solid var(--color-accent);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  label {
+    position: relative;
+    padding: var(--space-1) var(--space-3);
+    color: var(--color-accent);
+    cursor: pointer;
+  }
+
+  label + label {
+    border-inline-start: 1px solid var(--color-accent);
+  }
+
+  /* The radio stays in the accessibility tree; the label is its visible face. */
+  input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  label:has(input:checked) {
+    background: var(--color-accent);
+    color: var(--color-background);
+    font-weight: 600;
+  }
+
+  label:has(input:focus-visible) {
+    outline: 3px solid var(--color-accent);
+    outline-offset: -5px;
+    box-shadow: inset 0 0 0 2px var(--color-background);
+  }
+
+  .summary {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+</style>

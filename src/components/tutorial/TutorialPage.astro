@@ -1,0 +1,88 @@
+---
+/**
+ * The template for the tutorial pages: title, lede and intro, the leaderboard
+ * ad, the follow-along switch and the method, the after-method ad, next-page
+ * links and the end ad. Ads only ever sit between these blocks.
+ *
+ * Slots:
+ * - `intro`: short intro under the lede.
+ * - default: the method: `StepCard`s, `Callout`s, `ResultCard`s and any
+ *   notes. The switch stays stuck to the top of the screen while this scrolls.
+ */
+import AdSlot from "../ads/AdSlot.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import FollowAlongSwitch, { type FollowAlongOption } from "./FollowAlongSwitch.astro";
+
+export type NextLink = { href: string; label: string };
+
+interface Props {
+  title: string;
+  lede: string;
+  /** The formulas to follow along with. The first is the default. */
+  followAlong: readonly FollowAlongOption[];
+  /** Next-page links. The first is styled as the main one. */
+  nextLinks: readonly NextLink[];
+}
+
+const { title, lede, followAlong, nextLinks } = Astro.props;
+---
+
+<BaseLayout title={title} width="tutorial">
+  <h1>{title}</h1>
+  <p class="lede">{lede}</p>
+  <slot name="intro" />
+
+  <AdSlot size="leaderboard" name="tutorial-top" />
+
+  <div class="method">
+    <FollowAlongSwitch options={followAlong} />
+    <slot />
+  </div>
+
+  <AdSlot size="rectangle" name="after-method" />
+
+  <nav class="next" aria-label="Next pages">
+    <ul>
+      {
+        nextLinks.map((link, index) => (
+          <li>
+            <a href={link.href} class:list={{ primary: index === 0 }}>
+              {link.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+
+  <AdSlot size="rectangle" name="tutorial-end" />
+</BaseLayout>
+
+<style>
+  .lede {
+    color: var(--color-text-muted);
+    font-size: 1.125rem;
+  }
+
+  .next ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-3);
+    margin-block: var(--space-4);
+    padding: 0;
+    list-style: none;
+  }
+
+  .next a {
+    display: inline-block;
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--color-accent);
+    border-radius: 6px;
+    text-decoration: none;
+  }
+
+  .next a.primary {
+    background: var(--color-accent);
+    color: var(--color-background);
+  }
+</style>

@@ -1,11 +1,237 @@
 ---
-import AdSlot from "../components/ads/AdSlot.astro";
-import BaseLayout from "../layouts/BaseLayout.astro";
+import Callout from "../components/tutorial/Callout.astro";
+import Formula from "../components/tutorial/Formula.astro";
+import ResultCard from "../components/tutorial/ResultCard.astro";
+import StepCard from "../components/tutorial/StepCard.astro";
+import TutorialPage from "../components/tutorial/TutorialPage.astro";
+import WorkedExample from "../components/tutorial/WorkedExample.astro";
+import { readingLabelsWorking } from "../content/reading-labels";
+import { describeLabel, workedExamples } from "../content/worked-examples";
+
+// Every number below comes from the label values via the Recipe maths module.
+const examples = workedExamples.map((example) => ({
+  ...example,
+  label: describeLabel(example),
+  working: readingLabelsWorking(example),
+}));
+
+const followAlong = examples.map((example) => ({
+  id: example.id,
+  name: example.name,
+  summary: `${example.kcalPer100Ml} kcal per 100 mL · ${example.gramsPerScoop} g per Scoop`,
+}));
 ---
 
-<BaseLayout title="Reading labels" width="tutorial">
-  <h1>Reading labels</h1>
-  <p>Coming soon.</p>
-  <AdSlot size="leaderboard" name="tutorial-top" />
-  <AdSlot size="rectangle" name="after-method" />
-</BaseLayout>
+<TutorialPage
+  title="Reading labels"
+  lede="Work out Grams per scoop, Kcal per scoop and Displacement from an Australian or New Zealand formula label."
+  followAlong={followAlong}
+  nextLinks={[
+    { href: "/building-a-recipe", label: "Next: Building a Recipe" },
+    { href: "/calculator", label: "Open the calculator" },
+  ]}
+>
+  <Fragment slot="intro">
+    <p>
+      To make up a Recipe you need two numbers for the formula: <strong
+        >Kcal per scoop</strong
+      > and <strong>Displacement</strong>. Labels in Australia and New Zealand
+      don't print either, but both can be worked out from what they do print.
+    </p>
+    <p>
+      AU/NZ labels give energy <strong>per 100 mL of prepared formula</strong>{" "}
+      and a <strong>Reconstitution statement</strong>: how much prepared formula
+      a known amount of powder and water makes. They don't give energy per 100 g
+      of powder, so the method works from the Reconstitution statement.
+    </p>
+  </Fragment>
+
+  <StepCard number={0} title="What to find on the label">
+    <ul>
+      <li>
+        <strong>Energy per 100 mL</strong> of prepared formula, in kcal, from the
+        nutrition table.
+      </li>
+      <li>
+        The <strong>Reconstitution statement</strong>: an amount of powder, an
+        amount of water, and the volume of prepared formula they make.
+        <ul class="if-your-label">
+          <li>
+            <em>If your label gives % w/v instead of a prepared volume:</em>{" "}
+            prepared volume = grams ÷ (% w/v ÷ 100). For example, 4.6 g ÷ 0.138
+            = 33.3 mL.
+          </li>
+          <li>
+            <em>If your label gives no prepared volume at all:</em> the label can't
+            give you Displacement. Ask the manufacturer's careline or check its data
+            sheet.
+          </li>
+        </ul>
+      </li>
+      <li>
+        <strong>Grams per scoop</strong>, usually near the preparation
+        instructions.
+      </li>
+    </ul>
+    <Fragment slot="example">
+      {
+        examples.map((example) => (
+          <WorkedExample example={example}>
+            <p>
+              <span class="term">Energy:</span> {example.label.energy}
+            </p>
+            <p>
+              <span class="term">Reconstitution statement:</span>{" "}
+              {example.label.reconstitutionStatement}
+            </p>
+            <p>
+              <span class="term">Grams per scoop:</span>{" "}
+              {example.gramsPerScoop} g
+            </p>
+          </WorkedExample>
+        ))
+      }
+    </Fragment>
+  </StepCard>
+
+  <StepCard
+    number={1}
+    title="Grams per scoop"
+    reason="You only need it when the Reconstitution statement gives the powder in grams."
+  >
+    <Formula>
+      <p>Read it straight off the label.</p>
+    </Formula>
+    <Fragment slot="example">
+      {
+        examples.map((example) => (
+          <WorkedExample example={example}>
+            <p>
+              <span class="term">The label says:</span>{" "}
+              {`“${example.label.gramsPerScoop}”`}
+            </p>
+            <p>
+              <span class="term">Grams per scoop:</span>{" "}
+              <strong>{example.gramsPerScoop} g</strong>
+            </p>
+          </WorkedExample>
+        ))
+      }
+    </Fragment>
+  </StepCard>
+
+  <StepCard
+    number={2}
+    title="Scoops in the Reconstitution statement"
+    reason="Skip this if the statement already counts Scoops."
+  >
+    <Formula>
+      <p>Scoops = grams of powder ÷ Grams per scoop</p>
+    </Formula>
+    <Fragment slot="example">
+      {
+        examples.map((example) => (
+          <WorkedExample example={example}>
+            {example.working.scoops.working ? (
+              <p>
+                <span class="term">Scoops:</span>{" "}
+                {example.working.scoops.working}
+              </p>
+            ) : (
+              <p>
+                <span class="term">Scoops:</span>{" "}
+                {example.working.scoops.value}, given in the statement.
+              </p>
+            )}
+          </WorkedExample>
+        ))
+      }
+    </Fragment>
+  </StepCard>
+
+  <StepCard
+    number={3}
+    title="Displacement"
+    reason="Whatever the prepared volume has on top of the water came from the powder."
+  >
+    <Formula>
+      <p>Displacement = (prepared volume − water) ÷ Scoops</p>
+    </Formula>
+    <Fragment slot="example">
+      {
+        examples.map((example) => (
+          <WorkedExample example={example}>
+            <p>
+              <span class="term">Displacement:</span>{" "}
+              {example.working.displacement.working} mL
+            </p>
+          </WorkedExample>
+        ))
+      }
+    </Fragment>
+  </StepCard>
+
+  <StepCard
+    number={4}
+    title="Kcal per scoop"
+    reason="Each Scoop makes (prepared volume ÷ Scoops) mL of prepared formula, and the label gives the energy in every 100 mL of it."
+  >
+    <Formula>
+      <p>
+        Kcal per scoop = kcal per 100 mL × (prepared volume ÷ Scoops) ÷ 100
+      </p>
+    </Formula>
+    <Fragment slot="example">
+      {
+        examples.map((example) => (
+          <WorkedExample example={example}>
+            <p>
+              <span class="term">Kcal per scoop:</span>{" "}
+              {example.working.kcalPerScoop.working}
+            </p>
+          </WorkedExample>
+        ))
+      }
+    </Fragment>
+  </StepCard>
+
+  <Callout title="Notes">
+    <p>
+      <strong>Energy:</strong> use the kcal figure the label prints. Only if it
+      prints kJ alone, kcal = kJ ÷ 4.184.
+    </p>
+    <p>
+      <strong>Precision:</strong> keep Kcal per scoop to 1 decimal place and
+      Displacement to 2.
+    </p>
+  </Callout>
+
+  <Callout title="“Approximately” statements" tone="caution">
+    <p>
+      Some Reconstitution statements say a Scoop and water make <em
+        >approximately</em
+      > a volume, such as “makes approximately 55 mL”. Displacement worked out
+      from them is less certain, by about ±1&nbsp;mL per Scoop.
+    </p>
+  </Callout>
+
+  {
+    examples.map((example) => (
+      <ResultCard
+        example={example}
+        heading="Result"
+        labelAccessed={example.label.labelAccessed}
+      >
+        {example.working.kcalPerScoop.value} kcal per scoop ·{" "}
+        {example.working.displacement.value} mL Displacement
+      </ResultCard>
+    ))
+  }
+</TutorialPage>
+
+<style>
+  .if-your-label {
+    margin-block: var(--space-2) 0;
+    font-size: 0.9375rem;
+  }
+</style>
