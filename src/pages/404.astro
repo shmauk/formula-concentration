@@ -1,0 +1,21 @@
+---
+// Its presence also stops Cloudflare Pages treating the site as a
+// single-page app, which would answer unknown paths with the home page.
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { homeHref, nav } from "../site.config";
+---
+
+<BaseLayout title="Page not found" width="tutorial" ads={false}>
+  <h1>Page not found</h1>
+  <p>There's no page at this address. Try one of these instead:</p>
+  <ul>
+    {
+      nav.map((entry) => (
+        <li>
+          <a href={entry.href}>{entry.label}</a>
+        </li>
+      ))
+    }
+  </ul>
+  <p><a href={homeHref}>Go to the calculator</a></p>
+</BaseLayout>
