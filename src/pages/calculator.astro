@@ -1,11 +1,49 @@
 ---
 import AdSlot from "../components/ads/AdSlot.astro";
+import Calculator from "../components/calculator/Calculator.svelte";
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { CONCENTRATION_WARNING_THRESHOLD } from "../lib";
 ---
 
-<BaseLayout title="Calculator" width="calculator">
-  <h1>Calculator</h1>
-  <p>Coming soon.</p>
-  <AdSlot size="leaderboard" name="calculator-end" />
+<BaseLayout title="Formula calculator" width="calculator">
+  <h1>Formula calculator</h1>
+  <p class="subtitle">Three steps: the formula, the bottle, the Recipe.</p>
+
+  <Calculator client:load />
+
+  <!-- Ads only after the result: never beside inputs or between the input card and the Recipe. -->
   <AdSlot size="rectangle" name="after-result" />
+
+  <section class="explainer" aria-labelledby="how-this-works">
+    <h2 id="how-this-works">How this works</h2>
+    <p>
+      The calculator rounds the Scoops up so there's enough energy, then rounds
+      the water up to the nearest 5 mL. So the Actual concentration lands at or
+      just below the Target concentration, and it warns you when that gap
+      reaches {CONCENTRATION_WARNING_THRESHOLD} kcal/30 mL.
+    </p>
+    <p>
+      Learn where Kcal per scoop and Displacement come from in <a
+        href="/reading-labels">Reading labels</a
+      >, and how to work out a Recipe by hand in <a href="/building-a-recipe"
+        >Building a Recipe</a
+      >.
+    </p>
+  </section>
+
+  <AdSlot size="leaderboard" name="calculator-end" />
 </BaseLayout>
+
+<style>
+  .subtitle {
+    color: var(--color-text-muted);
+  }
+
+  .explainer {
+    font-size: 0.9375rem;
+  }
+
+  .explainer h2 {
+    font-size: 1.125rem;
+  }
+</style>

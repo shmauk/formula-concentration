@@ -25,6 +25,7 @@ describe("calculateRecipe", () => {
     expect(recipe.actualVolume).toBe(145);
     expect(recipe.actualConcentration).toBeCloseTo(23.21, 2);
     expect(recipe.concentrationWarning).toBe(true);
+    expect(formatConcentration(recipe.concentrationShortfall)).toBe("0.79");
   });
 
   it("warns when the Actual concentration is exactly 0.5 under the Target concentration", () => {

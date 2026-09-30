@@ -54,6 +54,8 @@ export type Recipe = {
   actualVolume: number;
   /** kcal/30 mL. */
   actualConcentration: number;
+  /** kcal/30 mL: Target concentration minus Actual concentration. Negative when over target. */
+  concentrationShortfall: number;
   /** True when the Actual concentration is at least 0.5 kcal/30 mL under the Target concentration. */
   concentrationWarning: boolean;
 };
@@ -119,7 +121,7 @@ function recipeWithScoops(scoops: number, inputs: ValidInputs, kcalPerMl: number
   const water = roundUp(exactWater, WATER_STEP_ML);
   const actualVolume = water + totalDisplacement;
   const actualConcentration = (actualKcal / actualVolume) * CONCENTRATION_VOLUME_ML;
-  const drift = inputs.targetConcentration - actualConcentration;
+  const concentrationShortfall = inputs.targetConcentration - actualConcentration;
   return {
     scoops,
     water,
@@ -128,7 +130,8 @@ function recipeWithScoops(scoops: number, inputs: ValidInputs, kcalPerMl: number
     exactWater,
     actualVolume,
     actualConcentration,
-    concentrationWarning: drift >= CONCENTRATION_WARNING_THRESHOLD - SNAP_TOLERANCE,
+    concentrationShortfall,
+    concentrationWarning: concentrationShortfall >= CONCENTRATION_WARNING_THRESHOLD - SNAP_TOLERANCE,
   };
 }
 
