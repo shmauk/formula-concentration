@@ -1,0 +1,114 @@
+---
+/**
+ * One ad, with an "Advertisement" label above it and its space reserved at
+ * full size so nothing shifts when the ad loads. The phone size applies
+ * below 48rem (see `adSizes`). In placeholder mode (no
+ * `PUBLIC_ADSENSE_CLIENT`) it's a grey box showing its size and name.
+ *
+ * Rule for page authors: place slots **between** blocks of content. Never
+ * put one inside a step card, the Recipe or result card or any box, and
+ * never next to inputs or buttons.
+ */
+import { adUnitIds, type AdSlotName } from "../../ads.config";
+import { adSizes, placeholderLabel, type AdSize } from "./ads";
+import { adsenseClient } from "./adsense";
+
+interface Props {
+  size: AdSize;
+  /** The placement, which also picks its ad unit ID in `ads.config.ts`. */
+  name: AdSlotName;
+}
+
+const { size, name } = Astro.props;
+const { desktop, phone } = adSizes[size];
+const unitId: string | undefined = adUnitIds[name];
+const sizeVars = {
+  "--ad-phone-width": `${phone.width}px`,
+  "--ad-phone-height": `${phone.height}px`,
+  "--ad-desktop-width": `${desktop.width}px`,
+  "--ad-desktop-height": `${desktop.height}px`,
+};
+---
+
+<div class="ad-slot" style={sizeVars}>
+  <p class="ad-label">Advertisement</p>
+  {
+    !adsenseClient ? (
+      <div class="ad-box placeholder">
+        <span class="phone-only">{placeholderLabel(phone, name)}</span>
+        <span class="desktop-only">{placeholderLabel(desktop, name)}</span>
+      </div>
+    ) : unitId ? (
+      <>
+        <ins
+          class="adsbygoogle ad-box"
+          data-ad-client={adsenseClient}
+          data-ad-slot={unitId}
+        />
+        <script is:inline>
+          (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+      </>
+    ) : (
+      <div class="ad-box" />
+    )
+  }
+</div>
+
+<style>
+  .ad-slot {
+    --ad-width: var(--ad-phone-width);
+    --ad-height: var(--ad-phone-height);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-block: var(--space-4);
+  }
+
+  @media (min-width: 48rem) {
+    .ad-slot {
+      --ad-width: var(--ad-desktop-width);
+      --ad-height: var(--ad-desktop-height);
+    }
+  }
+
+  .ad-label {
+    margin: 0 0 var(--space-1);
+    font-size: 0.6875rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  /* Never wider than its column, so a narrow column can't overflow. */
+  .ad-box {
+    display: block;
+    width: var(--ad-width);
+    max-width: 100%;
+    height: var(--ad-height);
+  }
+
+  .placeholder {
+    display: grid;
+    place-items: center;
+    padding: var(--space-2);
+    background: #e4e7eb;
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+    text-align: center;
+  }
+
+  .desktop-only {
+    display: none;
+  }
+
+  @media (min-width: 48rem) {
+    .phone-only {
+      display: none;
+    }
+
+    .desktop-only {
+      display: inline;
+    }
+  }
+</style>
