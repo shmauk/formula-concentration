@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { calculateRecipe, type RecipeField, type RecipeInput } from "./recipe";
+import { formatConcentration, formatScoops, formatVolume, formatWater } from "./format";
+import { calculateRecipe, type Recipe, type RecipeField, type RecipeInput } from "./recipe";
 
 function recipeFor(kcalPerScoop: number, displacement: number, targetVolume: number, targetConcentration: number) {
   const result = calculateRecipe({ kcalPerScoop, displacement, targetVolume, targetConcentration });
@@ -62,6 +63,7 @@ describe("Fewer-Scoops suggestion", () => {
     expect(recipe.water).toBe(170);
     expect(recipe.actualVolume).toBe(190);
     expect(recipe.actualConcentration).toBeCloseTo(24.0, 2);
+    expect(recipe.concentrationWarning).toBe(false);
     expect(suggestion?.scoops).toBe(3);
     expect(suggestion?.water).toBe(130);
     expect(suggestion?.actualVolume).toBe(145);
@@ -196,5 +198,23 @@ describe("input validation", () => {
       targetVolume: "impossible",
       targetConcentration: "unusual",
     });
+  });
+});
+
+describe("display values from the ticket's Recipe table", () => {
+  const display = (r: Recipe | null) =>
+    r &&
+    `${formatScoops(r.scoops)} Scoops + ${formatWater(r.water)} mL → ${formatVolume(r.actualVolume)} mL at ${formatConcentration(r.actualConcentration)}`;
+
+  it.each([
+    [22.3, 3.33, 150, 24, "6 Scoops + 150 mL → 170.0 mL at 23.61", "5 Scoops + 125 mL → 141.7 mL at 23.61"],
+    [38, 5, 150, 24, "4 Scoops + 170 mL → 190.0 mL at 24.00", "3 Scoops + 130 mL → 145.0 mL at 23.59"],
+    [38, 5, 150, 20, "3 Scoops + 160 mL → 175.0 mL at 19.54", null],
+    [22.3, 3.33, 60, 27, "3 Scoops + 65 mL → 75.0 mL at 26.76", "2 Scoops + 45 mL → 51.7 mL at 25.90"],
+    [37.4, 5, 120, 24, "3 Scoops + 130 mL → 145.0 mL at 23.21", null],
+  ])("%s / %s / %s / %s shows %s", (kcal, displacement, volume, concentration, expectedRecipe, expectedSuggestion) => {
+    const { recipe, suggestion } = recipeFor(kcal, displacement, volume, concentration);
+    expect(display(recipe)).toBe(expectedRecipe);
+    expect(display(suggestion)).toBe(expectedSuggestion);
   });
 });

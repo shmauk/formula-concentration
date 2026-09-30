@@ -38,6 +38,9 @@ export const SUGGESTION_MAX_VOLUME_DIFFERENCE = 10;
 
 const WATER_STEP_ML = 5;
 
+/** Concentration is always expressed per this many mL. */
+const CONCENTRATION_VOLUME_ML = 30;
+
 export type Recipe = {
   scoops: number;
   /** mL, rounded up to the nearest 5 mL. */
@@ -95,7 +98,7 @@ export function calculateRecipe(inputs: RecipeInputs): RecipeResult {
 }
 
 function calculateValidRecipe(inputs: ValidInputs) {
-  const kcalPerMl = inputs.targetConcentration / 30;
+  const kcalPerMl = inputs.targetConcentration / CONCENTRATION_VOLUME_ML;
   const kcalNeeded = inputs.targetVolume * kcalPerMl;
   const exactScoops = kcalNeeded / inputs.kcalPerScoop;
   const recipe = recipeWithScoops(roundUp(exactScoops), inputs, kcalPerMl);
@@ -115,7 +118,7 @@ function recipeWithScoops(scoops: number, inputs: ValidInputs, kcalPerMl: number
   const exactWater = actualKcal / kcalPerMl - totalDisplacement;
   const water = roundUp(exactWater, WATER_STEP_ML);
   const actualVolume = water + totalDisplacement;
-  const actualConcentration = (actualKcal / actualVolume) * 30;
+  const actualConcentration = (actualKcal / actualVolume) * CONCENTRATION_VOLUME_ML;
   const drift = inputs.targetConcentration - actualConcentration;
   return {
     scoops,

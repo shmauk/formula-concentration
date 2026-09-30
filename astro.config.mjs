@@ -1,6 +1,7 @@
 // @ts-check
 import { defineConfig } from "astro/config";
 import svelte from "@astrojs/svelte";
+import { homeHref } from "./src/site.config";
 
 export default defineConfig({
   output: "static",
@@ -12,6 +13,6 @@ export default defineConfig({
   // The calculator is the home page. In static output this becomes a
   // meta-refresh page at `/`, which works on any host.
   redirects: {
-    "/": "/calculator",
+    "/": homeHref,
   },
 });
