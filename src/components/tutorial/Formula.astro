@@ -1,0 +1,23 @@
+---
+/** A tinted box holding a step's formula lines, one `<p>` each. */
+---
+
+<div class="formula"><slot /></div>
+
+<style>
+  .formula {
+    margin-block-end: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    border-radius: 6px;
+    background: #eaf1f6;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .formula :global(p) {
+    margin: 0;
+  }
+
+  .formula :global(p + p) {
+    margin-block-start: var(--space-1);
+  }
+</style>

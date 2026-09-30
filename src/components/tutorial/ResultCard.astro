@@ -1,0 +1,58 @@
+---
+/**
+ * The headline result for one formula, shown only while that formula is
+ * chosen on the follow-along switch. Render one per formula.
+ *
+ * Slots:
+ * - default: the headline, such as "22.3 kcal per scoop · 3.33 mL Displacement".
+ * - `detail`: optional lines under the headline.
+ */
+import type { FollowAlongOption } from "./FollowAlongSwitch.astro";
+
+interface Props {
+  example: Pick<FollowAlongOption, "id" | "name">;
+  /** Names the result, as in "Result for NAN OPTIPRO 1" or "Recipe for …". */
+  heading: string;
+  /** When the label was read, such as "29 Sep 2026". */
+  labelAccessed: string;
+}
+
+const { example, heading, labelAccessed } = Astro.props;
+---
+
+<section class="result-card" data-example={example.id}>
+  <h2>{heading} for {example.name}</h2>
+  <p class="headline"><slot /></p>
+  <slot name="detail" />
+  <p class="source">Label accessed {labelAccessed}. Check against your tin.</p>
+</section>
+
+<style>
+  .result-card {
+    margin-block: var(--space-4);
+    padding: var(--space-3) var(--space-4);
+    border: 2px solid var(--color-accent);
+    border-radius: 10px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  h2 {
+    margin-block-end: var(--space-1);
+    color: var(--color-accent);
+    font-size: 0.8125rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .headline {
+    margin-block-end: var(--space-2);
+    font-size: 1.375rem;
+    font-weight: 700;
+  }
+
+  .source {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+  }
+</style>

@@ -1,0 +1,51 @@
+---
+/**
+ * One formula's worked example for a step, shown only while that formula is
+ * chosen on the follow-along switch. Put one per formula in a `StepCard`'s
+ * `example` slot. Children are the working lines, typically `<p>`s.
+ */
+import type { FollowAlongOption } from "./FollowAlongSwitch.astro";
+
+interface Props {
+  example: Pick<FollowAlongOption, "id" | "name">;
+}
+
+const { example } = Astro.props;
+---
+
+<div class="worked-example" data-example={example.id}>
+  <p class="eyebrow">{example.name}</p>
+  <slot />
+</div>
+
+<style>
+  .worked-example {
+    padding: var(--space-2) var(--space-3);
+    border: 1px dashed var(--color-border);
+    border-radius: 8px;
+    background: var(--color-background-subtle);
+    font-size: 0.9375rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .eyebrow {
+    margin: 0 0 var(--space-1);
+    color: var(--color-accent);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .worked-example :global(p) {
+    margin-block-end: var(--space-1);
+  }
+
+  .worked-example :global(:last-child) {
+    margin-block-end: 0;
+  }
+
+  .worked-example :global(.term) {
+    color: var(--color-text-muted);
+  }
+</style>
