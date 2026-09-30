@@ -1,0 +1,22 @@
+---
+/**
+ * The desktop rail's ad: a 300×600 slot that stays in view while the main
+ * column scrolls. The layout only shows the rail on wide screens.
+ */
+import AdSlot from "./AdSlot.astro";
+---
+
+<div class="ad-rail">
+  <AdSlot size="skyscraper" name="rail" />
+</div>
+
+<style>
+  .ad-rail {
+    position: sticky;
+    top: var(--space-3);
+  }
+
+  .ad-rail :global(.ad-slot) {
+    margin-block: 0;
+  }
+</style>

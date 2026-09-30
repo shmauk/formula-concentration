@@ -1,8 +1,11 @@
 ---
+import AdSlot from "../components/ads/AdSlot.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
 <BaseLayout title="Calculator" width="calculator">
   <h1>Calculator</h1>
   <p>Coming soon.</p>
+  <AdSlot size="leaderboard" name="calculator-end" />
+  <AdSlot size="rectangle" name="after-result" />
 </BaseLayout>

@@ -1,12 +1,15 @@
 ---
 /**
  * The shared layout used by every page. Its only client-side JavaScript is
- * the privacy notice's tiny inline scripts and the analytics beacon.
+ * the privacy notice's tiny inline scripts, the analytics beacon and ads
+ * (see `src/components/ads/`).
  *
  * Props:
  * - `title`: the page's title, shown before the site name in the browser tab.
  * - `width`: the main column's max width. `"calculator"` (640 px) or
  *   `"tutorial"` (760 px, the default).
+ * - `ads`: whether the page has ads (default `true`): the sticky desktop rail
+ *   ad, the phone anchor ad and the AdSense script.
  *
  * Slots:
  * - default: the page's main column, rendered inside `<main>`.
@@ -15,6 +18,9 @@
  *   rendered when filled, and only shown on wide screens.
  */
 import "../styles/global.css";
+import AdRail from "../components/ads/AdRail.astro";
+import AdSenseLoader from "../components/ads/AdSenseLoader.astro";
+import AnchorAd from "../components/ads/AnchorAd.astro";
 import Analytics from "../components/Analytics.astro";
 import NoticeBanner from "../components/NoticeBanner.astro";
 import NoticeBannerHead from "../components/NoticeBannerHead.astro";
@@ -31,10 +37,11 @@ import {
 interface Props {
   title: string;
   width?: "calculator" | "tutorial";
+  ads?: boolean;
 }
 
-const { title, width = "tutorial" } = Astro.props;
-const hasRail = Astro.slots.has("rail");
+const { title, width = "tutorial", ads = true } = Astro.props;
+const hasRail = ads || Astro.slots.has("rail");
 ---
 
 <html lang="en-AU">
@@ -44,6 +51,7 @@ const hasRail = Astro.slots.has("rail");
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title} · {siteName}</title>
     <NoticeBannerHead />
+    {ads && <AdSenseLoader />}
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
@@ -90,6 +98,7 @@ const hasRail = Astro.slots.has("rail");
       {
         hasRail && (
           <aside class="rail">
+            {ads && <AdRail />}
             <slot name="rail" />
           </aside>
         )
@@ -136,6 +145,8 @@ const hasRail = Astro.slots.has("rail");
         <li><a href={`mailto:${contactEmail}`}>{contactEmail}</a></li>
       </ul>
     </footer>
+
+    {ads && <AnchorAd />}
     <Analytics />
   </body>
 </html>

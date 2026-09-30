@@ -1,0 +1,84 @@
+---
+/**
+ * The phone anchor ad: 320×50, stuck to the bottom of the screen and
+ * closable. With AdSense configured it comes from AdSense auto ads (anchor
+ * format only, switched on in the AdSense account), so nothing renders here
+ * apart from the bottom clearance. In placeholder mode it's a grey bar with a
+ * close button. Phone widths only.
+ */
+import { placeholderLabel } from "./ads";
+import { adsenseClient } from "./adsense";
+---
+
+<div class="anchor-clearance" aria-hidden="true"></div>
+
+{
+  !adsenseClient && (
+    <aside class="anchor-placeholder" aria-label="Advertisement">
+      <button type="button" class="anchor-close" aria-label="Close ad">
+        ×
+      </button>
+      <div class="anchor-box">
+        {placeholderLabel({ width: 320, height: 50 }, "anchor")}
+      </div>
+      <script is:inline>
+        document
+          .querySelector(".anchor-close")
+          .addEventListener("click", (event) =>
+            event.currentTarget.closest(".anchor-placeholder").remove(),
+          );
+      </script>
+    </aside>
+  )
+}
+
+<style>
+  /* Lets the last content on the page scroll clear of the anchor. */
+  .anchor-clearance {
+    height: 100px;
+  }
+
+  .anchor-placeholder {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 20;
+    padding: 6px 0;
+    background: var(--color-background);
+    box-shadow: 0 -2px 10px rgb(0 0 0 / 0.18);
+  }
+
+  .anchor-box {
+    display: grid;
+    place-items: center;
+    width: 320px;
+    max-width: 100%;
+    height: 50px;
+    margin-inline: auto;
+    background: #e4e7eb;
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+  }
+
+  .anchor-close {
+    position: absolute;
+    top: -28px;
+    right: var(--space-2);
+    min-width: 44px;
+    height: 28px;
+    padding: 0 var(--space-2);
+    border: 0;
+    border-radius: 6px 6px 0 0;
+    background: var(--color-background);
+    box-shadow: 0 -2px 6px rgb(0 0 0 / 0.12);
+    color: var(--color-text-muted);
+    cursor: pointer;
+  }
+
+  @media (min-width: 48rem) {
+    .anchor-clearance,
+    .anchor-placeholder {
+      display: none;
+    }
+  }
+</style>
