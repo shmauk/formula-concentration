@@ -2,27 +2,33 @@
 /**
  * A numbered step: its formulas and a one-line reason on the left, and the
  * chosen formula's worked example on the right. They stack when the card is
- * narrow.
+ * narrow. Give it a step `number`, or a decorative `marker` (such as "✓") for
+ * an unnumbered step.
  *
  * Slots:
  * - default: the step's content, usually a `Formula`.
  * - `example`: one `WorkedExample` per formula on the follow-along switch.
  */
-interface Props {
-  number: number | string;
+type Props = ({ number: number | string; marker?: never } | { marker: string; number?: never }) & {
   title: string;
   /** One line on why the step works, shown under the formulas. */
   reason?: string;
-}
+};
 
-const { number, title, reason } = Astro.props;
+const { number, marker, title, reason } = Astro.props;
 ---
 
 <section class="step-card">
   <div class="layout">
     <div class="method">
       <h2>
-        <span class="number"><span class="visually-hidden">Step </span>{number}</span>{" "}
+        {
+          marker === undefined ? (
+            <span class="number"><span class="visually-hidden">Step </span>{number}</span>
+          ) : (
+            <span class="number" aria-hidden="true">{marker}</span>
+          )
+        }{" "}
         {title}
       </h2>
       <slot />

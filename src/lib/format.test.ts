@@ -2,9 +2,13 @@ import { describe, expect, it } from "vitest";
 import {
   formatConcentration,
   formatDisplacement,
+  formatExactScoops,
   formatKcal,
+  formatKcalNeeded,
+  formatKcalPerMl,
   formatScoops,
   formatVolume,
+  formatVolumeDifference,
   formatWater,
 } from "./format";
 
@@ -49,5 +53,28 @@ describe("formatting", () => {
   it("does not round up values that are genuinely below the half", () => {
     expect(formatConcentration(1.0049)).toBe("1.00");
     expect(formatKcal(37.9499)).toBe("37.9");
+  });
+
+  it("shows kcal/mL to at most 3 dp, without trailing zeros", () => {
+    expect(formatKcalPerMl(24 / 30)).toBe("0.8");
+    expect(formatKcalPerMl(20 / 30)).toBe("0.667");
+    expect(formatKcalPerMl(30 / 30)).toBe("1");
+  });
+
+  it("shows kcal needed to 1 dp, dropping a trailing .0", () => {
+    expect(formatKcalNeeded(150 * (24 / 30))).toBe("120");
+    expect(formatKcalNeeded(100 * (20 / 30))).toBe("66.7");
+  });
+
+  it("shows Scoops before rounding up to 2 dp", () => {
+    expect(formatExactScoops(120 / 22.3)).toBe("5.38");
+    expect(formatExactScoops(120 / 38)).toBe("3.16");
+    expect(formatExactScoops(4)).toBe("4.00");
+  });
+
+  it("shows a volume difference to 1 dp, dropping a trailing .0", () => {
+    expect(formatVolumeDifference(150 - 141.7)).toBe("8.3");
+    expect(formatVolumeDifference(170 - 150)).toBe("20");
+    expect(formatVolumeDifference(40)).toBe("40");
   });
 });
