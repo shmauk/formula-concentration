@@ -40,7 +40,11 @@ jobs:
 
       - run: pnpm test
 
+      # The analytics token is public (it ends up in the HTML), so it's a repo
+      # variable. Unset means the build emits no beacon.
       - run: pnpm build
+        env:
+          PUBLIC_CF_ANALYTICS_TOKEN: ${{ vars.PUBLIC_CF_ANALYTICS_TOKEN }}
 
       # The deploy job ships exactly this build rather than rebuilding it.
       - uses: actions/upload-artifact@v7
