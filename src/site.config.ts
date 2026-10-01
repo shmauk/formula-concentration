@@ -2,6 +2,8 @@
  * The single source of site-wide values. Every page reads these from here.
  */
 export const siteName = "Formula Concentration";
+/** Who runs the site, named on the privacy page. */
+export const operatorName = "Tom Lindeback";
 export const contactEmail = "enrapt.sites@gmail.com";
 export const labelsLastChecked = "September 2026";
 
@@ -23,4 +25,4 @@ export const homeHref = "/calculator";
 export const privacyHref = "/privacy";
 
 /** Shown on the privacy page. Update it whenever the policy changes. */
-export const privacyLastUpdated = "30 September 2026";
+export const privacyLastUpdated = "1 October 2026";

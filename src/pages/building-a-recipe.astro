@@ -57,6 +57,7 @@ const noSuggestionFewer = noSuggestion.oneFewerScoop;
     title="How many Scoops"
     reason="You can only use whole Scoops, and rounding up makes sure there's enough energy."
   >
+    <p>Target concentration is in kcal/30 mL, so dividing by 30 gives kcal per mL.</p>
     <Formula>
       <p>kcal/mL = Target concentration ÷ 30</p>
       <p>kcal needed = Target volume × kcal/mL</p>
@@ -85,7 +86,7 @@ const noSuggestionFewer = noSuggestion.oneFewerScoop;
   <StepCard
     number={2}
     title="How much water"
-    reason="The powder takes up room too, so the water is the volume that dilutes the energy back to target, less the powder's Displacement."
+    reason="The powder takes up room too, so the water is the volume needed to bring the energy back to target, minus the powder's Displacement."
   >
     <Formula>
       <p>Actual kcal = Scoops × Kcal per scoop</p>
@@ -178,9 +179,10 @@ const noSuggestionFewer = noSuggestion.oneFewerScoop;
     <p>
       Rounding Scoops up adds extra energy. The water is then sized to dilute
       that energy back to the target, and rounding the water up to 5 mL dilutes
-      it a little more. So the Actual concentration is always at or just below
-      the Target concentration, and the Actual volume at or above the Target
-      volume.
+      it a little more. So the Recipe's Actual concentration is always at or
+      just below the Target concentration, and its Actual volume at or above
+      the Target volume. Only the Fewer-Scoops suggestion below can come out
+      under the Target volume.
     </p>
     <p>
       The calculator warns when the result is{" "}

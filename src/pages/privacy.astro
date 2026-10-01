@@ -1,6 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { contactEmail, privacyLastUpdated, siteName } from "../site.config";
+import { contactEmail, operatorName, privacyLastUpdated, siteName } from "../site.config";
 ---
 
 <BaseLayout title="Privacy policy" width="tutorial" ads={false}>
@@ -9,7 +9,7 @@ import { contactEmail, privacyLastUpdated, siteName } from "../site.config";
 
   <h2>Who we are</h2>
   <p>
-    {siteName} is a free reference website. You can contact us about this policy
+    {siteName} is a free reference website run by {operatorName}. You can contact us about this policy
     at <a href={`mailto:${contactEmail}`}>{contactEmail}</a>.
   </p>
 
