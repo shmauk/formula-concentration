@@ -3,7 +3,7 @@ import { recipeWalkthrough } from "./building-a-recipe";
 import { aptamilGoldPlus1, nanOptipro1 } from "./worked-examples";
 
 // Expected strings come from the ticket (#27). If one of these fails, a
-// change in the Recipe maths module has altered a number on /building-a-recipe.
+// change in the recipe maths module has altered a number on /building-a-recipe.
 const target = { volume: 150, concentration: 24 };
 
 describe("recipeWalkthrough", () => {
@@ -23,7 +23,7 @@ describe("recipeWalkthrough", () => {
     expect(working.actualConcentration).toEqual({ working: "133.8 ÷ 170.0 × 30 = 23.61", value: "23.61" });
   });
 
-  it("sums up NAN OPTIPRO 1 for the switch and the Recipe card", () => {
+  it("sums up NAN OPTIPRO 1 for the switch and the recipe card", () => {
     const working = recipeWalkthrough(nanOptipro1, target);
     expect(working.summary).toBe("150 mL at 24 · 22.3 kcal, 3.33 mL");
     expect(working.recipe).toBe("6 scoops + 150 mL water");

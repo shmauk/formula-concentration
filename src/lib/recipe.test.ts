@@ -4,7 +4,7 @@ import { calculateRecipe, type Recipe, type RecipeField, type RecipeInput } from
 
 function recipeFor(kcalPerScoop: number, displacement: number, targetVolume: number, targetConcentration: number) {
   const result = calculateRecipe({ kcalPerScoop, displacement, targetVolume, targetConcentration });
-  if (result.kind !== "recipe") throw new Error("expected a Recipe");
+  if (result.kind !== "recipe") throw new Error("expected a recipe");
   return result;
 }
 
@@ -18,7 +18,7 @@ describe("calculateRecipe", () => {
     expect(recipe.concentrationWarning).toBe(false);
   });
 
-  it("Karicare 37.4 / 5 / 120 / 24 warns on the Recipe (0.79 under)", () => {
+  it("Karicare 37.4 / 5 / 120 / 24 warns on the recipe (0.79 under)", () => {
     const { recipe } = recipeFor(37.4, 5, 120, 24);
     expect(recipe.scoops).toBe(3);
     expect(recipe.water).toBe(130);
@@ -96,13 +96,13 @@ describe("Fewer-scoops suggestion", () => {
     expect(recipeFor(37.4, 5, 120, 24).suggestion).toBeNull();
   });
 
-  it("is not offered when the Recipe is a single scoop", () => {
+  it("is not offered when the recipe is a single scoop", () => {
     const { recipe, suggestion } = recipeFor(31, 5, 20, 31.5);
     expect(recipe.scoops).toBe(1);
     expect(suggestion).toBeNull();
   });
 
-  it("still gives the one-fewer-scoop Recipe it checked when it isn't offered", () => {
+  it("still gives the one-fewer-scoop recipe it checked when it isn't offered", () => {
     const { oneFewerScoop, suggestion } = recipeFor(38, 5, 150, 20);
     expect(suggestion).toBeNull();
     expect(oneFewerScoop?.scoops).toBe(2);
@@ -110,7 +110,7 @@ describe("Fewer-scoops suggestion", () => {
     expect(oneFewerScoop?.actualVolume).toBe(115);
   });
 
-  it("has nothing to check when the Recipe is a single scoop", () => {
+  it("has nothing to check when the recipe is a single scoop", () => {
     expect(recipeFor(31, 5, 20, 31.5).oneFewerScoop).toBeNull();
   });
 });
@@ -196,7 +196,7 @@ describe("input validation", () => {
       ["Infinity", Number.POSITIVE_INFINITY],
       ["zero", 0],
       ["negative", -5],
-    ])("%s gives no Recipe", (_label, value) => {
+    ])("%s gives no recipe", (_label, value) => {
       const result = withInput(field, value);
       expect(result.kind).toBe("impossible");
       expect(result.validation[field]).toBe("impossible");
@@ -214,7 +214,7 @@ describe("input validation", () => {
   });
 });
 
-describe("display values from the ticket's Recipe table", () => {
+describe("display values from the ticket's recipe table", () => {
   const display = (r: Recipe | null) =>
     r &&
     `${formatScoops(r.scoops)} scoops + ${formatWater(r.water)} mL → ${formatVolume(r.actualVolume)} mL at ${formatConcentration(r.actualConcentration)}`;

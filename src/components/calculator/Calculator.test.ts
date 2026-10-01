@@ -34,7 +34,7 @@ const recipeCard = () => screen.getByRole("region", { name: "Recipe" });
 const suggestionCard = () => screen.queryByRole("region", { name: "Fewer-scoops suggestion" });
 
 describe("Calculator", () => {
-  it("shows the Recipe and the Fewer-scoops suggestion for NAN, 150 mL at 24 kcal/30 mL", async () => {
+  it("shows the recipe and the Fewer-scoops suggestion for NAN, 150 mL at 24 kcal/30 mL", async () => {
     render(Calculator);
     await fillIn({ kcalPerScoop: "22.3", displacement: "3.33", targetVolume: "150", targetConcentration: "24" });
 
@@ -44,7 +44,7 @@ describe("Calculator", () => {
     );
   });
 
-  it("shows the concentration warning in the Recipe card for Karicare, 120 mL at 24 kcal/30 mL", async () => {
+  it("shows the concentration warning in the recipe card for Karicare, 120 mL at 24 kcal/30 mL", async () => {
     render(Calculator);
     await fillIn({ kcalPerScoop: "37.4", displacement: "5", targetVolume: "120", targetConcentration: "24" });
 
@@ -52,7 +52,7 @@ describe("Calculator", () => {
     expect(recipeCard()).toHaveTextContent("0.79 kcal/30 mL below target: check the prescription allows this.");
   });
 
-  it("warns under an out-of-range Target concentration and still shows a Recipe", async () => {
+  it("warns under an out-of-range Target concentration and still shows a recipe", async () => {
     render(Calculator);
     await fillIn({ kcalPerScoop: "22.3", displacement: "3.33", targetVolume: "150", targetConcentration: "40" });
 
@@ -66,13 +66,13 @@ describe("Calculator", () => {
 
   it("asks for all four values while an input is blank", async () => {
     render(Calculator);
-    expect(recipeCard()).toHaveTextContent("Fill in all four values to see a Recipe.");
+    expect(recipeCard()).toHaveTextContent("Fill in all four values to see a recipe.");
     expect(screen.queryByText("Enter a number greater than 0.")).not.toBeInTheDocument();
 
     const user = await fillIn({ kcalPerScoop: "22.3", displacement: "3.33", targetVolume: "150", targetConcentration: "24" });
     await user.clear(screen.getByLabelText(/^Target volume/));
 
-    expect(recipeCard()).toHaveTextContent("Fill in all four values to see a Recipe.");
+    expect(recipeCard()).toHaveTextContent("Fill in all four values to see a recipe.");
     expect(recipeCard()).not.toHaveTextContent("level scoop");
     expect(suggestionCard()).not.toBeInTheDocument();
     expect(screen.getByLabelText(/^Target volume/)).toHaveAccessibleDescription(

@@ -3,7 +3,7 @@ import { readingLabelsWorking } from "./reading-labels";
 import { aptamilGoldPlus1, nanOptipro1 } from "./worked-examples";
 
 // Expected strings come from the ticket (#26). If one of these fails, a
-// change in the Recipe maths module has altered a number on /reading-labels.
+// change in the recipe maths module has altered a number on /reading-labels.
 describe("readingLabelsWorking", () => {
   it("works NAN OPTIPRO 1 through the grams route", () => {
     const working = readingLabelsWorking(nanOptipro1);

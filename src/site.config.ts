@@ -17,7 +17,7 @@ export interface NavEntry {
 /** Header nav, in display order. */
 export const nav: readonly NavEntry[] = [
   { label: "Reading labels", href: "/reading-labels" },
-  { label: "Building a Recipe", href: "/building-a-recipe" },
+  { label: "Building a recipe", href: "/building-a-recipe" },
   { label: "Calculator", href: "/calculator" },
 ];
 

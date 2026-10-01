@@ -1,7 +1,7 @@
 /**
  * The two formulas the tutorial pages follow along with, as their labels
  * print them. Label values only: every derived number is computed from these
- * with the Recipe maths module at build time.
+ * with the recipe maths module at build time.
  *
  * Source: AU/NZ labels as published online (issue #7), not checked against tins.
  */

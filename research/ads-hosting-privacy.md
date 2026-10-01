@@ -117,4 +117,4 @@ Caveat: classification is automatic, so this reduces formula ads but cannot guar
 - **Is a visit to this site "sensitive information"?** For a clinician audience it probably is not. But a parent using the calculator could reveal that their infant needs concentrated feeds. This is fog, and non-personalised ads reduce it.
 - **AU mandatory-controls bill.** Its scope for publishers and platforms is unknown until the bill is published. Re-check before launch.
 - **Blocking effectiveness.** Whether "Baby Feeding" appears as its own node in the AdSense UI, and how much leaks through, can only be checked once an AdSense account exists.
-- **Ad slot next to the calculator result.** No rule forbids it. Clinicians' perception of an ad sitting next to a feeding Recipe is a design question for the layout ticket.
+- **Ad slot next to the calculator result.** No rule forbids it. Clinicians' perception of an ad sitting next to a feeding recipe is a design question for the layout ticket.

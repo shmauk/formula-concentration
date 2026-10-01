@@ -14,7 +14,7 @@ export type ReadingLabelsWorking = {
   kcalPerScoop: WorkingLine;
 };
 
-/** The numbers /reading-labels shows for one worked example, from the Recipe maths module. */
+/** The numbers /reading-labels shows for one worked example, from the recipe maths module. */
 export function readingLabelsWorking(example: WorkedExample): ReadingLabelsWorking {
   const { kcalPer100Ml, reconstitutionStatement: statement, gramsPerScoop } = example;
   const { powder, water, preparedVolume } = statement;

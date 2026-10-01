@@ -10,7 +10,7 @@ import { aptamilGoldPlus1, describeLabel, workedExamples } from "../content/work
 import { CONCENTRATION_WARNING_THRESHOLD, SUGGESTION_MAX_VOLUME_DIFFERENCE } from "../lib";
 
 // Both walkthroughs make the same bottle. Every number below comes from the
-// label values via the Recipe maths module.
+// label values via the recipe maths module.
 const target = { volume: 150, concentration: 24 };
 
 const examples = workedExamples.map((example) => ({
@@ -35,7 +35,7 @@ const noSuggestionFewer = noSuggestion.oneFewerScoop;
 ---
 
 <TutorialPage
-  title="Building a Recipe"
+  title="Building a recipe"
   lede="Make a bottle at a Target concentration by hand, from whole scoops and water to the nearest 5 mL. The calculator does the same sums."
   followAlong={followAlong}
   nextLinks={[
@@ -179,7 +179,7 @@ const noSuggestionFewer = noSuggestion.oneFewerScoop;
     <p>
       Rounding scoops up adds extra energy. The water is then sized to dilute
       that energy back to the target, and rounding the water up to 5 mL dilutes
-      it a little more. So the Recipe's Actual concentration is always at or
+      it a little more. So the recipe's Actual concentration is always at or
       just below the Target concentration, and its Actual volume at or above
       the Target volume. Only the Fewer-scoops suggestion below can come out
       under the Target volume.
@@ -193,7 +193,7 @@ const noSuggestionFewer = noSuggestion.oneFewerScoop;
   <StepCard
     marker="✓"
     title="Optional final check: the Fewer-scoops suggestion"
-    reason="This Recipe can make slightly less than the Target volume. Two fewer is never worth checking: the main Recipe overshoots by less than one scoop's worth of volume, so two fewer always lands further away."
+    reason="This recipe can make slightly less than the Target volume. Two fewer is never worth checking: the main recipe overshoots by less than one scoop's worth of volume, so two fewer always lands further away."
   >
     <Formula>
       <p>Try one fewer scoop: redo “How much water” and “What you actually get” with one fewer scoop.</p>

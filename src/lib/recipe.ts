@@ -3,7 +3,7 @@ import { roundUp, SNAP_TOLERANCE } from "./rounding";
 
 export type RecipeField = "kcalPerScoop" | "displacement" | "targetVolume" | "targetConcentration";
 
-/** A Recipe input as typed: a number, text, or blank. */
+/** A recipe input as typed: a number, text, or blank. */
 export type RecipeInput = RawNumber;
 
 export type RecipeInputs = {
@@ -17,7 +17,7 @@ export type RecipeInputs = {
   targetConcentration: RecipeInput;
 };
 
-/** `unusual` still gives a Recipe, with a double-check warning on that input; `impossible` gives none. */
+/** `unusual` still gives a recipe, with a double-check warning on that input; `impossible` gives none. */
 export type InputStatus = "ok" | "unusual" | "impossible";
 
 export type RecipeValidation = Record<RecipeField, InputStatus>;
@@ -73,7 +73,7 @@ export type RecipeResult =
       recipe: Recipe;
       /** The Fewer-scoops suggestion, or null when it isn't offered. */
       suggestion: Recipe | null;
-      /** The one-fewer-scoop Recipe checked for the suggestion, offered or not. Null for a single scoop. */
+      /** The one-fewer-scoop recipe checked for the suggestion, offered or not. Null for a single scoop. */
       oneFewerScoop: Recipe | null;
     }
   | { kind: "impossible"; validation: RecipeValidation };

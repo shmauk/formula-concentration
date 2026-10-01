@@ -4,7 +4,7 @@ Helps clinicians work out how to make up a bottle of powdered infant formula at 
 
 ## Language
 
-Units and formula properties are written lowercase in running text: scoop, grams per scoop, kcal per scoop, displacement. They take a capital only to begin a sentence, heading or field label, and kcal is lowercase even there.
+Units and formula properties are written lowercase in running text: recipe, scoop, grams per scoop, kcal per scoop, displacement. They take a capital only to begin a sentence, heading or field label, and kcal is lowercase even there.
 
 ### Prescription and result
 
@@ -25,14 +25,14 @@ A whole number of scoops plus a volume of water rounded to the nearest 5 mL, whi
 _Avoid_: Mix, preparation
 
 **Actual volume**:
-The total volume a Recipe really produces: the water plus the displacement of every scoop.
+The total volume a recipe really produces: the water plus the displacement of every scoop.
 _Avoid_: Final volume
 
 **Actual concentration**:
-The Concentration a Recipe really produces, which may differ from the Target concentration because of rounding.
+The Concentration a recipe really produces, which may differ from the Target concentration because of rounding.
 
 **Fewer-scoops suggestion**:
-An alternative Recipe using one fewer scoop, offered only when its Actual volume is closer to the Target volume and within 10 mL of it.
+An alternative recipe using one fewer scoop, offered only when its Actual volume is closer to the Target volume and within 10 mL of it.
 _Avoid_: Alternative recipe, option
 
 ### Formula properties

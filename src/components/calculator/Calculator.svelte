@@ -1,6 +1,6 @@
 <script lang="ts">
   /**
-   * The calculator island: the input card, the Recipe card and the
+   * The calculator island: the input card, the recipe card and the
    * Fewer-scoops suggestion. Every number comes from `src/lib`; this
    * component only wires inputs to it and words the result.
    *
@@ -161,7 +161,7 @@
     {@render concentrationWarning(recipe)}
     <p class="reminder">Check against the prescription and the tin before making up.</p>
   {:else}
-    <p class="empty">Fill in all four values to see a Recipe.</p>
+    <p class="empty">Fill in all four values to see a recipe.</p>
   {/if}
 </section>
 

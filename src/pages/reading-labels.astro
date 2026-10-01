@@ -8,7 +8,7 @@ import WorkedExample from "../components/tutorial/WorkedExample.astro";
 import { readingLabelsWorking } from "../content/reading-labels";
 import { describeLabel, workedExamples } from "../content/worked-examples";
 
-// Every number below comes from the label values via the Recipe maths module.
+// Every number below comes from the label values via the recipe maths module.
 const examples = workedExamples.map((example) => ({
   ...example,
   label: describeLabel(example),
@@ -27,13 +27,13 @@ const followAlong = examples.map((example) => ({
   lede="Work out grams per scoop, kcal per scoop and displacement from an Australian or New Zealand formula label."
   followAlong={followAlong}
   nextLinks={[
-    { href: "/building-a-recipe", label: "Next: Building a Recipe" },
+    { href: "/building-a-recipe", label: "Next: Building a recipe" },
     { href: "/calculator", label: "Open the calculator" },
   ]}
 >
   <Fragment slot="intro">
     <p>
-      To make up a Recipe you need two numbers for the formula: <strong
+      To make up a recipe you need two numbers for the formula: <strong
         >kcal per scoop</strong
       > and <strong>displacement</strong>. Labels in Australia and New Zealand
       don't print either, but both can be worked out from what they do print.

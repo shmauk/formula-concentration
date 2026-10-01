@@ -22,7 +22,7 @@ export type Target = {
   concentration: number;
 };
 
-/** A Recipe in one line, for comparing it with one fewer scoop. */
+/** A recipe in one line, for comparing it with one fewer scoop. */
 export type RecipeBrief = {
   /** "5 scoops + 125 mL". */
   recipe: string;
@@ -37,9 +37,9 @@ export type RecipeBrief = {
 export type RecipeWalkthrough = {
   /** Shown beside the follow-along switch. */
   summary: string;
-  /** The Recipe card headline, such as "6 scoops + 150 mL water". */
+  /** The recipe card headline, such as "6 scoops + 150 mL water". */
   recipe: string;
-  /** What the Recipe makes, such as "170.0 mL at 23.61 kcal/30 mL". */
+  /** What the recipe makes, such as "170.0 mL at 23.61 kcal/30 mL". */
   makes: string;
   kcalPerMl: string;
   kcalNeeded: string;
@@ -56,7 +56,7 @@ export type RecipeWalkthrough = {
   oneFewerScoop: (RecipeBrief & { used: boolean }) | null;
 };
 
-/** The numbers /building-a-recipe shows for one worked example, from the Recipe maths module. */
+/** The numbers /building-a-recipe shows for one worked example, from the recipe maths module. */
 export function recipeWalkthrough(example: WorkedExample, target: Target): RecipeWalkthrough {
   // kcal per scoop and displacement as /reading-labels shows them, so the pages agree.
   const label = readingLabelsWorking(example);
@@ -68,7 +68,7 @@ export function recipeWalkthrough(example: WorkedExample, target: Target): Recip
     targetVolume: target.volume,
     targetConcentration: target.concentration,
   });
-  if (result.kind !== "recipe") throw new Error(`${example.name}: no Recipe for this target`);
+  if (result.kind !== "recipe") throw new Error(`${example.name}: no recipe for this target`);
 
   const kcalPerMl = formatKcalPerMl(result.kcalPerMl);
   const kcalNeeded = formatKcalNeeded(result.kcalNeeded);
@@ -92,7 +92,7 @@ export function recipeWalkthrough(example: WorkedExample, target: Target): Recip
   };
 }
 
-/** Steps 4–8 for a Recipe with a given number of scoops. */
+/** Steps 4–8 for a recipe with a given number of scoops. */
 function stepsFourToEight(recipe: Recipe, kcalPerScoop: string, displacement: string, kcalPerMl: string) {
   const scoops = formatScoops(recipe.scoops);
   const actualKcal = formatKcal(recipe.actualKcal);

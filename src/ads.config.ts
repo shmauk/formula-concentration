@@ -7,7 +7,7 @@
  * once AdSense is configured.
  */
 export const adUnitIds = {
-  /** Calculator: after the Recipe result. */
+  /** Calculator: after the recipe result. */
   "after-result": undefined,
   /** Calculator: end of the page, after the explainer. */
   "calculator-end": undefined,
