@@ -1,10 +1,9 @@
 /**
  * The single source of site-wide values. Every page reads these from here.
- * The placeholders stay until branding is decided at launch.
  */
-export const siteName = "[Site name]";
-export const contactEmail = "[contact email]";
-export const labelsLastChecked = "[Month YYYY]";
+export const siteName = "Formula Concentration";
+export const contactEmail = "enrapt.sites@gmail.com";
+export const labelsLastChecked = "September 2026";
 
 export interface NavEntry {
   label: string;
