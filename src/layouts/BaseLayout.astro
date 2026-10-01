@@ -10,6 +10,9 @@
  *   `"tutorial"` (760 px, the default).
  * - `ads`: whether the page has ads (default `true`): the sticky desktop rail
  *   ad, the phone anchor ad and the AdSense script.
+ * - `canonical`: whether to emit a canonical link to this page on the
+ *   production domain (default `true`). Off for the 404 page, which has no
+ *   address of its own.
  *
  * Slots:
  * - default: the page's main column, rendered inside `<main>`.
@@ -38,9 +41,12 @@ interface Props {
   title: string;
   width?: "calculator" | "tutorial";
   ads?: boolean;
+  canonical?: boolean;
 }
 
-const { title, width = "tutorial", ads = true } = Astro.props;
+const { title, width = "tutorial", ads = true, canonical = true } = Astro.props;
+// With `build.format: "file"` the path can end in `.html`; links don't.
+const canonicalUrl = new URL(Astro.url.pathname.replace(/\.html$/, ""), Astro.site);
 const hasRail = ads || Astro.slots.has("rail");
 ---
 
@@ -50,6 +56,7 @@ const hasRail = ads || Astro.slots.has("rail");
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title} · {siteName}</title>
+    {canonical && <link rel="canonical" href={canonicalUrl} />}
     <NoticeBannerHead />
     {ads && <AdSenseLoader />}
   </head>

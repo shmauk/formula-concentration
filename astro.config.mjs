@@ -1,9 +1,10 @@
 // @ts-check
 import { defineConfig } from "astro/config";
 import svelte from "@astrojs/svelte";
-import { homeHref } from "./src/site.config";
+import { homeHref, siteUrl } from "./src/site.config";
 
 export default defineConfig({
+  site: siteUrl,
   output: "static",
   integrations: [svelte()],
   // Emit `calculator.html` rather than `calculator/index.html`. Cloudflare

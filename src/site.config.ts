@@ -2,6 +2,8 @@
  * The single source of site-wide values. Every page reads these from here.
  */
 export const siteName = "Formula Concentration";
+/** The production address. Canonical links point here, not at pages.dev. */
+export const siteUrl = "https://formulaconcentration.com";
 /** Who runs the site, named on the privacy page. */
 export const operatorName = "Tom Lindeback";
 export const contactEmail = "enrapt.sites@gmail.com";
