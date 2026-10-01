@@ -9,7 +9,7 @@ export type RecipeInput = RawNumber;
 export type RecipeInputs = {
   /** kcal. */
   kcalPerScoop: RecipeInput;
-  /** Displacement, mL per Scoop. */
+  /** Displacement, mL per scoop. */
   displacement: RecipeInput;
   /** mL. */
   targetVolume: RecipeInput;
@@ -33,7 +33,7 @@ export const TYPICAL_RANGES: Readonly<Record<RecipeField, { min: number; max: nu
 /** kcal/30 mL. A drift of exactly this much warns. */
 export const CONCENTRATION_WARNING_THRESHOLD = 0.5;
 
-/** mL. A Fewer-Scoops suggestion must land at most this far from the Target volume. */
+/** mL. A Fewer-scoops suggestion must land at most this far from the Target volume. */
 export const SUGGESTION_MAX_VOLUME_DIFFERENCE = 10;
 
 const WATER_STEP_ML = 5;
@@ -46,7 +46,7 @@ export type Recipe = {
   /** mL, rounded up to the nearest 5 mL. */
   water: number;
   actualKcal: number;
-  /** mL: Scoops × Displacement. */
+  /** mL: scoops × displacement. */
   totalDisplacement: number;
   /** mL of water before rounding up to the nearest 5 mL. */
   exactWater: number;
@@ -68,12 +68,12 @@ export type RecipeResult =
       kcalPerMl: number;
       /** kcal: Target volume × kcal/mL. */
       kcalNeeded: number;
-      /** kcal needed ÷ Kcal per scoop, before rounding up. */
+      /** kcal needed ÷ kcal per scoop, before rounding up. */
       exactScoops: number;
       recipe: Recipe;
-      /** The Fewer-Scoops suggestion, or null when it isn't offered. */
+      /** The Fewer-scoops suggestion, or null when it isn't offered. */
       suggestion: Recipe | null;
-      /** The one-fewer-Scoop Recipe checked for the suggestion, offered or not. Null for a single Scoop. */
+      /** The one-fewer-scoop Recipe checked for the suggestion, offered or not. Null for a single scoop. */
       oneFewerScoop: Recipe | null;
     }
   | { kind: "impossible"; validation: RecipeValidation };
@@ -139,7 +139,7 @@ function recipeWithScoops(scoops: number, inputs: ValidInputs, kcalPerMl: number
   };
 }
 
-// Offers the one-fewer-Scoop candidate only when it's closer to the Target
+// Offers the one-fewer-scoop candidate only when it's closer to the Target
 // volume and within SUGGESTION_MAX_VOLUME_DIFFERENCE of it.
 function fewerScoopsSuggestion(recipe: Recipe, candidate: Recipe | null, targetVolume: number): Recipe | null {
   if (candidate === null) return null;

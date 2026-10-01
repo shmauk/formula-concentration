@@ -1,7 +1,7 @@
 <script lang="ts">
   /**
    * The calculator island: the input card, the Recipe card and the
-   * Fewer-Scoops suggestion. Every number comes from `src/lib`; this
+   * Fewer-scoops suggestion. Every number comes from `src/lib`; this
    * component only wires inputs to it and words the result.
    *
    * Inputs live in component state only. They are never saved or sent
@@ -35,15 +35,15 @@
   const FIELDS: Record<RecipeField, FieldCopy> = {
     kcalPerScoop: {
       id: "kcal-per-scoop",
-      label: "Kcal per scoop",
-      hint: "Energy in one level Scoop",
+      label: "kcal per scoop",
+      hint: "Energy in one level scoop",
       unit: "kcal",
     },
     displacement: {
       id: "displacement",
-      label: "Displacement (mL per Scoop)",
-      hint: "Volume one Scoop adds",
-      unit: "mL per Scoop",
+      label: "Displacement (mL per scoop)",
+      hint: "Volume one scoop adds",
+      unit: "mL per scoop",
     },
     targetVolume: {
       id: "target-volume",
@@ -167,9 +167,9 @@
 
 {#if result.kind === "recipe" && result.suggestion}
   {@const suggestion = result.suggestion}
-  <section class="card suggestion" aria-label="Fewer-Scoops suggestion">
+  <section class="card suggestion" aria-label="Fewer-scoops suggestion">
     <p>
-      <strong>Try one fewer Scoop:</strong>
+      <strong>Try one fewer scoop:</strong>
       {scoopsText(suggestion.scoops)} + {formatWater(suggestion.water)} mL water makes
       {formatVolume(suggestion.actualVolume)} mL at {formatConcentration(suggestion.actualConcentration)} kcal/30 mL,
       closer to your {targetVolumeText}.

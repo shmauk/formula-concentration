@@ -17,7 +17,7 @@ type Values = {
 async function fillIn(values: Partial<Values>) {
   const user = userEvent.setup();
   const labels: Record<keyof Values, RegExp> = {
-    kcalPerScoop: /^Kcal per scoop/,
+    kcalPerScoop: /^kcal per scoop/,
     displacement: /^Displacement/,
     targetVolume: /^Target volume/,
     targetConcentration: /^Target concentration/,
@@ -31,16 +31,16 @@ async function fillIn(values: Partial<Values>) {
 }
 
 const recipeCard = () => screen.getByRole("region", { name: "Recipe" });
-const suggestionCard = () => screen.queryByRole("region", { name: "Fewer-Scoops suggestion" });
+const suggestionCard = () => screen.queryByRole("region", { name: "Fewer-scoops suggestion" });
 
 describe("Calculator", () => {
-  it("shows the Recipe and the Fewer-Scoops suggestion for NAN, 150 mL at 24 kcal/30 mL", async () => {
+  it("shows the Recipe and the Fewer-scoops suggestion for NAN, 150 mL at 24 kcal/30 mL", async () => {
     render(Calculator);
     await fillIn({ kcalPerScoop: "22.3", displacement: "3.33", targetVolume: "150", targetConcentration: "24" });
 
-    expect(recipeCard()).toHaveTextContent("6 level Scoops + 150 mL water");
+    expect(recipeCard()).toHaveTextContent("6 level scoops + 150 mL water");
     expect(suggestionCard()).toHaveTextContent(
-      "Try one fewer Scoop: 5 Scoops + 125 mL water makes 141.7 mL at 23.61 kcal/30 mL, closer to your 150 mL.",
+      "Try one fewer scoop: 5 scoops + 125 mL water makes 141.7 mL at 23.61 kcal/30 mL, closer to your 150 mL.",
     );
   });
 
@@ -48,7 +48,7 @@ describe("Calculator", () => {
     render(Calculator);
     await fillIn({ kcalPerScoop: "37.4", displacement: "5", targetVolume: "120", targetConcentration: "24" });
 
-    expect(recipeCard()).toHaveTextContent("3 level Scoops + 130 mL water");
+    expect(recipeCard()).toHaveTextContent("3 level scoops + 130 mL water");
     expect(recipeCard()).toHaveTextContent("0.79 kcal/30 mL below target: check the prescription allows this.");
   });
 
@@ -61,7 +61,7 @@ describe("Calculator", () => {
       expect.stringContaining("Unusual value: typical range is 20–36 kcal/30 mL. Double-check."),
     );
     expect(input.closest(".field")).toHaveClass("unusual");
-    expect(recipeCard()).toHaveTextContent(/\d+ level Scoops \+ \d+ mL water/);
+    expect(recipeCard()).toHaveTextContent(/\d+ level scoops \+ \d+ mL water/);
   });
 
   it("asks for all four values while an input is blank", async () => {
@@ -73,14 +73,14 @@ describe("Calculator", () => {
     await user.clear(screen.getByLabelText(/^Target volume/));
 
     expect(recipeCard()).toHaveTextContent("Fill in all four values to see a Recipe.");
-    expect(recipeCard()).not.toHaveTextContent("level Scoop");
+    expect(recipeCard()).not.toHaveTextContent("level scoop");
     expect(suggestionCard()).not.toBeInTheDocument();
     expect(screen.getByLabelText(/^Target volume/)).toHaveAccessibleDescription(
       expect.stringContaining("Enter a number greater than 0."),
     );
   });
 
-  it("fills Kcal per scoop and Displacement from the NAN label with the label helper", async () => {
+  it("fills kcal per scoop and displacement from the NAN label with the label helper", async () => {
     render(Calculator);
     const user = userEvent.setup();
 
@@ -93,7 +93,7 @@ describe("Calculator", () => {
     await user.type(screen.getByLabelText(/^Prepared volume/), "1000");
     await user.click(screen.getByRole("button", { name: "Use these values" }));
 
-    expect(screen.getByLabelText(/^Kcal per scoop/)).toHaveValue(22.3);
+    expect(screen.getByLabelText(/^kcal per scoop/)).toHaveValue(22.3);
     expect(screen.getByLabelText(/^Displacement/)).toHaveValue(3.33);
   });
 

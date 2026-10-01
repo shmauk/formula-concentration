@@ -18,13 +18,13 @@ const examples = workedExamples.map((example) => ({
 const followAlong = examples.map((example) => ({
   id: example.id,
   name: example.name,
-  summary: `${example.kcalPer100Ml} kcal per 100 mL · ${example.gramsPerScoop} g per Scoop`,
+  summary: `${example.kcalPer100Ml} kcal per 100 mL · ${example.gramsPerScoop} g per scoop`,
 }));
 ---
 
 <TutorialPage
   title="Reading labels"
-  lede="Work out Grams per scoop, Kcal per scoop and Displacement from an Australian or New Zealand formula label."
+  lede="Work out grams per scoop, kcal per scoop and displacement from an Australian or New Zealand formula label."
   followAlong={followAlong}
   nextLinks={[
     { href: "/building-a-recipe", label: "Next: Building a Recipe" },
@@ -34,8 +34,8 @@ const followAlong = examples.map((example) => ({
   <Fragment slot="intro">
     <p>
       To make up a Recipe you need two numbers for the formula: <strong
-        >Kcal per scoop</strong
-      > and <strong>Displacement</strong>. Labels in Australia and New Zealand
+        >kcal per scoop</strong
+      > and <strong>displacement</strong>. Labels in Australia and New Zealand
       don't print either, but both can be worked out from what they do print.
     </p>
     <p>
@@ -63,7 +63,7 @@ const followAlong = examples.map((example) => ({
           </li>
           <li>
             <em>If your label gives no prepared volume at all:</em> the label can't
-            give you Displacement. Ask the manufacturer's careline or check its data
+            give you displacement. Ask the manufacturer's careline or check its data
             sheet.
           </li>
         </ul>
@@ -123,10 +123,10 @@ const followAlong = examples.map((example) => ({
   <StepCard
     number={2}
     title="Scoops in the Reconstitution statement"
-    reason="Skip this if the statement already counts Scoops."
+    reason="Skip this if the statement already counts scoops."
   >
     <Formula>
-      <p>Scoops = grams of powder ÷ Grams per scoop</p>
+      <p>Scoops = grams of powder ÷ grams per scoop</p>
     </Formula>
     <Fragment slot="example">
       {
@@ -155,7 +155,7 @@ const followAlong = examples.map((example) => ({
     reason="Whatever the prepared volume has on top of the water came from the powder."
   >
     <Formula>
-      <p>Displacement = (prepared volume − water) ÷ Scoops</p>
+      <p>Displacement = (prepared volume − water) ÷ scoops</p>
     </Formula>
     <Fragment slot="example">
       {
@@ -173,12 +173,12 @@ const followAlong = examples.map((example) => ({
 
   <StepCard
     number={4}
-    title="Kcal per scoop"
-    reason="Each Scoop makes (prepared volume ÷ Scoops) mL of prepared formula, and the label gives the energy in every 100 mL of it."
+    title="kcal per scoop"
+    reason="Each scoop makes (prepared volume ÷ scoops) mL of prepared formula, and the label gives the energy in every 100 mL of it."
   >
     <Formula>
       <p>
-        Kcal per scoop = kcal per 100 mL × (prepared volume ÷ Scoops) ÷ 100
+        kcal per scoop = kcal per 100 mL × (prepared volume ÷ scoops) ÷ 100
       </p>
     </Formula>
     <Fragment slot="example">
@@ -186,7 +186,7 @@ const followAlong = examples.map((example) => ({
         examples.map((example) => (
           <WorkedExample example={example}>
             <p>
-              <span class="term">Kcal per scoop:</span>{" "}
+              <span class="term">kcal per scoop:</span>{" "}
               {example.working.kcalPerScoop.working}
             </p>
           </WorkedExample>
@@ -201,17 +201,17 @@ const followAlong = examples.map((example) => ({
       prints kJ alone, kcal = kJ ÷ 4.184.
     </p>
     <p>
-      <strong>Precision:</strong> keep Kcal per scoop to 1 decimal place and
-      Displacement to 2.
+      <strong>Precision:</strong> keep kcal per scoop to 1 decimal place and
+      displacement to 2.
     </p>
   </Callout>
 
   <Callout title="“Approximately” statements" tone="caution">
     <p>
-      Some Reconstitution statements say a Scoop and water make <em
+      Some Reconstitution statements say a scoop and water make <em
         >approximately</em
       > a volume, such as “makes approximately 55 mL”. Displacement worked out
-      from them is less certain, by about ±1&nbsp;mL per Scoop.
+      from them is less certain, by about ±1&nbsp;mL per scoop.
     </p>
   </Callout>
 
@@ -223,7 +223,7 @@ const followAlong = examples.map((example) => ({
         labelAccessed={example.label.labelAccessed}
       >
         {example.working.kcalPerScoop.value} kcal per scoop ·{" "}
-        {example.working.displacement.value} mL Displacement
+        {example.working.displacement.value} mL displacement
       </ResultCard>
     ))
   }

@@ -11,7 +11,7 @@ describe("describeLabel", () => {
     });
   });
 
-  it("keeps Aptamil Gold+ 1's \"approximately\" and counts its powder in Scoops", () => {
+  it("keeps Aptamil Gold+ 1's \"approximately\" and counts its powder in scoops", () => {
     expect(describeLabel(aptamilGoldPlus1)).toEqual({
       energy: "69 kcal per 100 mL",
       reconstitutionStatement: "1 scoop + 50 mL water makes approximately 55 mL",

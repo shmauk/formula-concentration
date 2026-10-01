@@ -22,9 +22,9 @@ export type Target = {
   concentration: number;
 };
 
-/** A Recipe in one line, for comparing it with one fewer Scoop. */
+/** A Recipe in one line, for comparing it with one fewer scoop. */
 export type RecipeBrief = {
-  /** "5 Scoops + 125 mL". */
+  /** "5 scoops + 125 mL". */
   recipe: string;
   /** Actual volume, mL. */
   actualVolume: string;
@@ -37,13 +37,13 @@ export type RecipeBrief = {
 export type RecipeWalkthrough = {
   /** Shown beside the follow-along switch. */
   summary: string;
-  /** The Recipe card headline, such as "6 Scoops + 150 mL water". */
+  /** The Recipe card headline, such as "6 scoops + 150 mL water". */
   recipe: string;
   /** What the Recipe makes, such as "170.0 mL at 23.61 kcal/30 mL". */
   makes: string;
   kcalPerMl: string;
   kcalNeeded: string;
-  /** `working` ends with Scoops before rounding up; `value` is rounded up. */
+  /** `working` ends with scoops before rounding up; `value` is rounded up. */
   scoops: WorkingLine;
   actualKcal: WorkingLine;
   totalDisplacement: WorkingLine;
@@ -52,13 +52,13 @@ export type RecipeWalkthrough = {
   actualVolume: WorkingLine;
   actualConcentration: WorkingLine;
   brief: RecipeBrief;
-  /** The same steps with one fewer Scoop; `used` when it's the Fewer-Scoops suggestion. */
+  /** The same steps with one fewer scoop; `used` when it's the Fewer-scoops suggestion. */
   oneFewerScoop: (RecipeBrief & { used: boolean }) | null;
 };
 
 /** The numbers /building-a-recipe shows for one worked example, from the Recipe maths module. */
 export function recipeWalkthrough(example: WorkedExample, target: Target): RecipeWalkthrough {
-  // Kcal per scoop and Displacement as /reading-labels shows them, so the pages agree.
+  // kcal per scoop and displacement as /reading-labels shows them, so the pages agree.
   const label = readingLabelsWorking(example);
   const kcalPerScoop = label.kcalPerScoop.value;
   const displacement = label.displacement.value;
@@ -92,7 +92,7 @@ export function recipeWalkthrough(example: WorkedExample, target: Target): Recip
   };
 }
 
-/** Steps 4–8 for a Recipe with a given number of Scoops. */
+/** Steps 4–8 for a Recipe with a given number of scoops. */
 function stepsFourToEight(recipe: Recipe, kcalPerScoop: string, displacement: string, kcalPerMl: string) {
   const scoops = formatScoops(recipe.scoops);
   const actualKcal = formatKcal(recipe.actualKcal);
@@ -121,7 +121,7 @@ const scoopsText = (recipe: Recipe): string =>
 const makesText = (recipe: Recipe): string =>
   `${formatVolume(recipe.actualVolume)} mL at ${formatConcentration(recipe.actualConcentration)}`;
 
-/** "6 Scoops + 150 mL". */
+/** "6 scoops + 150 mL". */
 const recipeText = (recipe: Recipe): string => `${scoopsText(recipe)} + ${formatWater(recipe.water)} mL`;
 
 function brief(recipe: Recipe, target: Target): RecipeBrief {

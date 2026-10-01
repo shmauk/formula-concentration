@@ -12,7 +12,7 @@ describe("readingLabelsWorking", () => {
     expect(working.kcalPerScoop).toEqual({ working: "67 × (1000 ÷ 30) ÷ 100 = 22.3", value: "22.3" });
   });
 
-  it("works Aptamil Gold+ 1, whose Reconstitution statement is already in Scoops", () => {
+  it("works Aptamil Gold+ 1, whose Reconstitution statement is already in scoops", () => {
     const working = readingLabelsWorking(aptamilGoldPlus1);
     expect(working.scoops).toEqual({ working: null, value: "1" });
     expect(working.displacement).toEqual({ working: "(55 − 50) ÷ 1 = 5.00", value: "5.00" });

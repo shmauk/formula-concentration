@@ -7,7 +7,7 @@ import { aptamilGoldPlus1, nanOptipro1 } from "./worked-examples";
 const target = { volume: 150, concentration: 24 };
 
 describe("recipeWalkthrough", () => {
-  it("works out how many Scoops of NAN OPTIPRO 1", () => {
+  it("works out how many scoops of NAN OPTIPRO 1", () => {
     const working = recipeWalkthrough(nanOptipro1, target);
     expect(working.kcalPerMl).toBe("24 ÷ 30 = 0.8");
     expect(working.kcalNeeded).toBe("150 × 0.8 = 120");
@@ -26,7 +26,7 @@ describe("recipeWalkthrough", () => {
   it("sums up NAN OPTIPRO 1 for the switch and the Recipe card", () => {
     const working = recipeWalkthrough(nanOptipro1, target);
     expect(working.summary).toBe("150 mL at 24 · 22.3 kcal, 3.33 mL");
-    expect(working.recipe).toBe("6 Scoops + 150 mL water");
+    expect(working.recipe).toBe("6 scoops + 150 mL water");
     expect(working.makes).toBe("170.0 mL at 23.61 kcal/30 mL");
   });
 
@@ -41,15 +41,15 @@ describe("recipeWalkthrough", () => {
     expect(`${working.water.working} → ${working.water.value} mL`).toBe("152.0 ÷ 0.8 − 20.0 = 170.0 → 170 mL");
     expect(working.actualVolume).toEqual({ working: "170 + 20.0 = 190.0", value: "190.0" });
     expect(working.actualConcentration).toEqual({ working: "152.0 ÷ 190.0 × 30 = 24.00", value: "24.00" });
-    expect(working.recipe).toBe("4 Scoops + 170 mL water");
+    expect(working.recipe).toBe("4 scoops + 170 mL water");
     expect(working.makes).toBe("190.0 mL at 24.00 kcal/30 mL");
   });
 
-  it("uses one fewer Scoop of NAN OPTIPRO 1: 8.3 mL short beats 20 mL over", () => {
+  it("uses one fewer scoop of NAN OPTIPRO 1: 8.3 mL short beats 20 mL over", () => {
     const { brief, oneFewerScoop } = recipeWalkthrough(nanOptipro1, target);
     expect(brief.fromTarget).toBe("20 mL over");
     expect(oneFewerScoop).toEqual({
-      recipe: "5 Scoops + 125 mL",
+      recipe: "5 scoops + 125 mL",
       actualVolume: "141.7",
       makes: "141.7 mL at 23.61",
       fromTarget: "8.3 mL short",
@@ -57,23 +57,23 @@ describe("recipeWalkthrough", () => {
     });
   });
 
-  it("uses one fewer Scoop of Aptamil Gold+ 1: 5 mL short beats 40 mL over", () => {
+  it("uses one fewer scoop of Aptamil Gold+ 1: 5 mL short beats 40 mL over", () => {
     const { brief, oneFewerScoop } = recipeWalkthrough(aptamilGoldPlus1, target);
     expect(brief.fromTarget).toBe("40 mL over");
     expect(oneFewerScoop).toMatchObject({
-      recipe: "3 Scoops + 130 mL",
+      recipe: "3 scoops + 130 mL",
       makes: "145.0 mL at 23.59",
       fromTarget: "5 mL short",
       used: true,
     });
   });
 
-  it("doesn't use one fewer Scoop of Aptamil Gold+ 1 at 150 mL at 20: 35 mL short", () => {
+  it("doesn't use one fewer scoop of Aptamil Gold+ 1 at 150 mL at 20: 35 mL short", () => {
     const { brief, oneFewerScoop } = recipeWalkthrough(aptamilGoldPlus1, { volume: 150, concentration: 20 });
-    expect(brief.recipe).toBe("3 Scoops + 160 mL");
+    expect(brief.recipe).toBe("3 scoops + 160 mL");
     expect(brief.makes).toBe("175.0 mL at 19.54");
     expect(oneFewerScoop).toMatchObject({
-      recipe: "2 Scoops + 105 mL",
+      recipe: "2 scoops + 105 mL",
       actualVolume: "115.0",
       fromTarget: "35 mL short",
       used: false,

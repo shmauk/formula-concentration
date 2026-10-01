@@ -32,20 +32,20 @@ describe("formatting", () => {
     expect(formatConcentration(19.542857)).toBe("19.54");
   });
 
-  it("shows Displacement to 2 dp", () => {
+  it("shows displacement to 2 dp", () => {
     expect(formatDisplacement(3.333333)).toBe("3.33");
     expect(formatDisplacement(5)).toBe("5.00");
   });
 
-  it("shows water and Scoops as whole numbers", () => {
+  it("shows water and scoops as whole numbers", () => {
     expect(formatWater(170)).toBe("170");
     expect(formatScoops(6)).toBe("6");
   });
 
-  it("names one Scoop in the singular and any other count in the plural", () => {
-    expect(scoopsNoun(1)).toBe("Scoop");
-    expect(scoopsNoun(2)).toBe("Scoops");
-    expect(scoopsNoun(6)).toBe("Scoops");
+  it("names one scoop in the singular and any other count in the plural", () => {
+    expect(scoopsNoun(1)).toBe("scoop");
+    expect(scoopsNoun(2)).toBe("scoops");
+    expect(scoopsNoun(6)).toBe("scoops");
   });
 
   it("rounds halves up even where floating point stores them just below", () => {
@@ -73,7 +73,7 @@ describe("formatting", () => {
     expect(formatKcalNeeded(100 * (20 / 30))).toBe("66.7");
   });
 
-  it("shows Scoops before rounding up to 2 dp", () => {
+  it("shows scoops before rounding up to 2 dp", () => {
     expect(formatExactScoops(120 / 22.3)).toBe("5.38");
     expect(formatExactScoops(120 / 38)).toBe("3.16");
     expect(formatExactScoops(4)).toBe("4.00");

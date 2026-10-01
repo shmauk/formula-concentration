@@ -8,7 +8,7 @@ export type WorkingLine = {
 };
 
 export type ReadingLabelsWorking = {
-  /** `working` is null when the Reconstitution statement already counts Scoops. */
+  /** `working` is null when the Reconstitution statement already counts scoops. */
   scoops: { working: string | null; value: string };
   displacement: WorkingLine;
   kcalPerScoop: WorkingLine;
@@ -31,7 +31,7 @@ export function readingLabelsWorking(example: WorkedExample): ReadingLabelsWorki
 
   const scoops = formatScoops(derived.scoops);
   if (Math.abs(derived.scoops - Number(scoops)) > 1e-9) {
-    throw new Error(`${example.name}: the Reconstitution statement isn't a whole number of Scoops`);
+    throw new Error(`${example.name}: the Reconstitution statement isn't a whole number of scoops`);
   }
   const { kcalPerScoop, displacement } = derived.display;
 

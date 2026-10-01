@@ -1,6 +1,6 @@
 <script lang="ts">
   /**
-   * Works out Kcal per scoop and Displacement from a label's energy per
+   * Works out kcal per scoop and displacement from a label's energy per
    * 100 mL and Reconstitution statement, using `deriveFromLabel`.
    */
   import { deriveFromLabel, type LabelPowder } from "../../lib";
@@ -71,8 +71,8 @@
 
   <p class="readout" aria-live="polite">
     {#if derived}
-      Kcal per scoop <strong>{derived.display.kcalPerScoop}</strong> · Displacement
-      <strong>{derived.display.displacement} mL per Scoop</strong>
+      kcal per scoop <strong>{derived.display.kcalPerScoop}</strong> · displacement
+      <strong>{derived.display.displacement} mL per scoop</strong>
     {:else if water != null && preparedVolume != null && water > 0 && preparedVolume > 0 && preparedVolume <= water}
       The prepared volume must be more than the water.
     {:else}

@@ -25,7 +25,7 @@ export type WorkedExample = {
     approximate: boolean;
   };
   gramsPerScoop: number;
-  /** How the label words Grams per scoop. */
+  /** How the label words grams per scoop. */
   gramsPerScoopWording: string;
   /** ISO date the label was read. */
   labelAccessed: string;

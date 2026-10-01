@@ -25,18 +25,18 @@ const followAlong = examples.map((example) => ({
   summary: example.working.summary,
 }));
 
-// A case where one fewer Scoop lands too far from the Target volume.
+// A case where one fewer scoop lands too far from the Target volume.
 const noSuggestionTarget = { volume: 150, concentration: 20 };
 const noSuggestion = recipeWalkthrough(aptamilGoldPlus1, noSuggestionTarget);
 if (!noSuggestion.oneFewerScoop || noSuggestion.oneFewerScoop.used) {
-  throw new Error("The no-suggestion example now gives a Fewer-Scoops suggestion");
+  throw new Error("The no-suggestion example now gives a Fewer-scoops suggestion");
 }
 const noSuggestionFewer = noSuggestion.oneFewerScoop;
 ---
 
 <TutorialPage
   title="Building a Recipe"
-  lede="Make a bottle at a Target concentration by hand, from whole Scoops and water to the nearest 5 mL. The calculator does the same sums."
+  lede="Make a bottle at a Target concentration by hand, from whole scoops and water to the nearest 5 mL. The calculator does the same sums."
   followAlong={followAlong}
   nextLinks={[
     { href: "/calculator", label: "Open the calculator" },
@@ -45,8 +45,8 @@ const noSuggestionFewer = noSuggestion.oneFewerScoop;
 >
   <Fragment slot="intro">
     <p>
-      You need the formula's <strong>Kcal per scoop</strong> and <strong
-        >Displacement</strong
+      You need the formula's <strong>kcal per scoop</strong> and <strong
+        >displacement</strong
       >. <a href="/reading-labels">Reading labels</a> shows how to get them from
       the label.
     </p>
@@ -54,14 +54,14 @@ const noSuggestionFewer = noSuggestion.oneFewerScoop;
 
   <StepCard
     number={1}
-    title="How many Scoops"
-    reason="You can only use whole Scoops, and rounding up makes sure there's enough energy."
+    title="How many scoops"
+    reason="You can only use whole scoops, and rounding up makes sure there's enough energy."
   >
     <p>Target concentration is in kcal/30 mL, so dividing by 30 gives kcal per mL.</p>
     <Formula>
       <p>kcal/mL = Target concentration ÷ 30</p>
       <p>kcal needed = Target volume × kcal/mL</p>
-      <p>Scoops = kcal needed ÷ Kcal per scoop, <strong>rounded up</strong></p>
+      <p>Scoops = kcal needed ÷ kcal per scoop, <strong>rounded up</strong></p>
     </Formula>
     <Fragment slot="example">
       {
@@ -86,13 +86,13 @@ const noSuggestionFewer = noSuggestion.oneFewerScoop;
   <StepCard
     number={2}
     title="How much water"
-    reason="The powder takes up room too, so the water is the volume needed to bring the energy back to target, minus the powder's Displacement."
+    reason="The powder takes up room too, so the water is the volume needed to bring the energy back to target, minus the powder's displacement."
   >
     <Formula>
-      <p>Actual kcal = Scoops × Kcal per scoop</p>
-      <p>total Displacement = Scoops × Displacement</p>
+      <p>Actual kcal = scoops × kcal per scoop</p>
+      <p>total displacement = scoops × displacement</p>
       <p>
-        water = Actual kcal ÷ kcal/mL − total Displacement, <strong
+        water = Actual kcal ÷ kcal/mL − total displacement, <strong
           >rounded up to the nearest 5 mL</strong
         >
       </p>
@@ -105,7 +105,7 @@ const noSuggestionFewer = noSuggestion.oneFewerScoop;
               <span class="term">Actual kcal:</span> {working.actualKcal.working}
             </p>
             <p>
-              <span class="term">Total Displacement:</span>{" "}
+              <span class="term">Total displacement:</span>{" "}
               {working.totalDisplacement.working} mL
             </p>
             <p>
@@ -124,7 +124,7 @@ const noSuggestionFewer = noSuggestion.oneFewerScoop;
     reason="Rounding means the bottle isn't exactly what you asked for; this tells you what it is."
   >
     <Formula>
-      <p>Actual volume = water + total Displacement</p>
+      <p>Actual volume = water + total displacement</p>
       <p>Actual concentration = Actual kcal ÷ Actual volume × 30</p>
     </Formula>
     <Fragment slot="example">
@@ -165,7 +165,7 @@ const noSuggestionFewer = noSuggestion.oneFewerScoop;
         measure reliably on bottle markings.
       </li>
       <li>
-        If Scoops comes out exactly whole, don't round up; the same goes for
+        If scoops comes out exactly whole, don't round up; the same goes for
         water already on a 5 mL mark.
       </li>
       <li>
@@ -177,11 +177,11 @@ const noSuggestionFewer = noSuggestion.oneFewerScoop;
 
   <Callout title="Why is it slightly under?">
     <p>
-      Rounding Scoops up adds extra energy. The water is then sized to dilute
+      Rounding scoops up adds extra energy. The water is then sized to dilute
       that energy back to the target, and rounding the water up to 5 mL dilutes
       it a little more. So the Recipe's Actual concentration is always at or
       just below the Target concentration, and its Actual volume at or above
-      the Target volume. Only the Fewer-Scoops suggestion below can come out
+      the Target volume. Only the Fewer-scoops suggestion below can come out
       under the Target volume.
     </p>
     <p>
@@ -192,11 +192,11 @@ const noSuggestionFewer = noSuggestion.oneFewerScoop;
 
   <StepCard
     marker="✓"
-    title="Optional final check: the Fewer-Scoops suggestion"
-    reason="This Recipe can make slightly less than the Target volume. Two fewer is never worth checking: the main Recipe overshoots by less than one Scoop's worth of volume, so two fewer always lands further away."
+    title="Optional final check: the Fewer-scoops suggestion"
+    reason="This Recipe can make slightly less than the Target volume. Two fewer is never worth checking: the main Recipe overshoots by less than one scoop's worth of volume, so two fewer always lands further away."
   >
     <Formula>
-      <p>Try one fewer Scoop: redo “How much water” and “What you actually get” with one fewer Scoop.</p>
+      <p>Try one fewer scoop: redo “How much water” and “What you actually get” with one fewer scoop.</p>
       <p>
         Use it if its Actual volume is <strong>closer</strong> to the Target volume{" "}
         <strong>and within {SUGGESTION_MAX_VOLUME_DIFFERENCE} mL</strong> of it.
@@ -209,7 +209,7 @@ const noSuggestionFewer = noSuggestion.oneFewerScoop;
             {working.oneFewerScoop ? (
               <>
                 <p>
-                  <span class="term">One fewer Scoop:</span>{" "}
+                  <span class="term">One fewer scoop:</span>{" "}
                   {working.oneFewerScoop.recipe} → {working.oneFewerScoop.makes}
                 </p>
                 <p>
@@ -218,7 +218,7 @@ const noSuggestionFewer = noSuggestion.oneFewerScoop;
                 </p>
               </>
             ) : (
-              <p>A single Scoop: there's no fewer to try.</p>
+              <p>A single scoop: there's no fewer to try.</p>
             )}
           </WorkedExample>
         ))
@@ -239,7 +239,7 @@ const noSuggestionFewer = noSuggestion.oneFewerScoop;
 
   <p class="note">
     This page covers quantities only. Preparation and hygiene (water first,
-    level Scoops and so on) follow the tin's instructions and your local feeding
+    level scoops and so on) follow the tin's instructions and your local feeding
     protocols.
   </p>
 </TutorialPage>

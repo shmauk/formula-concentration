@@ -21,13 +21,13 @@ export type LabelHelperResult = {
   scoops: number;
   /** Unrounded kcal. */
   kcalPerScoop: number;
-  /** Unrounded mL per Scoop. */
+  /** Unrounded mL per scoop. */
   displacement: number;
-  /** Kcal per scoop to 1 dp and Displacement to 2 dp, rounded half up. */
+  /** kcal per scoop to 1 dp and displacement to 2 dp, rounded half up. */
   display: { kcalPerScoop: string; displacement: string };
 };
 
-/** Derives Kcal per scoop and Displacement from a label. Returns null for impossible inputs. */
+/** Derives kcal per scoop and displacement from a label. Returns null for impossible inputs. */
 export function deriveFromLabel(inputs: LabelInputs): LabelHelperResult | null {
   const kcalPer100Ml = parsePositiveNumber(inputs.kcalPer100Ml);
   const water = parsePositiveNumber(inputs.water);

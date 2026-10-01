@@ -9,7 +9,7 @@ function recipeFor(kcalPerScoop: number, displacement: number, targetVolume: num
 }
 
 describe("calculateRecipe", () => {
-  it("NAN 22.3 / 3.33 / 150 / 24 gives 6 Scoops + 150 mL", () => {
+  it("NAN 22.3 / 3.33 / 150 / 24 gives 6 scoops + 150 mL", () => {
     const { recipe } = recipeFor(22.3, 3.33, 150, 24);
     expect(recipe.scoops).toBe(6);
     expect(recipe.water).toBe(150);
@@ -29,7 +29,7 @@ describe("calculateRecipe", () => {
   });
 
   it("warns when the Actual concentration is exactly 0.5 under the Target concentration", () => {
-    // 1 Scoop + 25 mL -> 30 mL at 31.0 against 31.5. Floating point computes the drift as 0.4999999999999964.
+    // 1 scoop + 25 mL -> 30 mL at 31.0 against 31.5. Floating point computes the drift as 0.4999999999999964.
     const { recipe } = recipeFor(31, 5, 20, 31.5);
     expect(recipe.scoops).toBe(1);
     expect(recipe.water).toBe(25);
@@ -48,8 +48,8 @@ describe("calculateRecipe", () => {
   });
 });
 
-describe("Fewer-Scoops suggestion", () => {
-  it("NAN 22.3 / 3.33 / 150 / 24 suggests 5 Scoops + 125 mL", () => {
+describe("Fewer-scoops suggestion", () => {
+  it("NAN 22.3 / 3.33 / 150 / 24 suggests 5 scoops + 125 mL", () => {
     const { suggestion } = recipeFor(22.3, 3.33, 150, 24);
     expect(suggestion?.scoops).toBe(5);
     expect(suggestion?.water).toBe(125);
@@ -58,7 +58,7 @@ describe("Fewer-Scoops suggestion", () => {
     expect(suggestion?.concentrationWarning).toBe(false);
   });
 
-  it("Aptamil 38.0 / 5 / 150 / 24 suggests 3 Scoops + 130 mL", () => {
+  it("Aptamil 38.0 / 5 / 150 / 24 suggests 3 scoops + 130 mL", () => {
     const { recipe, suggestion } = recipeFor(38, 5, 150, 24);
     expect(recipe.scoops).toBe(4);
     expect(recipe.water).toBe(170);
@@ -72,7 +72,7 @@ describe("Fewer-Scoops suggestion", () => {
     expect(suggestion?.concentrationWarning).toBe(false);
   });
 
-  it("NAN 22.3 / 3.33 / 60 / 27 suggests 2 Scoops + 45 mL, which warns", () => {
+  it("NAN 22.3 / 3.33 / 60 / 27 suggests 2 scoops + 45 mL, which warns", () => {
     const { recipe, suggestion } = recipeFor(22.3, 3.33, 60, 27);
     expect(recipe.scoops).toBe(3);
     expect(recipe.water).toBe(65);
@@ -86,23 +86,23 @@ describe("Fewer-Scoops suggestion", () => {
     expect(suggestion?.concentrationWarning).toBe(true);
   });
 
-  it("is not offered when one fewer Scoop lands more than 10 mL from the Target volume", () => {
-    // Aptamil 38.0 / 5 / 150 / 20: 2 Scoops + 105 mL -> 115.0 mL is 35 mL short.
+  it("is not offered when one fewer scoop lands more than 10 mL from the Target volume", () => {
+    // Aptamil 38.0 / 5 / 150 / 20: 2 scoops + 105 mL -> 115.0 mL is 35 mL short.
     expect(recipeFor(38, 5, 150, 20).suggestion).toBeNull();
   });
 
-  it("is not offered when one fewer Scoop is no closer to the Target volume", () => {
-    // Karicare 37.4 / 5 / 120 / 24: 145 mL is 25 mL over; 2 Scoops + 85 mL -> 95 mL is 25 mL under.
+  it("is not offered when one fewer scoop is no closer to the Target volume", () => {
+    // Karicare 37.4 / 5 / 120 / 24: 145 mL is 25 mL over; 2 scoops + 85 mL -> 95 mL is 25 mL under.
     expect(recipeFor(37.4, 5, 120, 24).suggestion).toBeNull();
   });
 
-  it("is not offered when the Recipe is a single Scoop", () => {
+  it("is not offered when the Recipe is a single scoop", () => {
     const { recipe, suggestion } = recipeFor(31, 5, 20, 31.5);
     expect(recipe.scoops).toBe(1);
     expect(suggestion).toBeNull();
   });
 
-  it("still gives the one-fewer-Scoop Recipe it checked when it isn't offered", () => {
+  it("still gives the one-fewer-scoop Recipe it checked when it isn't offered", () => {
     const { oneFewerScoop, suggestion } = recipeFor(38, 5, 150, 20);
     expect(suggestion).toBeNull();
     expect(oneFewerScoop?.scoops).toBe(2);
@@ -110,13 +110,13 @@ describe("Fewer-Scoops suggestion", () => {
     expect(oneFewerScoop?.actualVolume).toBe(115);
   });
 
-  it("has nothing to check when the Recipe is a single Scoop", () => {
+  it("has nothing to check when the Recipe is a single scoop", () => {
     expect(recipeFor(31, 5, 20, 31.5).oneFewerScoop).toBeNull();
   });
 });
 
 describe("floating-point snapping", () => {
-  it("23 kcal per scoop, 150 mL at 23 gives 5 Scoops, not 6", () => {
+  it("23 kcal per scoop, 150 mL at 23 gives 5 scoops, not 6", () => {
     expect(recipeFor(23, 4, 150, 23).recipe.scoops).toBe(5);
   });
 
@@ -127,8 +127,8 @@ describe("floating-point snapping", () => {
 
 describe("working values", () => {
   it("exposes the intermediate values page 2 prints", () => {
-    // Aptamil 38.0 / 5 / 150 / 24: 0.8 kcal/mL, 120 kcal needed, 3.157... Scoops -> 4,
-    // 152 kcal, 20 mL Displacement, 190 - 20 = 170 mL water exactly.
+    // Aptamil 38.0 / 5 / 150 / 24: 0.8 kcal/mL, 120 kcal needed, 3.157... scoops -> 4,
+    // 152 kcal, 20 mL displacement, 190 - 20 = 170 mL water exactly.
     const result = recipeFor(38, 5, 150, 24);
     expect(result.kcalPerMl).toBeCloseTo(0.8, 12);
     expect(result.kcalNeeded).toBeCloseTo(120, 9);
@@ -217,14 +217,14 @@ describe("input validation", () => {
 describe("display values from the ticket's Recipe table", () => {
   const display = (r: Recipe | null) =>
     r &&
-    `${formatScoops(r.scoops)} Scoops + ${formatWater(r.water)} mL → ${formatVolume(r.actualVolume)} mL at ${formatConcentration(r.actualConcentration)}`;
+    `${formatScoops(r.scoops)} scoops + ${formatWater(r.water)} mL → ${formatVolume(r.actualVolume)} mL at ${formatConcentration(r.actualConcentration)}`;
 
   it.each([
-    [22.3, 3.33, 150, 24, "6 Scoops + 150 mL → 170.0 mL at 23.61", "5 Scoops + 125 mL → 141.7 mL at 23.61"],
-    [38, 5, 150, 24, "4 Scoops + 170 mL → 190.0 mL at 24.00", "3 Scoops + 130 mL → 145.0 mL at 23.59"],
-    [38, 5, 150, 20, "3 Scoops + 160 mL → 175.0 mL at 19.54", null],
-    [22.3, 3.33, 60, 27, "3 Scoops + 65 mL → 75.0 mL at 26.76", "2 Scoops + 45 mL → 51.7 mL at 25.90"],
-    [37.4, 5, 120, 24, "3 Scoops + 130 mL → 145.0 mL at 23.21", null],
+    [22.3, 3.33, 150, 24, "6 scoops + 150 mL → 170.0 mL at 23.61", "5 scoops + 125 mL → 141.7 mL at 23.61"],
+    [38, 5, 150, 24, "4 scoops + 170 mL → 190.0 mL at 24.00", "3 scoops + 130 mL → 145.0 mL at 23.59"],
+    [38, 5, 150, 20, "3 scoops + 160 mL → 175.0 mL at 19.54", null],
+    [22.3, 3.33, 60, 27, "3 scoops + 65 mL → 75.0 mL at 26.76", "2 scoops + 45 mL → 51.7 mL at 25.90"],
+    [37.4, 5, 120, 24, "3 scoops + 130 mL → 145.0 mL at 23.21", null],
   ])("%s / %s / %s / %s shows %s", (kcal, displacement, volume, concentration, expectedRecipe, expectedSuggestion) => {
     const { recipe, suggestion } = recipeFor(kcal, displacement, volume, concentration);
     expect(display(recipe)).toBe(expectedRecipe);
