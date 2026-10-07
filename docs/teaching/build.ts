@@ -17,6 +17,7 @@ import { describeLabel, nanOptipro1, type WorkedExample } from "../../src/conten
 import {
   calculateRecipe,
   CONCENTRATION_WARNING_THRESHOLD,
+  deriveFromLabel,
   formatConcentration,
   formatExactScoops,
   formatGrams,
@@ -36,6 +37,7 @@ import { exercises, type Exercise, type GivenFormula, type Label } from "./exerc
 const OUT_DIR = dirname(fileURLToPath(import.meta.url));
 const CHROME_PATH = process.env.CHROME_PATH ?? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const SITE_HOST = new URL(siteUrl).host;
+const displacementRange = `${TYPICAL_RANGES.displacement.min.toFixed(2)}–${TYPICAL_RANGES.displacement.max.toFixed(2)}`;
 
 // ---------- Working ----------
 
@@ -166,14 +168,13 @@ function fullWorking(example: WorkedExample, target: Target) {
   const label = readingLabelsWorking(example);
   const kcalPerScoop = label.kcalPerScoop.value;
   const displacement = label.displacement.value;
-  const { powder, water, preparedVolume } = example.reconstitutionStatement;
-  const { gramsPerScoop } = example;
-  const scoops = powder.route === "grams" ? powder.grams / gramsPerScoop : powder.scoops;
-  const grams = scoops * gramsPerScoop;
+  const { kcalPer100Ml, gramsPerScoop, reconstitutionStatement: statement } = example;
+  const unrounded = deriveFromLabel({ kcalPer100Ml, gramsPerScoop, ...statement });
+  if (unrounded === null) throw new Error(`${example.name}: the label values don't give a result`);
   const recipe = recipeSteps(kcalPerScoop, String(gramsPerScoop), displacement, target, {
-    kcalPerScoop: (example.kcalPer100Ml * (preparedVolume / scoops)) / 100,
+    kcalPerScoop: unrounded.kcalPerScoop,
     gramsPerScoop,
-    displacement: (preparedVolume - water) / grams,
+    displacement: unrounded.displacement,
   });
   return { label: labelSteps(label), recipe };
 }
@@ -341,7 +342,7 @@ function cheatSheet(): string {
     <p>Find: <strong>energy per 100 mL</strong> of prepared formula, the <strong>Reconstitution statement</strong>, and <strong>grams per scoop</strong>.</p>
     <ol class="formulas">
       <li><span class="step">A1</span> Scoops in the statement = grams of powder ÷ grams per scoop <em>(skip if it counts scoops)</em></li>
-      <li><span class="step">A2</span> Displacement = (prepared volume − water) ÷ grams of powder <em>(3 dp; scoops × grams per scoop if it counts scoops)</em>. Usually <strong>${TYPICAL_RANGES.displacement.min}–${TYPICAL_RANGES.displacement.max} mL per g</strong> whatever the scoop size; if not, re-read the label.</li>
+      <li><span class="step">A2</span> Displacement = (prepared volume − water) ÷ grams of powder <em>(3 dp; scoops × grams per scoop if it counts scoops)</em>. Usually <strong>${displacementRange} mL per g</strong> however big the scoop; if not, re-read the label.</li>
       <li><span class="step">A3</span> kcal per scoop = energy per 100 mL × (prepared volume ÷ scoops) ÷ 100 <em>(1 dp)</em></li>
     </ol>
 
