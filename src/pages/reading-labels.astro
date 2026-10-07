@@ -7,6 +7,7 @@ import TutorialPage from "../components/tutorial/TutorialPage.astro";
 import WorkedExample from "../components/tutorial/WorkedExample.astro";
 import { readingLabelsWorking } from "../content/reading-labels";
 import { describeLabel, workedExamples } from "../content/worked-examples";
+import { TYPICAL_RANGES } from "../lib";
 
 // Every number below comes from the label values via the recipe maths module.
 const examples = workedExamples.map((example) => ({
@@ -33,10 +34,11 @@ const followAlong = examples.map((example) => ({
 >
   <Fragment slot="intro">
     <p>
-      To make up a recipe you need two numbers for the formula: <strong
+      To make up a recipe you need three numbers for the formula: <strong
         >kcal per scoop</strong
-      > and <strong>displacement</strong>. Labels in Australia and New Zealand
-      don't print either, but both can be worked out from what they do print.
+      >, <strong>grams per scoop</strong> and <strong>displacement</strong>.
+      Labels in Australia and New Zealand print grams per scoop. They don't
+      print the other two, but both can be worked out from what they do print.
     </p>
     <p>
       AU/NZ labels give energy <strong>per 100 mL of prepared formula</strong>{" "}
@@ -97,7 +99,7 @@ const followAlong = examples.map((example) => ({
   <StepCard
     number={1}
     title="Grams per scoop"
-    reason="You only need it when the Reconstitution statement gives the powder in grams."
+    reason="Displacement is per gram of powder and kcal is per scoop, so you need it to go between the two."
   >
     <Formula>
       <p>Read it straight off the label.</p>
@@ -155,7 +157,8 @@ const followAlong = examples.map((example) => ({
     reason="Whatever the prepared volume has on top of the water came from the powder."
   >
     <Formula>
-      <p>Displacement = (prepared volume − water) ÷ scoops</p>
+      <p>Displacement = (prepared volume − water) ÷ grams of powder</p>
+      <p>If the statement counts scoops, grams of powder = scoops × grams per scoop</p>
     </Formula>
     <Fragment slot="example">
       {
@@ -163,7 +166,7 @@ const followAlong = examples.map((example) => ({
           <WorkedExample example={example}>
             <p>
               <span class="term">Displacement:</span>{" "}
-              {example.working.displacement.working} mL
+              {example.working.displacement.working} mL per g
             </p>
           </WorkedExample>
         ))
@@ -202,7 +205,14 @@ const followAlong = examples.map((example) => ({
     </p>
     <p>
       <strong>Precision:</strong> keep kcal per scoop to 1 decimal place and
-      displacement to 2.
+      displacement to 3.
+    </p>
+    <p>
+      <strong>Sense check:</strong> displacement comes out between{" "}
+      {TYPICAL_RANGES.displacement.min.toFixed(2)} and{" "}
+      {TYPICAL_RANGES.displacement.max.toFixed(2)}&nbsp;mL per g for most
+      formulas, however big the scoop. If yours doesn't, check the label values
+      again.
     </p>
   </Callout>
 
@@ -211,7 +221,8 @@ const followAlong = examples.map((example) => ({
       Some Reconstitution statements say a scoop and water make <em
         >approximately</em
       > a volume, such as “makes approximately 55 mL”. Displacement worked out
-      from them is less certain, by about ±1&nbsp;mL per scoop.
+      from them is less certain: 1&nbsp;mL either way on a 7.5&nbsp;g scoop is
+      about ±0.13&nbsp;mL per g.
     </p>
   </Callout>
 
@@ -223,7 +234,8 @@ const followAlong = examples.map((example) => ({
         labelAccessed={example.label.labelAccessed}
       >
         {example.working.kcalPerScoop.value} kcal per scoop ·{" "}
-        {example.working.displacement.value} mL displacement
+        {example.gramsPerScoop} g per scoop ·{" "}
+        {example.working.displacement.value} mL per g displacement
       </ResultCard>
     ))
   }

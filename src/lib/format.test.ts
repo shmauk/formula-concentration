@@ -3,6 +3,7 @@ import {
   formatConcentration,
   formatDisplacement,
   formatExactScoops,
+  formatGrams,
   formatKcal,
   formatKcalNeeded,
   formatKcalPerMl,
@@ -32,9 +33,15 @@ describe("formatting", () => {
     expect(formatConcentration(19.542857)).toBe("19.54");
   });
 
-  it("shows displacement to 2 dp", () => {
-    expect(formatDisplacement(3.333333)).toBe("3.33");
-    expect(formatDisplacement(5)).toBe("5.00");
+  it("shows displacement to 3 dp", () => {
+    expect(formatDisplacement(100 / 129)).toBe("0.775");
+    expect(formatDisplacement(5 / 7.5)).toBe("0.667");
+    expect(formatDisplacement(0.7)).toBe("0.700");
+  });
+
+  it("shows grams to 1 dp", () => {
+    expect(formatGrams(25.8)).toBe("25.8");
+    expect(formatGrams(30)).toBe("30.0");
   });
 
   it("shows water and scoops as whole numbers", () => {
@@ -49,11 +56,11 @@ describe("formatting", () => {
   });
 
   it("rounds halves up even where floating point stores them just below", () => {
-    // Plain toFixed gives 0.1, 1.4, 1.00 and 2.67 for these.
+    // Plain toFixed gives 0.1, 1.4, 1.00 and 0.666 for these.
     expect(formatKcal(0.15)).toBe("0.2");
     expect(formatVolume(1.45)).toBe("1.5");
     expect(formatConcentration(1.005)).toBe("1.01");
-    expect(formatDisplacement(2.675)).toBe("2.68");
+    expect(formatDisplacement(0.6665)).toBe("0.667");
     expect(formatKcal(37.95)).toBe("38.0");
   });
 

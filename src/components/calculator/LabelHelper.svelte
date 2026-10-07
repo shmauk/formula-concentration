@@ -8,7 +8,7 @@
 
   type Props = {
     /** Called with the rounded values shown in the readout. */
-    onuse: (values: { kcalPerScoop: number; displacement: number }) => void;
+    onuse: (values: { kcalPerScoop: number; gramsPerScoop: number; displacement: number }) => void;
   };
 
   let { onuse }: Props = $props();
@@ -26,14 +26,16 @@
       kcalPer100Ml,
       water,
       preparedVolume,
-      powder: route === "scoops" ? { route, scoops } : { route, grams, gramsPerScoop },
+      gramsPerScoop,
+      powder: route === "scoops" ? { route, scoops } : { route, grams },
     }),
   );
 
   function use() {
-    if (!derived) return;
+    if (!derived || gramsPerScoop === null) return;
     onuse({
       kcalPerScoop: Number(derived.display.kcalPerScoop),
+      gramsPerScoop,
       displacement: Number(derived.display.displacement),
     });
   }
@@ -46,6 +48,8 @@
     hint="Only kJ on the label? Divide by 4.184."
     bind:value={kcalPer100Ml}
   />
+
+  <NumberField id="label-grams-per-scoop" label="Grams per scoop (g)" bind:value={gramsPerScoop} />
 
   <fieldset class="switch">
     <legend>The label gives powder as:</legend>
@@ -60,7 +64,6 @@
       <NumberField id="label-scoops" label="Scoops" bind:value={scoops} />
     {:else}
       <NumberField id="label-grams" label="Powder (g)" bind:value={grams} />
-      <NumberField id="label-grams-per-scoop" label="Grams per scoop (g)" bind:value={gramsPerScoop} />
     {/if}
   </div>
 
@@ -72,7 +75,7 @@
   <p class="readout" aria-live="polite">
     {#if derived}
       kcal per scoop <strong>{derived.display.kcalPerScoop}</strong> · displacement
-      <strong>{derived.display.displacement} mL per scoop</strong>
+      <strong>{derived.display.displacement} mL per g</strong>
     {:else if water != null && preparedVolume != null && water > 0 && preparedVolume > 0 && preparedVolume <= water}
       The prepared volume must be more than the water.
     {:else}

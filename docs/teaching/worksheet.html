@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<title>Worksheet: making up infant formula</title>
+<style>
+@page {
+  size: A4;
+  margin: 14mm 14mm 18mm;
+  @bottom-left { content: "For teaching only. Always check the current label and your local feeding policy."; font: 7.5pt system-ui, sans-serif; color: #57606a; }
+  @bottom-right { content: "Based on formulaconcentration.com · page " counter(page) " of " counter(pages); font: 7.5pt system-ui, sans-serif; color: #57606a; }
+}
+* { box-sizing: border-box; margin: 0; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  font-size: 9.5pt; line-height: 1.45; color: #1b1f24;
+  font-variant-numeric: tabular-nums;
+}
+h1 { font-size: 17pt; line-height: 1.2; margin-block-end: 2mm; }
+h2 { font-size: 11.5pt; color: #1f5f8b; margin-block: 4mm 2mm; }
+h3 { font-size: 10pt; margin-block: 3mm 1.5mm; }
+p, ul, ol, dl { margin-block-end: 1.5mm; }
+ul, ol { padding-inline-start: 5mm; }
+strong { font-weight: 650; }
+.kicker { text-transform: uppercase; letter-spacing: 0.08em; font-size: 8pt; font-weight: 650; color: #1f5f8b; }
+.lede { color: #57606a; }
+.sheet-header { border-block-end: 2px solid #1f5f8b; padding-block-end: 2mm; margin-block-end: 3mm; }
+.term { font-weight: 650; }
+.terms dl { display: grid; grid-template-columns: 48mm 1fr; gap: 1mm 3mm; }
+.terms dt { font-weight: 650; }
+.formulas { list-style: none; padding: 2.5mm 3mm; background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 2mm; }
+.formulas li { padding-block: 0.4mm; }
+.formulas em { color: #57606a; }
+.step { display: inline-block; min-width: 7mm; font-weight: 650; color: #1f5f8b; }
+.check { padding: 2mm 3mm; background: #fff4e5; border-inline-start: 3px solid #8a4b00; }
+.page-break { break-before: page; }
+.label { border: 1px dashed #6e7781; border-radius: 2mm; padding: 2mm 3mm; margin-block: 2mm; }
+.label ul { list-style: none; padding: 0; margin: 0; }
+.label-name { font-weight: 650; margin-block-end: 1mm; }
+table.steps { width: 100%; border-collapse: collapse; margin-block: 2mm; }
+.steps th { text-align: start; font-size: 8pt; color: #57606a; font-weight: 600; border-block-end: 1px solid #d0d7de; padding: 1mm 2mm; }
+.steps td { border-block-end: 1px solid #d0d7de; padding: 1.2mm 2mm; vertical-align: top; }
+.steps .num { width: 7mm; font-weight: 650; color: #1f5f8b; }
+.steps .name { width: 44mm; }
+.steps .value { width: 36mm; white-space: nowrap; }
+.steps.blank td { height: 9mm; }
+.unit { color: #57606a; }
+.result { padding: 2mm 3mm; background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 2mm; margin-block: 2mm; }
+.result p { margin: 0; }
+.result.blank p { padding-block: 1.5mm; }
+.exercise { break-inside: avoid; margin-block-end: 5mm; }
+.exercise h2 { display: flex; align-items: center; gap: 2mm; }
+.ex-num { display: inline-grid; place-items: center; width: 6mm; height: 6mm; border-radius: 50%; background: #1f5f8b; color: #fff; font-size: 9pt; }
+.parts li { margin-block-end: 3mm; }
+.lines span { display: block; height: 8mm; border-block-end: 1px solid #d0d7de; }
+.answer { color: #1b1f24; padding: 1.5mm 3mm; background: #f6f8fa; border-inline-start: 3px solid #1f5f8b; }
+.name-line { margin-block: 2mm; }
+</style>
+</head>
+<body>
+
+  <header class="sheet-header">
+    <p class="kicker">Worksheet</p>
+    <h1>Making up infant formula at a Target concentration</h1>
+    <p class="name-line">Name ____________________________ &nbsp; Date ______________</p>
+       <p class="lede">Use a basic calculator and the cheat sheet. Show your working. Round as the cheat sheet says: scoops up to a whole scoop, water up to the nearest 5 mL.</p>
+  </header>
+  <section class="exercise"><h2><span class="ex-num">1</span> Reading a label</h2><p>Work out the displacement and kcal per scoop of Formula A.</p>
+        <div class="label">
+    <p class="label-name">Formula A: the label says</p>
+    <ul>
+      <li><span class="term">Energy:</span> 68 kcal per 100 mL</li>
+      <li><span class="term">Reconstitution statement:</span> 2 scoops + 60 mL water makes approximately 67 mL</li>
+      <li><span class="term">Grams per scoop:</span> 1 scoop = 4.6 g</li>
+    </ul>
+  </div>
+        <table class="steps blank">
+    <thead><tr><th></th><th>Step</th><th>Working</th><th>Answer</th></tr></thead>
+    <tbody><tr>
+        <td class="num">A1</td>
+        <td class="name">Scoops in the statement</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">scoops</span></td>
+      </tr><tr>
+        <td class="num">A2</td>
+        <td class="name">Displacement</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">mL per g</span></td>
+      </tr><tr>
+        <td class="num">A3</td>
+        <td class="name">kcal per scoop</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">kcal</span></td>
+      </tr></tbody>
+  </table></section><section class="exercise"><h2><span class="ex-num">2</span> Reading a label</h2><p>Work out the displacement and kcal per scoop of Formula B.</p>
+        <div class="label">
+    <p class="label-name">Formula B: the label says</p>
+    <ul>
+      <li><span class="term">Energy:</span> 66 kcal per 100 mL</li>
+      <li><span class="term">Reconstitution statement:</span> 132 g powder + 900 mL water makes 1 L</li>
+      <li><span class="term">Grams per scoop:</span> Average scoop weight = 4.4 g</li>
+    </ul>
+  </div>
+        <table class="steps blank">
+    <thead><tr><th></th><th>Step</th><th>Working</th><th>Answer</th></tr></thead>
+    <tbody><tr>
+        <td class="num">A1</td>
+        <td class="name">Scoops in the statement</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">scoops</span></td>
+      </tr><tr>
+        <td class="num">A2</td>
+        <td class="name">Displacement</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">mL per g</span></td>
+      </tr><tr>
+        <td class="num">A3</td>
+        <td class="name">kcal per scoop</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">kcal</span></td>
+      </tr></tbody>
+  </table></section><section class="exercise"><h2><span class="ex-num">3</span> Building a recipe</h2><p>Formula C has <strong>21.5 kcal per scoop</strong>, <strong>4.5 g per scoop</strong> and a displacement of <strong>0.711 mL per g</strong>. Make <strong>180 mL</strong> at <strong>20 kcal/30 mL</strong>.</p>
+        <table class="steps blank">
+    <thead><tr><th></th><th>Step</th><th>Working</th><th>Answer</th></tr></thead>
+    <tbody><tr>
+        <td class="num">1</td>
+        <td class="name">kcal/mL</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit"></span></td>
+      </tr><tr>
+        <td class="num">2</td>
+        <td class="name">kcal needed</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">kcal</span></td>
+      </tr><tr>
+        <td class="num">3</td>
+        <td class="name">Scoops</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">scoops</span></td>
+      </tr><tr>
+        <td class="num">4</td>
+        <td class="name">Actual kcal</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">kcal</span></td>
+      </tr><tr>
+        <td class="num">5</td>
+        <td class="name">Total powder</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">g</span></td>
+      </tr><tr>
+        <td class="num">6</td>
+        <td class="name">Total displacement</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">mL</span></td>
+      </tr><tr>
+        <td class="num">7</td>
+        <td class="name">Water</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">mL</span></td>
+      </tr><tr>
+        <td class="num">8</td>
+        <td class="name">Actual volume</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">mL</span></td>
+      </tr><tr>
+        <td class="num">9</td>
+        <td class="name">Actual concentration</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">kcal/30 mL</span></td>
+      </tr></tbody>
+  </table>
+        <div class="result blank">
+      <p><span class="term">Recipe:</span> ______ scoops + ______ mL water</p>
+      <p><span class="term">Makes:</span> ______ mL at ______ kcal/30 mL</p>
+      <p><span class="term">0.5 kcal/30 mL or more under target?</span> Yes / No</p>
+    </div></section><section class="exercise"><h2><span class="ex-num">4</span> Building a recipe</h2><p>Formula C has <strong>21.5 kcal per scoop</strong>, <strong>4.5 g per scoop</strong> and a displacement of <strong>0.711 mL per g</strong>. Make <strong>150 mL</strong> at <strong>27 kcal/30 mL</strong>.</p>
+        <table class="steps blank">
+    <thead><tr><th></th><th>Step</th><th>Working</th><th>Answer</th></tr></thead>
+    <tbody><tr>
+        <td class="num">1</td>
+        <td class="name">kcal/mL</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit"></span></td>
+      </tr><tr>
+        <td class="num">2</td>
+        <td class="name">kcal needed</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">kcal</span></td>
+      </tr><tr>
+        <td class="num">3</td>
+        <td class="name">Scoops</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">scoops</span></td>
+      </tr><tr>
+        <td class="num">4</td>
+        <td class="name">Actual kcal</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">kcal</span></td>
+      </tr><tr>
+        <td class="num">5</td>
+        <td class="name">Total powder</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">g</span></td>
+      </tr><tr>
+        <td class="num">6</td>
+        <td class="name">Total displacement</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">mL</span></td>
+      </tr><tr>
+        <td class="num">7</td>
+        <td class="name">Water</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">mL</span></td>
+      </tr><tr>
+        <td class="num">8</td>
+        <td class="name">Actual volume</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">mL</span></td>
+      </tr><tr>
+        <td class="num">9</td>
+        <td class="name">Actual concentration</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">kcal/30 mL</span></td>
+      </tr></tbody>
+  </table>
+        <div class="result blank">
+      <p><span class="term">Recipe:</span> ______ scoops + ______ mL water</p>
+      <p><span class="term">Makes:</span> ______ mL at ______ kcal/30 mL</p>
+      <p><span class="term">0.5 kcal/30 mL or more under target?</span> Yes / No</p>
+    </div></section><section class="exercise"><h2><span class="ex-num">5</span> Building a recipe</h2><p>Formula D has <strong>36 kcal per scoop</strong>, <strong>7 g per scoop</strong> and a displacement of <strong>0.714 mL per g</strong>. Make <strong>60 mL</strong> at <strong>30 kcal/30 mL</strong>.</p>
+        <table class="steps blank">
+    <thead><tr><th></th><th>Step</th><th>Working</th><th>Answer</th></tr></thead>
+    <tbody><tr>
+        <td class="num">1</td>
+        <td class="name">kcal/mL</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit"></span></td>
+      </tr><tr>
+        <td class="num">2</td>
+        <td class="name">kcal needed</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">kcal</span></td>
+      </tr><tr>
+        <td class="num">3</td>
+        <td class="name">Scoops</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">scoops</span></td>
+      </tr><tr>
+        <td class="num">4</td>
+        <td class="name">Actual kcal</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">kcal</span></td>
+      </tr><tr>
+        <td class="num">5</td>
+        <td class="name">Total powder</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">g</span></td>
+      </tr><tr>
+        <td class="num">6</td>
+        <td class="name">Total displacement</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">mL</span></td>
+      </tr><tr>
+        <td class="num">7</td>
+        <td class="name">Water</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">mL</span></td>
+      </tr><tr>
+        <td class="num">8</td>
+        <td class="name">Actual volume</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">mL</span></td>
+      </tr><tr>
+        <td class="num">9</td>
+        <td class="name">Actual concentration</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">kcal/30 mL</span></td>
+      </tr></tbody>
+  </table>
+        <div class="result blank">
+      <p><span class="term">Recipe:</span> ______ scoops + ______ mL water</p>
+      <p><span class="term">Makes:</span> ______ mL at ______ kcal/30 mL</p>
+      <p><span class="term">0.5 kcal/30 mL or more under target?</span> Yes / No</p>
+    </div></section><section class="exercise"><h2><span class="ex-num">6</span> From label to bottle</h2><p>Make <strong>180 mL</strong> at <strong>24 kcal/30 mL</strong> of Formula E.</p>
+        <div class="label">
+    <p class="label-name">Formula E: the label says</p>
+    <ul>
+      <li><span class="term">Energy:</span> 67 kcal per 100 mL</li>
+      <li><span class="term">Reconstitution statement:</span> 135 g powder + 900 mL water makes 1 L</li>
+      <li><span class="term">Grams per scoop:</span> Average scoop weight = 4.5 g</li>
+    </ul>
+  </div>
+        <h3>Part A · Reading the label</h3>
+        <table class="steps blank">
+    <thead><tr><th></th><th>Step</th><th>Working</th><th>Answer</th></tr></thead>
+    <tbody><tr>
+        <td class="num">A1</td>
+        <td class="name">Scoops in the statement</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">scoops</span></td>
+      </tr><tr>
+        <td class="num">A2</td>
+        <td class="name">Displacement</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">mL per g</span></td>
+      </tr><tr>
+        <td class="num">A3</td>
+        <td class="name">kcal per scoop</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">kcal</span></td>
+      </tr></tbody>
+  </table>
+        <h3>Part B · Building the recipe</h3>
+        <table class="steps blank">
+    <thead><tr><th></th><th>Step</th><th>Working</th><th>Answer</th></tr></thead>
+    <tbody><tr>
+        <td class="num">1</td>
+        <td class="name">kcal/mL</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit"></span></td>
+      </tr><tr>
+        <td class="num">2</td>
+        <td class="name">kcal needed</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">kcal</span></td>
+      </tr><tr>
+        <td class="num">3</td>
+        <td class="name">Scoops</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">scoops</span></td>
+      </tr><tr>
+        <td class="num">4</td>
+        <td class="name">Actual kcal</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">kcal</span></td>
+      </tr><tr>
+        <td class="num">5</td>
+        <td class="name">Total powder</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">g</span></td>
+      </tr><tr>
+        <td class="num">6</td>
+        <td class="name">Total displacement</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">mL</span></td>
+      </tr><tr>
+        <td class="num">7</td>
+        <td class="name">Water</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">mL</span></td>
+      </tr><tr>
+        <td class="num">8</td>
+        <td class="name">Actual volume</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">mL</span></td>
+      </tr><tr>
+        <td class="num">9</td>
+        <td class="name">Actual concentration</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">kcal/30 mL</span></td>
+      </tr></tbody>
+  </table>
+        <div class="result blank">
+      <p><span class="term">Recipe:</span> ______ scoops + ______ mL water</p>
+      <p><span class="term">Makes:</span> ______ mL at ______ kcal/30 mL</p>
+      <p><span class="term">0.5 kcal/30 mL or more under target?</span> Yes / No</p>
+    </div></section><section class="exercise"><h2><span class="ex-num">7</span> From label to bottle</h2><p>Make <strong>120 mL</strong> at <strong>27 kcal/30 mL</strong> of Formula F.</p>
+        <div class="label">
+    <p class="label-name">Formula F: the label says</p>
+    <ul>
+      <li><span class="term">Energy:</span> 70 kcal per 100 mL</li>
+      <li><span class="term">Reconstitution statement:</span> 1 scoop + 30 mL water makes approximately 33 mL</li>
+      <li><span class="term">Grams per scoop:</span> 1 scoop = 4.4 g</li>
+    </ul>
+  </div>
+        <h3>Part A · Reading the label</h3>
+        <table class="steps blank">
+    <thead><tr><th></th><th>Step</th><th>Working</th><th>Answer</th></tr></thead>
+    <tbody><tr>
+        <td class="num">A1</td>
+        <td class="name">Scoops in the statement</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">scoop</span></td>
+      </tr><tr>
+        <td class="num">A2</td>
+        <td class="name">Displacement</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">mL per g</span></td>
+      </tr><tr>
+        <td class="num">A3</td>
+        <td class="name">kcal per scoop</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">kcal</span></td>
+      </tr></tbody>
+  </table>
+        <h3>Part B · Building the recipe</h3>
+        <table class="steps blank">
+    <thead><tr><th></th><th>Step</th><th>Working</th><th>Answer</th></tr></thead>
+    <tbody><tr>
+        <td class="num">1</td>
+        <td class="name">kcal/mL</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit"></span></td>
+      </tr><tr>
+        <td class="num">2</td>
+        <td class="name">kcal needed</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">kcal</span></td>
+      </tr><tr>
+        <td class="num">3</td>
+        <td class="name">Scoops</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">scoops</span></td>
+      </tr><tr>
+        <td class="num">4</td>
+        <td class="name">Actual kcal</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">kcal</span></td>
+      </tr><tr>
+        <td class="num">5</td>
+        <td class="name">Total powder</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">g</span></td>
+      </tr><tr>
+        <td class="num">6</td>
+        <td class="name">Total displacement</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">mL</span></td>
+      </tr><tr>
+        <td class="num">7</td>
+        <td class="name">Water</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">mL</span></td>
+      </tr><tr>
+        <td class="num">8</td>
+        <td class="name">Actual volume</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">mL</span></td>
+      </tr><tr>
+        <td class="num">9</td>
+        <td class="name">Actual concentration</td>
+        <td class="working"></td>
+        <td class="value"> <span class="unit">kcal/30 mL</span></td>
+      </tr></tbody>
+  </table>
+        <div class="result blank">
+      <p><span class="term">Recipe:</span> ______ scoops + ______ mL water</p>
+      <p><span class="term">Makes:</span> ______ mL at ______ kcal/30 mL</p>
+      <p><span class="term">0.5 kcal/30 mL or more under target?</span> Yes / No</p>
+    </div></section><section class="exercise"><h2><span class="ex-num">8</span> Explain</h2><ol class="parts"><li><p>Why isn't the water simply the Target volume?</p><div class="lines"><span></span><span></span><span></span><span></span></div></li><li><p>Why are scoops rounded up rather than to the nearest whole scoop?</p><div class="lines"><span></span><span></span><span></span><span></span></div></li><li><p>A recipe's Actual concentration comes out 0.5 kcal/30 mL or more below the Target concentration. What should you do?</p><div class="lines"><span></span><span></span><span></span><span></span></div></li></ol></section>
+</body>
+</html>

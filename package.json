@@ -12,7 +12,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "test": "vitest run"
+    "test": "vitest run",
+    "teaching:pdf": "node --import ./docs/teaching/resolve-ts.mjs docs/teaching/build.ts"
   },
   "dependencies": {
     "@astrojs/svelte": "^9.0.1",

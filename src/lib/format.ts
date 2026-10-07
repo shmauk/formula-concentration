@@ -11,8 +11,11 @@ export const formatVolume = (mL: number): string => toFixedHalfUp(mL, 1);
 /** kcal/30 mL, 2 dp. */
 export const formatConcentration = (kcalPer30Ml: number): string => toFixedHalfUp(kcalPer30Ml, 2);
 
-/** Displacement, mL per scoop, 2 dp. */
-export const formatDisplacement = (mLPerScoop: number): string => toFixedHalfUp(mLPerScoop, 2);
+/** Displacement, mL per g, 3 dp. */
+export const formatDisplacement = (mLPerGram: number): string => toFixedHalfUp(mLPerGram, 3);
+
+/** Grams, 1 dp. For total powder. */
+export const formatGrams = (g: number): string => toFixedHalfUp(g, 1);
 
 /** Water, whole mL. */
 export const formatWater = (mL: number): string => toFixedHalfUp(mL, 0);
