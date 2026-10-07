@@ -30,7 +30,7 @@ strong { font-weight: 650; }
 .terms dl { display: grid; grid-template-columns: 48mm 1fr; gap: 1mm 3mm; }
 .terms dt { font-weight: 650; }
 .formulas { list-style: none; padding: 2.5mm 3mm; background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 2mm; }
-.formulas li { padding-block: 0.6mm; }
+.formulas li { padding-block: 0.4mm; }
 .formulas em { color: #57606a; }
 .step { display: inline-block; min-width: 7mm; font-weight: 650; color: #1f5f8b; }
 .check { padding: 2mm 3mm; background: #fff4e5; border-inline-start: 3px solid #8a4b00; }
@@ -84,8 +84,8 @@ table.steps { width: 100%; border-collapse: collapse; margin-block: 2mm; }
       </tr><tr>
         <td class="num">A2</td>
         <td class="name">Displacement</td>
-        <td class="working">(67 − 60) ÷ 2</td>
-        <td class="value"><strong>3.50</strong> <span class="unit">mL per scoop</span></td>
+        <td class="working">(67 − 60) ÷ (2 × 4.6)</td>
+        <td class="value"><strong>0.761</strong> <span class="unit">mL per g</span></td>
       </tr><tr>
         <td class="num">A3</td>
         <td class="name">kcal per scoop</td>
@@ -111,15 +111,15 @@ table.steps { width: 100%; border-collapse: collapse; margin-block: 2mm; }
       </tr><tr>
         <td class="num">A2</td>
         <td class="name">Displacement</td>
-        <td class="working">(1000 − 900) ÷ 30</td>
-        <td class="value"><strong>3.33</strong> <span class="unit">mL per scoop</span></td>
+        <td class="working">(1000 − 900) ÷ 132</td>
+        <td class="value"><strong>0.758</strong> <span class="unit">mL per g</span></td>
       </tr><tr>
         <td class="num">A3</td>
         <td class="name">kcal per scoop</td>
         <td class="working">66 × (1000 ÷ 30) ÷ 100</td>
         <td class="value"><strong>22.0</strong> <span class="unit">kcal</span></td>
       </tr></tbody>
-  </table></section><section class="exercise"><h2><span class="ex-num">3</span> Building a recipe</h2><p>Formula C has <strong>21.5 kcal per scoop</strong> and a displacement of <strong>3.2 mL per scoop</strong>. Make <strong>180 mL</strong> at <strong>20 kcal/30 mL</strong>.</p>
+  </table></section><section class="exercise"><h2><span class="ex-num">3</span> Building a recipe</h2><p>Formula C has <strong>21.5 kcal per scoop</strong>, <strong>4.5 g per scoop</strong> and a displacement of <strong>0.711 mL per g</strong>. Make <strong>180 mL</strong> at <strong>20 kcal/30 mL</strong>.</p>
         <table class="steps">
     <thead><tr><th></th><th>Step</th><th>Working</th><th>Answer</th></tr></thead>
     <tbody><tr>
@@ -144,21 +144,26 @@ table.steps { width: 100%; border-collapse: collapse; margin-block: 2mm; }
         <td class="value"><strong>129.0</strong> <span class="unit">kcal</span></td>
       </tr><tr>
         <td class="num">5</td>
-        <td class="name">Total displacement</td>
-        <td class="working">6 × 3.2</td>
-        <td class="value"><strong>19.2</strong> <span class="unit">mL</span></td>
+        <td class="name">Total powder</td>
+        <td class="working">6 × 4.5</td>
+        <td class="value"><strong>27.0</strong> <span class="unit">g</span></td>
       </tr><tr>
         <td class="num">6</td>
+        <td class="name">Total displacement</td>
+        <td class="working">27.0 × 0.711</td>
+        <td class="value"><strong>19.2</strong> <span class="unit">mL</span></td>
+      </tr><tr>
+        <td class="num">7</td>
         <td class="name">Water</td>
         <td class="working">129.0 ÷ 0.667 − 19.2 = 174.3, round up to 5 mL</td>
         <td class="value"><strong>175</strong> <span class="unit">mL</span></td>
       </tr><tr>
-        <td class="num">7</td>
+        <td class="num">8</td>
         <td class="name">Actual volume</td>
         <td class="working">175 + 19.2</td>
         <td class="value"><strong>194.2</strong> <span class="unit">mL</span></td>
       </tr><tr>
-        <td class="num">8</td>
+        <td class="num">9</td>
         <td class="name">Actual concentration</td>
         <td class="working">129.0 ÷ 194.2 × 30</td>
         <td class="value"><strong>19.93</strong> <span class="unit">kcal/30 mL</span></td>
@@ -168,7 +173,7 @@ table.steps { width: 100%; border-collapse: collapse; margin-block: 2mm; }
     <p><span class="term">Recipe:</span> <strong>6 scoops + 175 mL water</strong></p>
     <p><span class="term">Makes:</span> 194.2 mL at 19.93 kcal/30 mL</p>
     <p><span class="term">0.5 kcal/30 mL or more under target?</span> <strong>No</strong></p>
-  </div></section><section class="exercise"><h2><span class="ex-num">4</span> Building a recipe</h2><p>Formula C has <strong>21.5 kcal per scoop</strong> and a displacement of <strong>3.2 mL per scoop</strong>. Make <strong>150 mL</strong> at <strong>27 kcal/30 mL</strong>.</p>
+  </div></section><section class="exercise"><h2><span class="ex-num">4</span> Building a recipe</h2><p>Formula C has <strong>21.5 kcal per scoop</strong>, <strong>4.5 g per scoop</strong> and a displacement of <strong>0.711 mL per g</strong>. Make <strong>150 mL</strong> at <strong>27 kcal/30 mL</strong>.</p>
         <table class="steps">
     <thead><tr><th></th><th>Step</th><th>Working</th><th>Answer</th></tr></thead>
     <tbody><tr>
@@ -193,21 +198,26 @@ table.steps { width: 100%; border-collapse: collapse; margin-block: 2mm; }
         <td class="value"><strong>150.5</strong> <span class="unit">kcal</span></td>
       </tr><tr>
         <td class="num">5</td>
-        <td class="name">Total displacement</td>
-        <td class="working">7 × 3.2</td>
-        <td class="value"><strong>22.4</strong> <span class="unit">mL</span></td>
+        <td class="name">Total powder</td>
+        <td class="working">7 × 4.5</td>
+        <td class="value"><strong>31.5</strong> <span class="unit">g</span></td>
       </tr><tr>
         <td class="num">6</td>
+        <td class="name">Total displacement</td>
+        <td class="working">31.5 × 0.711</td>
+        <td class="value"><strong>22.4</strong> <span class="unit">mL</span></td>
+      </tr><tr>
+        <td class="num">7</td>
         <td class="name">Water</td>
         <td class="working">150.5 ÷ 0.9 − 22.4 = 144.8, round up to 5 mL</td>
         <td class="value"><strong>145</strong> <span class="unit">mL</span></td>
       </tr><tr>
-        <td class="num">7</td>
+        <td class="num">8</td>
         <td class="name">Actual volume</td>
         <td class="working">145 + 22.4</td>
         <td class="value"><strong>167.4</strong> <span class="unit">mL</span></td>
       </tr><tr>
-        <td class="num">8</td>
+        <td class="num">9</td>
         <td class="name">Actual concentration</td>
         <td class="working">150.5 ÷ 167.4 × 30</td>
         <td class="value"><strong>26.97</strong> <span class="unit">kcal/30 mL</span></td>
@@ -217,7 +227,7 @@ table.steps { width: 100%; border-collapse: collapse; margin-block: 2mm; }
     <p><span class="term">Recipe:</span> <strong>7 scoops + 145 mL water</strong></p>
     <p><span class="term">Makes:</span> 167.4 mL at 26.97 kcal/30 mL</p>
     <p><span class="term">0.5 kcal/30 mL or more under target?</span> <strong>No</strong></p>
-  </div></section><section class="exercise"><h2><span class="ex-num">5</span> Building a recipe</h2><p>Formula D has <strong>36 kcal per scoop</strong> and a displacement of <strong>5 mL per scoop</strong>. Make <strong>60 mL</strong> at <strong>30 kcal/30 mL</strong>.</p>
+  </div></section><section class="exercise"><h2><span class="ex-num">5</span> Building a recipe</h2><p>Formula D has <strong>36 kcal per scoop</strong>, <strong>7 g per scoop</strong> and a displacement of <strong>0.714 mL per g</strong>. Make <strong>60 mL</strong> at <strong>30 kcal/30 mL</strong>.</p>
         <table class="steps">
     <thead><tr><th></th><th>Step</th><th>Working</th><th>Answer</th></tr></thead>
     <tbody><tr>
@@ -242,21 +252,26 @@ table.steps { width: 100%; border-collapse: collapse; margin-block: 2mm; }
         <td class="value"><strong>72.0</strong> <span class="unit">kcal</span></td>
       </tr><tr>
         <td class="num">5</td>
-        <td class="name">Total displacement</td>
-        <td class="working">2 × 5</td>
-        <td class="value"><strong>10.0</strong> <span class="unit">mL</span></td>
+        <td class="name">Total powder</td>
+        <td class="working">2 × 7</td>
+        <td class="value"><strong>14.0</strong> <span class="unit">g</span></td>
       </tr><tr>
         <td class="num">6</td>
+        <td class="name">Total displacement</td>
+        <td class="working">14.0 × 0.714</td>
+        <td class="value"><strong>10.0</strong> <span class="unit">mL</span></td>
+      </tr><tr>
+        <td class="num">7</td>
         <td class="name">Water</td>
         <td class="working">72.0 ÷ 1 − 10.0 = 62.0, round up to 5 mL</td>
         <td class="value"><strong>65</strong> <span class="unit">mL</span></td>
       </tr><tr>
-        <td class="num">7</td>
+        <td class="num">8</td>
         <td class="name">Actual volume</td>
         <td class="working">65 + 10.0</td>
         <td class="value"><strong>75.0</strong> <span class="unit">mL</span></td>
       </tr><tr>
-        <td class="num">8</td>
+        <td class="num">9</td>
         <td class="name">Actual concentration</td>
         <td class="working">72.0 ÷ 75.0 × 30</td>
         <td class="value"><strong>28.80</strong> <span class="unit">kcal/30 mL</span></td>
@@ -286,8 +301,8 @@ table.steps { width: 100%; border-collapse: collapse; margin-block: 2mm; }
       </tr><tr>
         <td class="num">A2</td>
         <td class="name">Displacement</td>
-        <td class="working">(1000 − 900) ÷ 30</td>
-        <td class="value"><strong>3.33</strong> <span class="unit">mL per scoop</span></td>
+        <td class="working">(1000 − 900) ÷ 135</td>
+        <td class="value"><strong>0.741</strong> <span class="unit">mL per g</span></td>
       </tr><tr>
         <td class="num">A3</td>
         <td class="name">kcal per scoop</td>
@@ -320,21 +335,26 @@ table.steps { width: 100%; border-collapse: collapse; margin-block: 2mm; }
         <td class="value"><strong>156.1</strong> <span class="unit">kcal</span></td>
       </tr><tr>
         <td class="num">5</td>
-        <td class="name">Total displacement</td>
-        <td class="working">7 × 3.33</td>
-        <td class="value"><strong>23.3</strong> <span class="unit">mL</span></td>
+        <td class="name">Total powder</td>
+        <td class="working">7 × 4.5</td>
+        <td class="value"><strong>31.5</strong> <span class="unit">g</span></td>
       </tr><tr>
         <td class="num">6</td>
+        <td class="name">Total displacement</td>
+        <td class="working">31.5 × 0.741</td>
+        <td class="value"><strong>23.3</strong> <span class="unit">mL</span></td>
+      </tr><tr>
+        <td class="num">7</td>
         <td class="name">Water</td>
         <td class="working">156.1 ÷ 0.8 − 23.3 = 171.8, round up to 5 mL</td>
         <td class="value"><strong>175</strong> <span class="unit">mL</span></td>
       </tr><tr>
-        <td class="num">7</td>
+        <td class="num">8</td>
         <td class="name">Actual volume</td>
         <td class="working">175 + 23.3</td>
         <td class="value"><strong>198.3</strong> <span class="unit">mL</span></td>
       </tr><tr>
-        <td class="num">8</td>
+        <td class="num">9</td>
         <td class="name">Actual concentration</td>
         <td class="working">156.1 ÷ 198.3 × 30</td>
         <td class="value"><strong>23.61</strong> <span class="unit">kcal/30 mL</span></td>
@@ -364,8 +384,8 @@ table.steps { width: 100%; border-collapse: collapse; margin-block: 2mm; }
       </tr><tr>
         <td class="num">A2</td>
         <td class="name">Displacement</td>
-        <td class="working">(33 − 30) ÷ 1</td>
-        <td class="value"><strong>3.00</strong> <span class="unit">mL per scoop</span></td>
+        <td class="working">(33 − 30) ÷ 4.4</td>
+        <td class="value"><strong>0.682</strong> <span class="unit">mL per g</span></td>
       </tr><tr>
         <td class="num">A3</td>
         <td class="name">kcal per scoop</td>
@@ -398,21 +418,26 @@ table.steps { width: 100%; border-collapse: collapse; margin-block: 2mm; }
         <td class="value"><strong>115.5</strong> <span class="unit">kcal</span></td>
       </tr><tr>
         <td class="num">5</td>
-        <td class="name">Total displacement</td>
-        <td class="working">5 × 3.00</td>
-        <td class="value"><strong>15.0</strong> <span class="unit">mL</span></td>
+        <td class="name">Total powder</td>
+        <td class="working">5 × 4.4</td>
+        <td class="value"><strong>22.0</strong> <span class="unit">g</span></td>
       </tr><tr>
         <td class="num">6</td>
+        <td class="name">Total displacement</td>
+        <td class="working">22.0 × 0.682</td>
+        <td class="value"><strong>15.0</strong> <span class="unit">mL</span></td>
+      </tr><tr>
+        <td class="num">7</td>
         <td class="name">Water</td>
         <td class="working">115.5 ÷ 0.9 − 15.0 = 113.3, round up to 5 mL</td>
         <td class="value"><strong>115</strong> <span class="unit">mL</span></td>
       </tr><tr>
-        <td class="num">7</td>
+        <td class="num">8</td>
         <td class="name">Actual volume</td>
         <td class="working">115 + 15.0</td>
         <td class="value"><strong>130.0</strong> <span class="unit">mL</span></td>
       </tr><tr>
-        <td class="num">8</td>
+        <td class="num">9</td>
         <td class="name">Actual concentration</td>
         <td class="working">115.5 ÷ 130.0 × 30</td>
         <td class="value"><strong>26.65</strong> <span class="unit">kcal/30 mL</span></td>
@@ -422,6 +447,6 @@ table.steps { width: 100%; border-collapse: collapse; margin-block: 2mm; }
     <p><span class="term">Recipe:</span> <strong>5 scoops + 115 mL water</strong></p>
     <p><span class="term">Makes:</span> 130.0 mL at 26.65 kcal/30 mL</p>
     <p><span class="term">0.5 kcal/30 mL or more under target?</span> <strong>No</strong></p>
-  </div></section><section class="exercise"><h2><span class="ex-num">8</span> Explain</h2><ol class="parts"><li><p>Why isn't the water simply the Target volume?</p><p class="answer">The powder takes up room too. Each scoop adds its displacement to the volume, so water equal to the Target volume would make more than the Target volume, at a lower concentration than intended.</p></li><li><p>Why are scoops rounded up rather than to the nearest whole scoop?</p><p class="answer">You can only use whole scoops, and rounding up makes sure there is at least enough energy. The water is then sized to dilute that energy back to the Target concentration. Rounding down would leave too little energy for the Target volume.</p></li><li><p>A recipe's Actual concentration comes out 0.5 kcal/30 mL or more below the Target concentration. What should you do?</p><p class="answer">Double-check the inputs and the working before using it. A large drop usually means a small Target volume with a large scoop, where one scoop is a big step; confirm the result is acceptable for the patient.</p></li></ol></section>
+  </div></section><section class="exercise"><h2><span class="ex-num">8</span> Explain</h2><ol class="parts"><li><p>Why isn't the water simply the Target volume?</p><p class="answer">The powder takes up room too. Every gram of it adds its displacement to the volume, so water equal to the Target volume would make more than the Target volume, at a lower concentration than intended.</p></li><li><p>Why are scoops rounded up rather than to the nearest whole scoop?</p><p class="answer">You can only use whole scoops, and rounding up makes sure there is at least enough energy. The water is then sized to dilute that energy back to the Target concentration. Rounding down would leave too little energy for the Target volume.</p></li><li><p>A recipe's Actual concentration comes out 0.5 kcal/30 mL or more below the Target concentration. What should you do?</p><p class="answer">Double-check the inputs and the working before using it. A large drop usually means a small Target volume with a large scoop, where one scoop is a big step; confirm the result is acceptable for the patient.</p></li></ol></section>
 </body>
 </html>

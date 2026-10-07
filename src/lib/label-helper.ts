@@ -2,9 +2,7 @@ import { parsePositiveNumber, type RawNumber } from "./input";
 import { formatDisplacement, formatKcal } from "./format";
 
 /** The amount of powder in the label's Reconstitution statement. */
-export type LabelPowder =
-  | { route: "scoops"; scoops: RawNumber }
-  | { route: "grams"; grams: RawNumber; gramsPerScoop: RawNumber };
+export type LabelPowder = { route: "scoops"; scoops: RawNumber } | { route: "grams"; grams: RawNumber };
 
 export type LabelInputs = {
   /** Energy per 100 mL of prepared formula, kcal. */
@@ -13,17 +11,21 @@ export type LabelInputs = {
   water: RawNumber;
   /** mL of prepared formula the Reconstitution statement says it makes. */
   preparedVolume: RawNumber;
+  /** g. Needed on both routes: to count grams on one, scoops on the other. */
+  gramsPerScoop: RawNumber;
   powder: LabelPowder;
 };
 
 export type LabelHelperResult = {
   /** Unrounded, and possibly fractional on the grams route. */
   scoops: number;
+  /** g of powder in the Reconstitution statement. */
+  grams: number;
   /** Unrounded kcal. */
   kcalPerScoop: number;
-  /** Unrounded mL per scoop. */
+  /** Unrounded mL per g. */
   displacement: number;
-  /** kcal per scoop to 1 dp and displacement to 2 dp, rounded half up. */
+  /** kcal per scoop to 1 dp and displacement to 3 dp, rounded half up. */
   display: { kcalPerScoop: string; displacement: string };
 };
 
@@ -32,14 +34,20 @@ export function deriveFromLabel(inputs: LabelInputs): LabelHelperResult | null {
   const kcalPer100Ml = parsePositiveNumber(inputs.kcalPer100Ml);
   const water = parsePositiveNumber(inputs.water);
   const preparedVolume = parsePositiveNumber(inputs.preparedVolume);
-  const scoops = scoopsFrom(inputs.powder);
-  if (kcalPer100Ml === null || water === null || preparedVolume === null || scoops === null) return null;
+  const gramsPerScoop = parsePositiveNumber(inputs.gramsPerScoop);
+  const amount = parsePositiveNumber(inputs.powder.route === "scoops" ? inputs.powder.scoops : inputs.powder.grams);
+  if (kcalPer100Ml === null || water === null || preparedVolume === null || gramsPerScoop === null || amount === null) {
+    return null;
+  }
   if (preparedVolume <= water) return null;
 
-  const displacement = (preparedVolume - water) / scoops;
+  const scoops = inputs.powder.route === "scoops" ? amount : amount / gramsPerScoop;
+  const grams = inputs.powder.route === "grams" ? amount : amount * gramsPerScoop;
+  const displacement = (preparedVolume - water) / grams;
   const kcalPerScoop = (kcalPer100Ml * (preparedVolume / scoops)) / 100;
   return {
     scoops,
+    grams,
     kcalPerScoop,
     displacement,
     display: {
@@ -47,11 +55,4 @@ export function deriveFromLabel(inputs: LabelInputs): LabelHelperResult | null {
       displacement: formatDisplacement(displacement),
     },
   };
-}
-
-function scoopsFrom(powder: LabelPowder): number | null {
-  if (powder.route === "scoops") return parsePositiveNumber(powder.scoops);
-  const grams = parsePositiveNumber(powder.grams);
-  const gramsPerScoop = parsePositiveNumber(powder.gramsPerScoop);
-  return grams === null || gramsPerScoop === null ? null : grams / gramsPerScoop;
 }

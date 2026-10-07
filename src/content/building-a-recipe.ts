@@ -3,6 +3,7 @@ import {
   type Recipe,
   formatConcentration,
   formatExactScoops,
+  formatGrams,
   formatKcal,
   formatKcalNeeded,
   formatKcalPerMl,
@@ -46,6 +47,7 @@ export type RecipeWalkthrough = {
   /** `working` ends with scoops before rounding up; `value` is rounded up. */
   scoops: WorkingLine;
   actualKcal: WorkingLine;
+  totalPowder: WorkingLine;
   totalDisplacement: WorkingLine;
   /** `working` ends with the water before rounding up; `value` is rounded up to 5 mL. */
   water: WorkingLine;
@@ -61,9 +63,11 @@ export function recipeWalkthrough(example: WorkedExample, target: Target): Recip
   // kcal per scoop and displacement as /reading-labels shows them, so the pages agree.
   const label = readingLabelsWorking(example);
   const kcalPerScoop = label.kcalPerScoop.value;
+  const gramsPerScoop = String(example.gramsPerScoop);
   const displacement = label.displacement.value;
   const result = calculateRecipe({
     kcalPerScoop: Number(kcalPerScoop),
+    gramsPerScoop: example.gramsPerScoop,
     displacement: Number(displacement),
     targetVolume: target.volume,
     targetConcentration: target.concentration,
@@ -74,7 +78,7 @@ export function recipeWalkthrough(example: WorkedExample, target: Target): Recip
   const kcalNeeded = formatKcalNeeded(result.kcalNeeded);
   const { recipe } = result;
   return {
-    summary: `${target.volume} mL at ${target.concentration} · ${kcalPerScoop} kcal, ${displacement} mL`,
+    summary: `${target.volume} mL at ${target.concentration} · ${kcalPerScoop} kcal, ${gramsPerScoop} g, ${displacement} mL per g`,
     recipe: `${recipeText(recipe)} water`,
     makes: `${makesText(recipe)} kcal/30 mL`,
     kcalPerMl: `${target.concentration} ÷ 30 = ${kcalPerMl}`,
@@ -83,7 +87,7 @@ export function recipeWalkthrough(example: WorkedExample, target: Target): Recip
       working: `${kcalNeeded} ÷ ${kcalPerScoop} = ${formatExactScoops(result.exactScoops)}`,
       value: formatScoops(recipe.scoops),
     },
-    ...stepsFourToEight(recipe, kcalPerScoop, displacement, kcalPerMl),
+    ...stepsFourToNine(recipe, kcalPerScoop, gramsPerScoop, displacement, kcalPerMl),
     brief: brief(recipe, target),
     oneFewerScoop: result.oneFewerScoop && {
       ...brief(result.oneFewerScoop, target),
@@ -92,17 +96,25 @@ export function recipeWalkthrough(example: WorkedExample, target: Target): Recip
   };
 }
 
-/** Steps 4–8 for a recipe with a given number of scoops. */
-function stepsFourToEight(recipe: Recipe, kcalPerScoop: string, displacement: string, kcalPerMl: string) {
+/** Steps 4–9 for a recipe with a given number of scoops. */
+function stepsFourToNine(
+  recipe: Recipe,
+  kcalPerScoop: string,
+  gramsPerScoop: string,
+  displacement: string,
+  kcalPerMl: string,
+) {
   const scoops = formatScoops(recipe.scoops);
   const actualKcal = formatKcal(recipe.actualKcal);
+  const totalPowder = formatGrams(recipe.totalPowder);
   const totalDisplacement = formatVolume(recipe.totalDisplacement);
   const water = formatWater(recipe.water);
   const actualVolume = formatVolume(recipe.actualVolume);
   const actualConcentration = formatConcentration(recipe.actualConcentration);
   return {
     actualKcal: line(`${scoops} × ${kcalPerScoop}`, actualKcal),
-    totalDisplacement: line(`${scoops} × ${displacement}`, totalDisplacement),
+    totalPowder: line(`${scoops} × ${gramsPerScoop}`, totalPowder),
+    totalDisplacement: line(`${totalPowder} × ${displacement}`, totalDisplacement),
     water: {
       working: `${actualKcal} ÷ ${kcalPerMl} − ${totalDisplacement} = ${formatVolume(recipe.exactWater)}`,
       value: water,

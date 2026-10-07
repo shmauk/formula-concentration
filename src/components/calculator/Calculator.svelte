@@ -23,6 +23,7 @@
 
   let values: Record<RecipeField, number | null> = $state({
     kcalPerScoop: null,
+    gramsPerScoop: null,
     displacement: null,
     targetVolume: null,
     targetConcentration: null,
@@ -39,11 +40,17 @@
       hint: "Energy in one level scoop",
       unit: "kcal",
     },
+    gramsPerScoop: {
+      id: "grams-per-scoop",
+      label: "Grams per scoop (g)",
+      hint: "Powder in one level scoop",
+      unit: "g",
+    },
     displacement: {
       id: "displacement",
-      label: "Displacement (mL per scoop)",
-      hint: "Volume one scoop adds",
-      unit: "mL per scoop",
+      label: "Displacement (mL per g)",
+      hint: "Volume one gram of powder adds",
+      unit: "mL per g",
     },
     targetVolume: {
       id: "target-volume",
@@ -62,6 +69,7 @@
   // Blank fields stay quiet until they've been edited or left.
   let touched: Record<RecipeField, boolean> = $state({
     kcalPerScoop: false,
+    gramsPerScoop: false,
     displacement: false,
     targetVolume: false,
     targetConcentration: false,
@@ -112,8 +120,9 @@
 <div class="calculator">
 <section class="card inputs" aria-labelledby="formula-heading">
   <h2 id="formula-heading">Formula</h2>
+  {@render field("kcalPerScoop")}
   <div class="field-pair">
-    {@render field("kcalPerScoop")}
+    {@render field("gramsPerScoop")}
     {@render field("displacement")}
   </div>
 
@@ -122,6 +131,7 @@
     <LabelHelper
       onuse={(derived) => {
         values.kcalPerScoop = derived.kcalPerScoop;
+        values.gramsPerScoop = derived.gramsPerScoop;
         values.displacement = derived.displacement;
       }}
     />
@@ -161,7 +171,7 @@
     {@render concentrationWarning(recipe)}
     <p class="reminder">Check against the prescription and the tin before making up.</p>
   {:else}
-    <p class="empty">Fill in all four values to see a recipe.</p>
+    <p class="empty">Fill in all five values to see a recipe.</p>
   {/if}
 </section>
 

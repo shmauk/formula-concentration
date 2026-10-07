@@ -19,6 +19,7 @@ import {
   CONCENTRATION_WARNING_THRESHOLD,
   formatConcentration,
   formatExactScoops,
+  formatGrams,
   formatKcal,
   formatKcalNeeded,
   formatKcalPerMl,
@@ -26,10 +27,11 @@ import {
   formatVolume,
   formatWater,
   scoopsNoun,
+  TYPICAL_RANGES,
 } from "../../src/lib";
 import { roundHalfUp, roundUp } from "../../src/lib/rounding";
 import { siteUrl } from "../../src/site.config";
-import { exercises, type Exercise, type Label } from "./exercises";
+import { exercises, type Exercise, type GivenFormula, type Label } from "./exercises";
 
 const OUT_DIR = dirname(fileURLToPath(import.meta.url));
 const CHROME_PATH = process.env.CHROME_PATH ?? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
@@ -48,27 +50,37 @@ type RecipeSteps = {
   warning: boolean;
 };
 
-/** The eight recipe steps, worded as /building-a-recipe words them. */
+type Formula = { kcalPerScoop: number; gramsPerScoop: number; displacement: number };
+
+/** The nine recipe steps, worded as /building-a-recipe words them. */
 function recipeSteps(
   kcalPerScoop: string,
+  gramsPerScoop: string,
   displacement: string,
   target: Target,
-  unrounded?: { kcalPerScoop: number; displacement: number },
+  unrounded?: Formula,
 ): RecipeSteps {
-  const result = calculateRecipe({
+  const formula = {
     kcalPerScoop: Number(kcalPerScoop),
+    gramsPerScoop: Number(gramsPerScoop),
     displacement: Number(displacement),
+  };
+  const result = calculateRecipe({
+    ...formula,
     targetVolume: target.volume,
     targetConcentration: target.concentration,
   });
-  if (result.kind !== "recipe") throw new Error(`No recipe for ${kcalPerScoop} kcal, ${displacement} mL`);
-  checkRobust(result.recipe, Number(kcalPerScoop), Number(displacement), target, unrounded);
+  if (result.kind !== "recipe") {
+    throw new Error(`No recipe for ${kcalPerScoop} kcal, ${gramsPerScoop} g, ${displacement} mL per g`);
+  }
+  checkRobust(result.recipe, formula, target, unrounded);
 
   const { recipe } = result;
   const kcalPerMl = formatKcalPerMl(result.kcalPerMl);
   const kcalNeeded = formatKcalNeeded(result.kcalNeeded);
   const scoops = formatScoops(recipe.scoops);
   const actualKcal = formatKcal(recipe.actualKcal);
+  const totalPowder = formatGrams(recipe.totalPowder);
   const totalDisplacement = formatVolume(recipe.totalDisplacement);
   const water = formatWater(recipe.water);
   const actualVolume = formatVolume(recipe.actualVolume);
@@ -84,7 +96,8 @@ function recipeSteps(
         unit: scoopsNoun(recipe.scoops),
       },
       { name: "Actual kcal", working: `${scoops} × ${kcalPerScoop}`, value: actualKcal, unit: "kcal" },
-      { name: "Total displacement", working: `${scoops} × ${displacement}`, value: totalDisplacement, unit: "mL" },
+      { name: "Total powder", working: `${scoops} × ${gramsPerScoop}`, value: totalPowder, unit: "g" },
+      { name: "Total displacement", working: `${totalPowder} × ${displacement}`, value: totalDisplacement, unit: "mL" },
       {
         name: "Water",
         working: `${actualKcal} ÷ ${kcalPerMl} − ${totalDisplacement} = ${formatVolume(recipe.exactWater)}, round up to 5 mL`,
@@ -111,16 +124,16 @@ function recipeSteps(
  */
 function checkRobust(
   recipe: { scoops: number; water: number },
-  kcalPerScoop: number,
-  displacement: number,
+  formula: Formula,
   target: Target,
-  unrounded?: { kcalPerScoop: number; displacement: number },
+  unrounded?: Formula,
 ) {
-  const variants = [{ kcalPerScoop, displacement }, ...(unrounded ? [unrounded] : [])];
+  const variants = [formula, ...(unrounded ? [unrounded] : [])];
   for (const variant of variants) {
     for (const kcalPerMl of [target.concentration / 30, roundHalfUp(target.concentration / 30, 3)]) {
       const scoops = roundUp((target.volume * kcalPerMl) / variant.kcalPerScoop);
-      const water = roundUp((scoops * variant.kcalPerScoop) / kcalPerMl - scoops * variant.displacement, 5);
+      const totalDisplacement = scoops * variant.gramsPerScoop * variant.displacement;
+      const water = roundUp((scoops * variant.kcalPerScoop) / kcalPerMl - totalDisplacement, 5);
       if (scoops !== recipe.scoops || water !== recipe.water) {
         throw new Error(
           `${target.volume} mL at ${target.concentration}: rounding the working differently gives ${scoops} scoops + ${water} mL, not ${recipe.scoops} + ${recipe.water}`,
@@ -143,7 +156,7 @@ function labelSteps(working: ReadingLabelsWorking): Step[] {
       value: working.scoops.value,
       unit: Number(working.scoops.value) === 1 ? "scoop" : "scoops",
     },
-    { name: "Displacement", working: strip(working.displacement.working), value: working.displacement.value, unit: "mL per scoop" },
+    { name: "Displacement", working: strip(working.displacement.working), value: working.displacement.value, unit: "mL per g" },
     { name: "kcal per scoop", working: strip(working.kcalPerScoop.working), value: working.kcalPerScoop.value, unit: "kcal" },
   ];
 }
@@ -154,20 +167,26 @@ function fullWorking(example: WorkedExample, target: Target) {
   const kcalPerScoop = label.kcalPerScoop.value;
   const displacement = label.displacement.value;
   const { powder, water, preparedVolume } = example.reconstitutionStatement;
-  const scoops = powder.route === "grams" ? powder.grams / example.gramsPerScoop : powder.scoops;
-  const recipe = recipeSteps(kcalPerScoop, displacement, target, {
+  const { gramsPerScoop } = example;
+  const scoops = powder.route === "grams" ? powder.grams / gramsPerScoop : powder.scoops;
+  const grams = scoops * gramsPerScoop;
+  const recipe = recipeSteps(kcalPerScoop, String(gramsPerScoop), displacement, target, {
     kcalPerScoop: (example.kcalPer100Ml * (preparedVolume / scoops)) / 100,
-    displacement: (preparedVolume - water) / scoops,
+    gramsPerScoop,
+    displacement: (preparedVolume - water) / grams,
   });
   return { label: labelSteps(label), recipe };
 }
+
+const givenRecipeSteps = (formula: GivenFormula, target: Target): RecipeSteps =>
+  recipeSteps(String(formula.kcalPerScoop), String(formula.gramsPerScoop), String(formula.displacement), target);
 
 // ---------- Exercise checks ----------
 
 for (const exercise of exercises) {
   if (exercise.kind === "recipe") {
     const { formula, target } = exercise;
-    const { warning } = recipeSteps(String(formula.kcalPerScoop), String(formula.displacement), target);
+    const { warning } = givenRecipeSteps(formula, target);
     if (warning !== exercise.expectWarning) {
       throw new Error(`${exercise.formula.name}: warning is ${warning}, expected ${exercise.expectWarning}`);
     }
@@ -247,11 +266,11 @@ function exerciseHtml(exercise: Exercise, index: number, answers: boolean): stri
     }
     case "recipe": {
       const { formula, target } = exercise;
-      const recipe = recipeSteps(String(formula.kcalPerScoop), String(formula.displacement), target);
+      const recipe = givenRecipeSteps(formula, target);
       return section(
         number,
         "Building a recipe",
-        `<p>${esc(formula.name)} has <strong>${formula.kcalPerScoop} kcal per scoop</strong> and a displacement of <strong>${formula.displacement} mL per scoop</strong>. Make ${targetText(target)}.</p>
+        `<p>${esc(formula.name)} has <strong>${formula.kcalPerScoop} kcal per scoop</strong>, <strong>${formula.gramsPerScoop} g per scoop</strong> and a displacement of <strong>${formula.displacement} mL per g</strong>. Make ${targetText(target)}.</p>
         ${stepTable(recipe.steps, 1, !answers)}
         ${recipeResult(answers ? recipe : null)}`,
       );
@@ -311,7 +330,7 @@ function cheatSheet(): string {
       <dt>Target volume / Target concentration</dt><dd>The bottle you want to make.</dd>
       <dt>Reconstitution statement</dt><dd>The label's "powder + water makes this much" line, e.g. "1 scoop + 50 mL water makes approximately 55 mL".</dd>
       <dt>kcal per scoop</dt><dd>Energy in one level scoop of powder.</dd>
-      <dt>Displacement</dt><dd>The volume (mL) one scoop of powder adds beyond the water it's mixed into.</dd>
+      <dt>Displacement</dt><dd>The volume (mL) one gram of powder adds beyond its water, in mL per g.</dd>
       <dt>Recipe</dt><dd>A whole number of scoops plus water rounded to 5 mL.</dd>
       <dt>Actual volume / Actual concentration</dt><dd>What the recipe really makes, after rounding.</dd>
     </dl>
@@ -321,8 +340,8 @@ function cheatSheet(): string {
     <h2>Part A · Reading the label</h2>
     <p>Find: <strong>energy per 100 mL</strong> of prepared formula, the <strong>Reconstitution statement</strong>, and <strong>grams per scoop</strong>.</p>
     <ol class="formulas">
-      <li><span class="step">A1</span> Scoops in the statement = grams of powder ÷ grams per scoop <em>(skip if the statement already counts scoops)</em></li>
-      <li><span class="step">A2</span> Displacement = (prepared volume − water) ÷ scoops <em>(2 dp)</em></li>
+      <li><span class="step">A1</span> Scoops in the statement = grams of powder ÷ grams per scoop <em>(skip if it counts scoops)</em></li>
+      <li><span class="step">A2</span> Displacement = (prepared volume − water) ÷ grams of powder <em>(3 dp; scoops × grams per scoop if it counts scoops)</em>. Usually <strong>${TYPICAL_RANGES.displacement.min}–${TYPICAL_RANGES.displacement.max} mL per g</strong> whatever the scoop size; if not, re-read the label.</li>
       <li><span class="step">A3</span> kcal per scoop = energy per 100 mL × (prepared volume ÷ scoops) ÷ 100 <em>(1 dp)</em></li>
     </ol>
 
@@ -332,10 +351,11 @@ function cheatSheet(): string {
       <li><span class="step">2</span> kcal needed = Target volume × kcal/mL</li>
       <li><span class="step">3</span> Scoops = kcal needed ÷ kcal per scoop, <strong>rounded up</strong> to a whole scoop</li>
       <li><span class="step">4</span> Actual kcal = scoops × kcal per scoop</li>
-      <li><span class="step">5</span> Total displacement = scoops × displacement</li>
-      <li><span class="step">6</span> Water = Actual kcal ÷ kcal/mL − total displacement, <strong>rounded up to the nearest 5 mL</strong></li>
-      <li><span class="step">7</span> Actual volume = water + total displacement</li>
-      <li><span class="step">8</span> Actual concentration = Actual kcal ÷ Actual volume × 30</li>
+      <li><span class="step">5</span> Total powder = scoops × grams per scoop</li>
+      <li><span class="step">6</span> Total displacement = total powder × displacement</li>
+      <li><span class="step">7</span> Water = Actual kcal ÷ kcal/mL − total displacement, <strong>rounded up to the nearest 5 mL</strong></li>
+      <li><span class="step">8</span> Actual volume = water + total displacement</li>
+      <li><span class="step">9</span> Actual concentration = Actual kcal ÷ Actual volume × 30</li>
     </ol>
     <p class="check"><strong>Check:</strong> if the Actual concentration is <strong>${CONCENTRATION_WARNING_THRESHOLD} kcal/30 mL or more below</strong> the Target concentration, double-check your inputs and working before using the recipe.</p>
   </section>
@@ -345,7 +365,7 @@ function cheatSheet(): string {
     <ul>
       <li>Scoops: always round <strong>up</strong>, unless the answer is already exactly whole.</li>
       <li>Water: round <strong>up</strong> to a 5 mL mark, the smallest amount you can measure reliably on a bottle, unless it's already on one.</li>
-      <li>Show kcal and volumes to 1 dp, displacement to 2 dp, Concentration to 2 dp. Keep the unrounded numbers in your calculator between steps.</li>
+      <li>Show kcal, grams and volumes to 1 dp, displacement to 3 dp, Concentration to 2 dp. Keep the unrounded numbers in your calculator between steps.</li>
       <li>So the recipe always comes out at or just <strong>below</strong> the Target concentration, and at or just <strong>above</strong> the Target volume.</li>
     </ul>
   </section>
@@ -366,9 +386,10 @@ function cheatSheet(): string {
       <li>Making the water equal to the Target volume. The powder takes up room too: subtract the total displacement.</li>
       <li>Rounding scoops to the nearest whole scoop instead of up.</li>
       <li>Forgetting to round the water up to a 5 mL mark.</li>
+      <li>Dividing by scoops instead of grams of powder when working out displacement.</li>
       <li>Dividing by grams per scoop when the Reconstitution statement already counts scoops.</li>
       <li>Mixing up per 100 mL (on the label) with per 30 mL (Concentration).</li>
-      <li>Leaving out the check in step 8 when the bottle is small and the scoop is large.</li>
+      <li>Leaving out the check in step 9 when the bottle is small and the scoop is large.</li>
     </ul>
   </section>`;
 }
@@ -414,7 +435,7 @@ strong { font-weight: 650; }
 .terms dl { display: grid; grid-template-columns: 48mm 1fr; gap: 1mm 3mm; }
 .terms dt { font-weight: 650; }
 .formulas { list-style: none; padding: 2.5mm 3mm; background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 2mm; }
-.formulas li { padding-block: 0.6mm; }
+.formulas li { padding-block: 0.4mm; }
 .formulas em { color: #57606a; }
 .step { display: inline-block; min-width: 7mm; font-weight: 650; color: #1f5f8b; }
 .check { padding: 2mm 3mm; background: #fff4e5; border-inline-start: 3px solid #8a4b00; }

@@ -1,7 +1,7 @@
 import { parsePositiveNumber, type RawNumber } from "./input";
 import { roundUp, SNAP_TOLERANCE } from "./rounding";
 
-export type RecipeField = "kcalPerScoop" | "displacement" | "targetVolume" | "targetConcentration";
+export type RecipeField = "kcalPerScoop" | "gramsPerScoop" | "displacement" | "targetVolume" | "targetConcentration";
 
 /** A recipe input as typed: a number, text, or blank. */
 export type RecipeInput = RawNumber;
@@ -9,7 +9,9 @@ export type RecipeInput = RawNumber;
 export type RecipeInputs = {
   /** kcal. */
   kcalPerScoop: RecipeInput;
-  /** Displacement, mL per scoop. */
+  /** g. */
+  gramsPerScoop: RecipeInput;
+  /** Displacement, mL per g. */
   displacement: RecipeInput;
   /** mL. */
   targetVolume: RecipeInput;
@@ -25,7 +27,8 @@ export type RecipeValidation = Record<RecipeField, InputStatus>;
 /** Inclusive typical range for each input. Values outside are `unusual`. */
 export const TYPICAL_RANGES: Readonly<Record<RecipeField, { min: number; max: number }>> = {
   kcalPerScoop: { min: 10, max: 50 },
-  displacement: { min: 1, max: 10 },
+  gramsPerScoop: { min: 3, max: 10 },
+  displacement: { min: 0.55, max: 0.9 },
   targetVolume: { min: 20, max: 1000 },
   targetConcentration: { min: 20, max: 36 },
 };
@@ -46,7 +49,9 @@ export type Recipe = {
   /** mL, rounded up to the nearest 5 mL. */
   water: number;
   actualKcal: number;
-  /** mL: scoops × displacement. */
+  /** g: scoops × grams per scoop. */
+  totalPowder: number;
+  /** mL: total powder × displacement. */
   totalDisplacement: number;
   /** mL of water before rounding up to the nearest 5 mL. */
   exactWater: number;
@@ -120,7 +125,8 @@ function calculateValidRecipe(inputs: ValidInputs) {
 
 function recipeWithScoops(scoops: number, inputs: ValidInputs, kcalPerMl: number): Recipe {
   const actualKcal = scoops * inputs.kcalPerScoop;
-  const totalDisplacement = scoops * inputs.displacement;
+  const totalPowder = scoops * inputs.gramsPerScoop;
+  const totalDisplacement = totalPowder * inputs.displacement;
   const exactWater = actualKcal / kcalPerMl - totalDisplacement;
   const water = roundUp(exactWater, WATER_STEP_ML);
   const actualVolume = water + totalDisplacement;
@@ -130,6 +136,7 @@ function recipeWithScoops(scoops: number, inputs: ValidInputs, kcalPerMl: number
     scoops,
     water,
     actualKcal,
+    totalPowder,
     totalDisplacement,
     exactWater,
     actualVolume,

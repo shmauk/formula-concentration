@@ -23,12 +23,14 @@ export type Label = {
   gramsPerScoopWording: string;
 };
 
-/** kcal per scoop and displacement given outright, for recipe-only exercises. */
+/** kcal per scoop, grams per scoop and displacement given outright, for recipe-only exercises. */
 export type GivenFormula = {
   name: string;
   /** kcal. */
   kcalPerScoop: number;
-  /** mL per scoop. */
+  /** g. */
+  gramsPerScoop: number;
+  /** mL per g. */
   displacement: number;
 };
 
@@ -64,9 +66,9 @@ const formulaB: Label = {
   gramsPerScoopWording: "Average scoop weight = 4.4 g",
 };
 
-const formulaC: GivenFormula = { name: "Formula C", kcalPerScoop: 21.5, displacement: 3.2 };
+const formulaC: GivenFormula = { name: "Formula C", kcalPerScoop: 21.5, gramsPerScoop: 4.5, displacement: 0.711 };
 
-const formulaD: GivenFormula = { name: "Formula D", kcalPerScoop: 36, displacement: 5 };
+const formulaD: GivenFormula = { name: "Formula D", kcalPerScoop: 36, gramsPerScoop: 7, displacement: 0.714 };
 
 const formulaE: Label = {
   name: "Formula E",
@@ -96,7 +98,7 @@ const formulaF: Label = {
 
 /** In worksheet order. */
 export const exercises: readonly Exercise[] = [
-  // The label already counts scoops, so grams per scoop is a distractor.
+  // The label already counts scoops, so grams per scoop turns them into grams for displacement.
   { kind: "label", label: formulaA },
   { kind: "label", label: formulaB },
   { kind: "recipe", formula: formulaC, target: { volume: 180, concentration: 20 }, expectWarning: false },
@@ -111,7 +113,7 @@ export const exercises: readonly Exercise[] = [
       {
         question: "Why isn't the water simply the Target volume?",
         answer:
-          "The powder takes up room too. Each scoop adds its displacement to the volume, so water equal to the Target volume would make more than the Target volume, at a lower concentration than intended.",
+          "The powder takes up room too. Every gram of it adds its displacement to the volume, so water equal to the Target volume would make more than the Target volume, at a lower concentration than intended.",
       },
       {
         question: "Why are scoops rounded up rather than to the nearest whole scoop?",

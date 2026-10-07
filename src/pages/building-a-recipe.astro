@@ -45,9 +45,9 @@ const noSuggestionFewer = noSuggestion.oneFewerScoop;
 >
   <Fragment slot="intro">
     <p>
-      You need the formula's <strong>kcal per scoop</strong> and <strong
-        >displacement</strong
-      >. <a href="/reading-labels">Reading labels</a> shows how to get them from
+      You need the formula's <strong>kcal per scoop</strong>, <strong
+        >grams per scoop</strong
+      > and <strong>displacement</strong>. <a href="/reading-labels">Reading labels</a> shows how to get them from
       the label.
     </p>
   </Fragment>
@@ -90,7 +90,8 @@ const noSuggestionFewer = noSuggestion.oneFewerScoop;
   >
     <Formula>
       <p>Actual kcal = scoops × kcal per scoop</p>
-      <p>total displacement = scoops × displacement</p>
+      <p>total powder = scoops × grams per scoop</p>
+      <p>total displacement = total powder × displacement</p>
       <p>
         water = Actual kcal ÷ kcal/mL − total displacement, <strong
           >rounded up to the nearest 5 mL</strong
@@ -103,6 +104,10 @@ const noSuggestionFewer = noSuggestion.oneFewerScoop;
           <WorkedExample example={example}>
             <p>
               <span class="term">Actual kcal:</span> {working.actualKcal.working}
+            </p>
+            <p>
+              <span class="term">Total powder:</span>{" "}
+              {working.totalPowder.working} g
             </p>
             <p>
               <span class="term">Total displacement:</span>{" "}
@@ -169,8 +174,8 @@ const noSuggestionFewer = noSuggestion.oneFewerScoop;
         water already on a 5 mL mark.
       </li>
       <li>
-        Working is shown to 1 decimal place for kcal and volumes, and 2 for
-        Concentration.
+        Working is shown to 1 decimal place for kcal, grams and volumes, and 2
+        for Concentration.
       </li>
     </ul>
   </Callout>
