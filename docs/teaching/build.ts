@@ -98,17 +98,17 @@ function recipeSteps(
         unit: scoopsNoun(recipe.scoops),
       },
       { name: "Actual kcal", working: `${scoops} × ${kcalPerScoop}`, value: actualKcal, unit: "kcal" },
-      { name: "Total powder", working: `${scoops} × ${gramsPerScoop}`, value: totalPowder, unit: "g" },
-      { name: "Total displacement", working: `${totalPowder} × ${displacement}`, value: totalDisplacement, unit: "mL" },
+      { name: "Total powder (g)", working: `${scoops} × ${gramsPerScoop}`, value: totalPowder, unit: "g" },
+      { name: "Total displacement (mL)", working: `${totalPowder} × ${displacement}`, value: totalDisplacement, unit: "mL" },
       {
-        name: "Water",
+        name: "Water (mL)",
         working: `${actualKcal} ÷ ${kcalPerMl} − ${totalDisplacement} = ${formatVolume(recipe.exactWater)}, round up to 5 mL`,
         value: water,
         unit: "mL",
       },
-      { name: "Actual volume", working: `${water} + ${totalDisplacement}`, value: actualVolume, unit: "mL" },
+      { name: "Actual volume (mL)", working: `${water} + ${totalDisplacement}`, value: actualVolume, unit: "mL" },
       {
-        name: "Actual concentration",
+        name: "Actual concentration (kcal/30 mL)",
         working: `${actualKcal} ÷ ${actualVolume} × 30`,
         value: actualConcentration,
         unit: "kcal/30 mL",
@@ -151,6 +151,8 @@ const asWorkedExample = (label: Label): WorkedExample => ({ ...label, id: label.
 function labelSteps(working: ReadingLabelsWorking): Step[] {
   // The table shows the answer in its own column, so drop the "= value" ending.
   const strip = (working: string) => working.replace(/ = [^=]*$/, "");
+  // The sheets divide by 100 first, to get kcal/mL: "67 × 55 ÷ 100" becomes "67 ÷ 100 × 55".
+  const per100First = (working: string) => working.replace(/^(\S+) × (.+) ÷ 100$/, "$1 ÷ 100 × $2");
   return [
     {
       name: "Scoops in the statement",
@@ -158,8 +160,8 @@ function labelSteps(working: ReadingLabelsWorking): Step[] {
       value: working.scoops.value,
       unit: Number(working.scoops.value) === 1 ? "scoop" : "scoops",
     },
-    { name: "Displacement", working: strip(working.displacement.working), value: working.displacement.value, unit: "mL per g" },
-    { name: "kcal per scoop", working: strip(working.kcalPerScoop.working), value: working.kcalPerScoop.value, unit: "kcal" },
+    { name: "Displacement (mL per g)", working: strip(working.displacement.working), value: working.displacement.value, unit: "mL per g" },
+    { name: "kcal per scoop", working: per100First(strip(working.kcalPerScoop.working)), value: working.kcalPerScoop.value, unit: "kcal" },
   ];
 }
 
@@ -328,10 +330,11 @@ function cheatSheet(): string {
     <h2>Key terms</h2>
     <dl>
       <dt>Concentration</dt><dd>Energy density of prepared formula, always in <strong>kcal per 30 mL</strong>.</dd>
-      <dt>Target volume / Target concentration</dt><dd>The bottle you want to make.</dd>
+      <dt>Target volume</dt><dd>The amount of formula you want to make, e.g. 150 mL.</dd>
+      <dt>Target concentration</dt><dd>The Concentration you want it to have, e.g. 24 kcal/30 mL.</dd>
       <dt>Reconstitution statement</dt><dd>The label's "powder + water makes this much" line, e.g. "1 scoop + 50 mL water makes approximately 55 mL".</dd>
       <dt>kcal per scoop</dt><dd>Energy in one level scoop of powder.</dd>
-      <dt>Displacement</dt><dd>The volume (mL) one gram of powder adds beyond its water, in mL per g.</dd>
+      <dt>Displacement</dt><dd>The volume (mL) one gram of powder adds to the prepared formula, in mL per g.</dd>
       <dt>Recipe</dt><dd>A whole number of scoops plus water rounded to 5 mL.</dd>
       <dt>Actual volume / Actual concentration</dt><dd>What the recipe really makes, after rounding.</dd>
     </dl>
@@ -339,24 +342,24 @@ function cheatSheet(): string {
 
   <section class="method">
     <h2>Part A · Reading the label</h2>
-    <p>Find: <strong>energy per 100 mL</strong> of prepared formula, the <strong>Reconstitution statement</strong>, and <strong>grams per scoop</strong>.</p>
+    <p>Find: <strong>kcal per 100 mL</strong> of prepared formula, the <strong>Reconstitution statement</strong>, and <strong>grams per scoop</strong>. <strong>If the Reconstitution statement is in scoops, skip to A2.</strong></p>
     <ol class="formulas">
-      <li><span class="step">A1</span> Scoops in the statement = grams of powder ÷ grams per scoop <em>(skip if it counts scoops)</em></li>
-      <li><span class="step">A2</span> Displacement = (prepared volume − water) ÷ grams of powder <em>(3 dp; scoops × grams per scoop if it counts scoops)</em>. Usually <strong>${displacementRange} mL per g</strong> however big the scoop; if not, re-read the label.</li>
-      <li><span class="step">A3</span> kcal per scoop = energy per 100 mL × (prepared volume ÷ scoops) ÷ 100 <em>(1 dp)</em></li>
+      <li><span class="step">A1</span> Scoops in the statement = grams of powder ÷ grams per scoop</li>
+      <li><span class="step">A2</span> Displacement (mL per g) = (prepared volume (mL) − water (mL)) ÷ grams of powder <em>(3 dp; scoops × grams per scoop if it counts scoops)</em>. Usually <strong>${displacementRange} mL per g</strong>.</li>
+      <li><span class="step">A3</span> kcal per scoop = kcal per 100 mL ÷ 100 <em>(to get kcal/mL)</em> × (prepared volume (mL) ÷ scoops) <em>(1 dp)</em></li>
     </ol>
 
     <h2>Part B · Building the recipe</h2>
     <ol class="formulas">
-      <li><span class="step">1</span> kcal/mL = Target concentration ÷ 30</li>
-      <li><span class="step">2</span> kcal needed = Target volume × kcal/mL</li>
+      <li><span class="step">1</span> kcal/mL = Target concentration (kcal/30 mL) ÷ 30</li>
+      <li><span class="step">2</span> kcal needed = Target volume (mL) × kcal/mL</li>
       <li><span class="step">3</span> Scoops = kcal needed ÷ kcal per scoop, <strong>rounded up</strong> to a whole scoop</li>
       <li><span class="step">4</span> Actual kcal = scoops × kcal per scoop</li>
-      <li><span class="step">5</span> Total powder = scoops × grams per scoop</li>
-      <li><span class="step">6</span> Total displacement = total powder × displacement</li>
-      <li><span class="step">7</span> Water = Actual kcal ÷ kcal/mL − total displacement, <strong>rounded up to the nearest 5 mL</strong></li>
-      <li><span class="step">8</span> Actual volume = water + total displacement</li>
-      <li><span class="step">9</span> Actual concentration = Actual kcal ÷ Actual volume × 30</li>
+      <li><span class="step">5</span> Total powder (g) = scoops × grams per scoop</li>
+      <li><span class="step">6</span> Total displacement (mL) = total powder (g) × displacement (mL per g)</li>
+      <li><span class="step">7</span> Water (mL) = Actual kcal ÷ kcal/mL − total displacement (mL), <strong>rounded up to the nearest 5 mL</strong></li>
+      <li><span class="step">8</span> Actual volume (mL) = water (mL) + total displacement (mL)</li>
+      <li><span class="step">9</span> Actual concentration (kcal/30 mL) = Actual kcal ÷ Actual volume (mL) × 30</li>
     </ol>
     <p class="check"><strong>Check:</strong> if the Actual concentration is <strong>${CONCENTRATION_WARNING_THRESHOLD} kcal/30 mL or more below</strong> the Target concentration, double-check your inputs and working before using the recipe.</p>
   </section>
@@ -433,10 +436,10 @@ strong { font-weight: 650; }
 .lede { color: #57606a; }
 .sheet-header { border-block-end: 2px solid #1f5f8b; padding-block-end: 2mm; margin-block-end: 3mm; }
 .term { font-weight: 650; }
-.terms dl { display: grid; grid-template-columns: 48mm 1fr; gap: 1mm 3mm; }
+.terms dl { display: grid; grid-template-columns: 48mm 1fr; gap: 0.5mm 3mm; }
 .terms dt { font-weight: 650; }
 .formulas { list-style: none; padding: 2.5mm 3mm; background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 2mm; }
-.formulas li { padding-block: 0.4mm; }
+.formulas li { padding-block: 0.1mm; }
 .formulas em { color: #57606a; }
 .step { display: inline-block; min-width: 7mm; font-weight: 650; color: #1f5f8b; }
 .check { padding: 2mm 3mm; background: #fff4e5; border-inline-start: 3px solid #8a4b00; }
